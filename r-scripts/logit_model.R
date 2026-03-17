@@ -77,7 +77,22 @@ render_report(
 cat("PDF-Bericht gespeichert unter:\n")
 cat(report_file, "\n")
 
-if (nzchar(Sys.which("zathura"))) {
-  system2("zathura", report_file, wait = FALSE)
-  cat("PDF wird mit Zathura geöffnet.\n")
+open_pdf <- function(path) {
+  sysname <- Sys.info()[["sysname"]]
+  
+  if (sysname == "Linux") {
+    if (nzchar(Sys.which("zathura"))) {
+      system2("zathura", path, wait = FALSE)
+    } else {
+      message("PDF wurde erstellt: ", path)
+    }
+  } else if (sysname == "Windows") {
+    shell.exec(normalizePath(path))
+  } else if (sysname == "Darwin") {
+    system2("open", path, wait = FALSE)
+  } else {
+    message("PDF wurde erstellt: ", path)
+  }
 }
+
+open_pdf(report_file)

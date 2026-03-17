@@ -56,6 +56,12 @@
 # Unterstützte Analysen: #
 ##########################
 #
+# Überblick über den Dataframe verschaffen: df
+#                                           Benötigt: Keine weiteren Argumente
+#
+# Deskriptive Analyse: describe
+#                      Benötigt: 1 Variable
+#
 # Chi-Quadrat: chi_square
 #              Benötigt: 2 Variablen!
 # 

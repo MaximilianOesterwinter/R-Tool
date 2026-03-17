@@ -69,19 +69,22 @@ render_report(
 cat("PDF-Bericht gespeichert unter:\n")
 cat(report_file, "\n")
 
-if (nzchar(Sys.which("zathura"))) {
-  system2("zathura", report_file, wait = FALSE)
-  cat("PDF wird mit Zathura geöffnet.\n")
+open_pdf <- function(path) {
+  sysname <- Sys.info()[["sysname"]]
+  
+  if (sysname == "Linux") {
+    if (nzchar(Sys.which("zathura"))) {
+      system2("zathura", path, wait = FALSE)
+    } else {
+      message("PDF wurde erstellt: ", path)
+    }
+  } else if (sysname == "Windows") {
+    shell.exec(normalizePath(path))
+  } else if (sysname == "Darwin") {
+    system2("open", path, wait = FALSE)
+  } else {
+    message("PDF wurde erstellt: ", path)
+  }
 }
 
-cat("\nVerwendete Formel:\n")
-cat(formula_text, "\n")
-
-cat("\nAnzahl vollständiger Fälle:\n")
-cat(nrow(analysis_data), "\n")
-
-cat("\nModellzusammenfassung:\n")
-print(summary(result))
-
-cat("\nOdds Ratios:\n")
-print(exp(coef(result)))
+open_pdf(report_file)

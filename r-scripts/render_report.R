@@ -10,6 +10,15 @@ render_report <- function(template_path,
     stop("Paket 'rmarkdown' ist nicht installiert.")
   }
 
+  if (!requireNamespace("knitr", quietly = TRUE)) {
+    stop("Paket 'knitr' ist nicht installiert.")
+  }
+
+  analysis_title <- sanitize_text_for_pdf(analysis_title)
+  formula_text <- sanitize_text_for_pdf(formula_text)
+  sample_size <- sanitize_text_for_pdf(sample_size)
+  result_text <- sanitize_text_for_pdf(result_text)
+
   rmarkdown::render(
     input = template_path,
     output_file = output_file,
@@ -23,4 +32,15 @@ render_report <- function(template_path,
     envir = new.env(parent = globalenv()),
     quiet = FALSE
   )
+}
+
+sanitize_text_for_pdf <- function(text) {
+  text <- gsub("ℹ", "Info", text, fixed = TRUE)
+  text <- gsub("✔", "OK", text, fixed = TRUE)
+  text <- gsub("✖", "X", text, fixed = TRUE)
+  text <- gsub("→", "->", text, fixed = TRUE)
+  text <- gsub("≤", "<=", text, fixed = TRUE)
+  text <- gsub("≥", ">=", text, fixed = TRUE)
+  text <- gsub("−", "-", text, fixed = TRUE)
+  text
 }

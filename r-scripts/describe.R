@@ -2,7 +2,6 @@ args <- commandArgs(trailingOnly = TRUE)
 
 data_path <- args[1]
 var1 <- args[2]
-var2 <- args[3]
 
 # Pfad des aktuell ausgeführten Skripts bestimmen
 script_args <- commandArgs(trailingOnly = FALSE)
@@ -15,19 +14,20 @@ source(file.path(script_dir, "render_report.R"))
 
 df <- prepare_data(data_path)
 
-# Nur die benötigten Variablen auswählen
-analysis_data <- df[, c(var1, var2)]
+analysis_data <- df[[var1]]
 analysis_data <- na.omit(analysis_data)
 
-# Sicherheitshalber als Faktoren behandeln
-analysis_data[[var1]] <- as.factor(analysis_data[[var1]])
-analysis_data[[var2]] <- as.factor(analysis_data[[var2]])
 
-tab <- table(analysis_data[[var1]], analysis_data[[var2]])
-#print(tab)
 
-test_result <- chisq.test(tab)
-#print(test_result)
+if (length(args) > 2) {
+  stop("Zu viele Argumente. Diese Funktion behandelt nur eine Variable!")
+}
+
+summary <- summary(analysis_data)
+standard_deviance <- sd(analysis_data)
+variance <- var(analysis_data)
+#skew <- skew(var1)
+#curtosis <- kurtosi(var1)
 
 output_dir <- file.path(project_dir, "output")
 if (!dir.exists(output_dir)) {
@@ -35,19 +35,25 @@ if (!dir.exists(output_dir)) {
 }
 
 result_text <- paste(
-  "Kreuztabelle:\n",
-  paste(capture.output(print(tab)), collapse = "\n"),
-  "\n\nChi-Quadrat-Test:\n",
-  paste(capture.output(print(test_result)), collapse = "\n")
+  "Summary:\n",
+  paste(capture.output(print(summary)), collapse = "\n"),
+  "\n\nStandardabweichung:\n",
+  paste(capture.output(print(standard_deviance)), collapse = "\n"),
+  "\n\nVarianz:\n",
+  paste(capture.output(print(variance)), collapse = "\n")
+  #"\n\nSchiefe:\n",
+  #paste(capture.output(print(skew)), collapse = "\n"),
+  #"\n\nWölbung:\n",
+  #paste(capture.output(print(curtosis)), collapse = "\n")
 )
 
-report_file <- file.path(output_dir, paste0("chi_quadrat_", var1, "_by_", var2, ".pdf"))
+report_file <- file.path(output_dir, paste0("describe", var1, ".pdf"))
 
 render_report(
   template_path = file.path(project_dir, "templates", "analysis_report.Rmd"),
   output_file = report_file,
-  analysis_title = "Chi-Quadrat",
-  formula_text = paste(var1, "~", var2),
+  analysis_title = "Deskriptive Statistik",
+  formula_text = paste("summary, sd, var(", var1, ")"),
   sample_size = as.character(nrow(analysis_data)),
   result_text = result_text,
   plot_path = ""

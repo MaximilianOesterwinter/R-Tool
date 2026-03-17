@@ -2,10 +2,12 @@ import subprocess
 import argparse
 import sys
 #import pandas as pd
+from pathlib import Path
 
 ################################################
 # Füge hier deinen Dateipfad zum Datensatz ein #
-DATA_PATH = "data/survey_data.csv"
+BASE_DIR = Path(__file__).resolve().parent
+DATA_PATH = BASE_DIR / "data"/ "survey_data.csv"
 ################################################
 
 #df = pd.read_csv(DATA_PATH)
@@ -13,6 +15,9 @@ DATA_PATH = "data/survey_data.csv"
 
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(dest="analysis")
+
+# df
+parser_df = subparsers.add_parser("df")
 
 # chi_square
 parser_chi = subparsers.add_parser("chi_square")
@@ -30,14 +35,24 @@ parser_logit.add_argument("dependent_var")
 parser_logit.add_argument("independent_vars", nargs="+")
 
 # lin_reg
-parser_logit = subparsers.add_parser("lin_reg")
-parser_logit.add_argument("target_var")
-parser_logit.add_argument("predictor_vars", nargs="+")
+parser_lin_reg = subparsers.add_parser("lin_reg")
+parser_lin_reg.add_argument("target_var")
+parser_lin_reg.add_argument("predictor_vars", nargs="+")
 
+# desccribe
+parser_describe = subparsers.add_parser("describe")
+parser_describe.add_argument("var1")
 
 args = parser.parse_args()
 
-if args.analysis == "chi_square":
+if args.analysis == "df":
+    command = [
+        "Rscript",
+        "r-scripts/dataframe.R",
+        DATA_PATH
+    ]
+
+elif args.analysis == "chi_square":
     command = [
         "Rscript",
         "r-scripts/chi_square.R",
@@ -61,6 +76,14 @@ elif args.analysis == "lin_reg":
         DATA_PATH,
         args.target_var
     ] + args.predictor_vars
+
+elif args.analysis == "describe":
+    command = [
+        "Rscript",
+        "r-scripts/describe.R",
+        DATA_PATH,
+        args.var1
+    ]
 
 else:
     parser.print_help()
