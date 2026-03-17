@@ -2,7 +2,9 @@
 
 # So funktioniert es:
 #
-# 1.) Öffne ein neues R-Script und führe folgende Befehle aus:
+# 1.) Installiere R
+#
+# 2.)  Öffne ein neues R-Script und führe folgende Befehle aus:
 #     - install.packages("readr")
 #     - install.packages("dplyr")
 #     - install.packages("rmarkdown")
@@ -10,10 +12,9 @@
 #     - install.packages("tinytex")
 #     - tinytex::install_tinytex()
 #
-# 2.) Installiere den PDF-Viewer "Zathura"
-#
-# 3.) Öffne die Datei main.py und füge in der gekennzeichneten Zeile den Dateipfad zu 
-#     deinem Datensatz ein.
+# 3.) Öffne die Konsole (PowerShell oder CMD) und gib folgenden Code ein:
+#     - Rscript --version
+#     Wenn alles funktioniert, gibt dir die Konsole die installierte Version von Rscript an.
 #
 # 4.) Öffne prepare_data.R in R und füge im gekennzeicheten Bereich die gewünschten 
 #     Aufbereitungen ein. Beachte, dass jeder neue Befehl mit einer sogenannten "Pipe",
@@ -27,12 +28,8 @@
 ##################################
 #
 # Das Programm wird aktuell leider noch über die Konsole gesteuert.
-# 
-# Öffne die Konsole und navigiere mit dem Befehl "cd RTool" in den richtigen Ordner.
-# (Je nachdem, wo du das Programm gespeichert hast, musst du unter Umständen statt
-# "RTool" den gesamten Pfad bis in den Projektordner angeben.)
 #
-# Gib "python3" ein. Das sagt dem Computer,
+# Gib "python" oder "py" ein. Das sagt dem Computer,
 # welche Sprache das Programm verwendet.
 # 
 # Schreibe anschließend mit einem Leerzeichen dazwischen "main.py".
@@ -45,11 +42,11 @@
 #
 # Der Befehl sollte jetzt so aussehen:
 # 
-# python3 main.py DEINE_ANALYSEMETHODE VARIABLE_1 VARIABLE_2
+# python main.py DEINE_ANALYSEMETHODE VARIABLE_1 VARIABLE_2
 #
 # Ein Beispiel aus dem mitgelieferten Beispieldatensatz wäre:
 #
-# python3 main.py chi_square gender vote_intent
+# python main.py chi_square gender vote_intent
 #
 #
 ##########################
@@ -57,17 +54,17 @@
 ##########################
 #
 # Überblick über den Dataframe verschaffen: df
-#                                           Benötigt: Keine weiteren Argumente
+#                                           Benötigt keine Variablen
 #
 # Deskriptive Analyse: describe
-#                      Benötigt: 1 Variable
+#                      Benötigt 1 Variable
 #
 # Chi-Quadrat: chi_square
-#              Benötigt: 2 Variablen!
+#              Benötigt 2 Variablen!
 # 
 # Logistische Regressionsanalyse: logit
-#                                 Benötigt: 1 UV, mind. 1 AV!
+#                                 Benötigt 1 UV, mind. 1 AV!
 #
 # Lineare Regressionsanalye: lin_reg
-#                            Benötigt: 1 UV, mind. 1 AV!
+#                            Benötigt 1 UV, mind. 1 AV!
 #
