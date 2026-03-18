@@ -43,6 +43,11 @@ parser_lin_reg.add_argument("predictor_vars", nargs="+")
 parser_describe = subparsers.add_parser("describe")
 parser_describe.add_argument("var1")
 
+# anova
+parser_anova = subparsers.add_parser("anova")
+parser_anova.add_argument("dependent_var")
+parser_anova.add_argument("independent_vars", nargs="+")
+
 args = parser.parse_args()
 
 if args.analysis == "df":
@@ -84,6 +89,14 @@ elif args.analysis == "describe":
         DATA_PATH,
         args.var1
     ]
+
+elif args.analysis == "anova":
+    command = [
+        "Rscript",
+        "r-scripts/anova.R",
+        DATA_PATH,
+        args.dependent_var
+    ] + args.independent_vars
 
 else:
     parser.print_help()

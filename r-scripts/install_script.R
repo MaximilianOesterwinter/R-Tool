@@ -1,0 +1,6 @@
+install.packages("car", dependencies = TRUE)
+install.packages("Matrix")
+install.packages("lme4")
+install.packages("pbkrtest")
+install.packages("car")
+library(car)
