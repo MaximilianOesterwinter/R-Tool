@@ -1,3 +1,5 @@
+library(psych)
+
 args <- commandArgs(trailingOnly = TRUE)
 
 data_path <- args[1]
@@ -26,8 +28,8 @@ if (length(args) > 2) {
 summary <- summary(analysis_data)
 standard_deviance <- sd(analysis_data)
 variance <- var(analysis_data)
-#skew <- skew(var1)
-#curtosis <- kurtosi(var1)
+skew <- skew(analysis_data)
+curtosis <- kurtosi(analysis_data)
 
 output_dir <- file.path(project_dir, "output")
 if (!dir.exists(output_dir)) {
@@ -40,11 +42,11 @@ result_text <- paste(
   "\n\nStandardabweichung:\n",
   paste(capture.output(print(standard_deviance)), collapse = "\n"),
   "\n\nVarianz:\n",
-  paste(capture.output(print(variance)), collapse = "\n")
-  #"\n\nSchiefe:\n",
-  #paste(capture.output(print(skew)), collapse = "\n"),
-  #"\n\nWölbung:\n",
-  #paste(capture.output(print(curtosis)), collapse = "\n")
+  paste(capture.output(print(variance)), collapse = "\n"),
+  "\n\nSchiefe:\n",
+  paste(capture.output(print(skew)), collapse = "\n"),
+  "\n\nWölbung:\n",
+  paste(capture.output(print(curtosis)), collapse = "\n")
 )
 
 report_file <- file.path(output_dir, paste0("describe", var1, ".pdf"))
@@ -53,7 +55,7 @@ render_report(
   template_path = file.path(project_dir, "templates", "analysis_report.Rmd"),
   output_file = report_file,
   analysis_title = "Deskriptive Statistik",
-  formula_text = paste("summary, sd, var(", var1, ")"),
+  formula_text = paste("summary, sd, var, skew, kurtosi(", var1, ")"),
   sample_size = as.character(nrow(analysis_data)),
   result_text = result_text,
   plot_path = ""

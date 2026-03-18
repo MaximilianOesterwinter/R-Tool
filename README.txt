@@ -9,6 +9,7 @@
 #     - install.packages("dplyr")
 #     - install.packages("rmarkdown")
 #     - install.packages("knitr")
+#     - install.packages("psych")
 #     - install.packages("tinytex")
 #     - tinytex::install_tinytex()
 #
