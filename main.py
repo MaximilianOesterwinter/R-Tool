@@ -4,11 +4,12 @@ import sys
 #import pandas as pd
 from pathlib import Path
 
-################################################
-# Füge hier deinen Dateipfad zum Datensatz ein #
 BASE_DIR = Path(__file__).resolve().parent
+
 DATA_PATH = BASE_DIR / "data"/ "survey_data.csv"
-################################################
+                               ############
+    # Enter your exact filename of the dataset here but keep the file-type
+    ######################################################################
 
 #df = pd.read_csv(DATA_PATH)
 #columns = df.columns.tolist()
@@ -23,11 +24,6 @@ parser_df = subparsers.add_parser("df")
 parser_chi = subparsers.add_parser("chi_square")
 parser_chi.add_argument("var1")
 parser_chi.add_argument("var2")
-
-#for var in [args.var1, args.var2]:
-#    if var not in columns:
-#        print(f"Fehler: Variable '{var}' nicht im Datensatz gefunden!")
-#        sys.exit(1)
 
 # logit
 parser_logit = subparsers.add_parser("logit")
@@ -112,7 +108,7 @@ result = subprocess.run(command, capture_output=True, text=True)
 
 #print("Return code:", result.returncode)
 if result.returncode != 0:
-    print("Fehler beim Ausführen des R-Scripts:")
+    print("Error while executing the r-script:")
     print(result.stderr)
 else:
     print(result.stdout)
