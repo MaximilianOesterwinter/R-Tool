@@ -5,7 +5,7 @@ dependent_var <- args[2]
 independent_vars <- args[3:length(args)]
 
 if (length(args) < 3) {
-  stop("Zu wenige Argumente. Erwartet: data_path, dependent_var, mindestens eine independent_var")
+  stop("Too few arguments. Erwartet: data_path, dependent_var, mindestens eine independent_var")
 }
 
 script_args <- commandArgs(trailingOnly = FALSE)
@@ -22,21 +22,20 @@ all_vars <- c(dependent_var, independent_vars)
 
 missing_vars <- setdiff(all_vars, names(df))
 if (length(missing_vars) > 0) {
-  stop(paste("Folgende Variablen fehlen im Datensatz:", paste(missing_vars, collapse = ", ")))
+  stop(paste("Following variables are missing in the dataset:", paste(missing_vars, collapse = ", ")))
 }
 
 analysis_data <- df[, all_vars]
 analysis_data <- na.omit(analysis_data)
 
 if (nrow(analysis_data) == 0) {
-  stop("Keine vollständigen Fälle nach dem Entfernen fehlender Werte.")
+  stop("No cases left after excluding NAs.")
 }
 
-# Prüfen, ob die AV binär ist
 unique_values <- sort(unique(analysis_data[[dependent_var]]))
 if (!(length(unique_values) == 2 && all(unique_values %in% c(0, 1)))) {
   stop(paste(
-    "Die abhängige Variable muss binär als 0/1 kodiert sein. Gefunden wurden:",
+    "Die dependent variable must be coded binary as 0/1. Found:",
     paste(unique_values, collapse = ", ")
   ))
 }
@@ -56,7 +55,7 @@ if (!dir.exists(output_dir)) {
 }
 
 result_text <- paste(
-  "Modellzusammenfassung:\n",
+  "Model summary:\n",
   paste(capture.output(print(model_formula)), collapse = "\n"),
   "\n\nOdds Ratios:\n",
   paste(capture.output(print(model)), collapse = "\n")
@@ -67,14 +66,14 @@ report_file <- file.path(output_dir, paste0("logit_model_", dependent_var, ".pdf
 render_report(
   template_path = file.path(project_dir, "templates", "analysis_report.Rmd"),
   output_file = report_file,
-  analysis_title = "Logistische Regression",
+  analysis_title = "Logistic regression",
   formula_text = paste(formula_text),
   sample_size = as.character(nrow(analysis_data)),
   result_text = result_text,
   plot_path = ""
 )
 
-cat("PDF-Bericht gespeichert unter:\n")
+cat("PDF saved in:\n")
 cat(report_file, "\n")
 
 open_pdf <- function(path) {
@@ -84,14 +83,14 @@ open_pdf <- function(path) {
     if (nzchar(Sys.which("zathura"))) {
       system2("zathura", path, wait = FALSE)
     } else {
-      message("PDF wurde erstellt: ", path)
+      message("PDF was created: ", path)
     }
   } else if (sysname == "Windows") {
     shell.exec(normalizePath(path))
   } else if (sysname == "Darwin") {
     system2("open", path, wait = FALSE)
   } else {
-    message("PDF wurde erstellt: ", path)
+    message("PDF was created: ", path)
   }
 }
 

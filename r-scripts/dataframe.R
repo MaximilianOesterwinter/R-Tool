@@ -2,7 +2,6 @@ args <- commandArgs(trailingOnly = TRUE)
 
 data_path <- args[1]
 
-# Pfad des aktuell ausgeführten Skripts bestimmen
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
 script_dir <- dirname(normalizePath(script_file))
@@ -38,14 +37,14 @@ report_file <- file.path(output_dir, paste0("dataframe", ".pdf"))
 render_report(
   template_path = file.path(project_dir, "templates", "analysis_report.Rmd"),
   output_file = report_file,
-  analysis_title = "Überblick über den Dataframe",
+  analysis_title = "Overview of the dataframe",
   formula_text = paste("summary, str, head(df)"),
   sample_size = as.character(df_size),
   result_text = result_text,
   plot_path = ""
 )
 
-cat("PDF-Bericht gespeichert unter:\n")
+cat("PDF savend in:\n")
 cat(report_file, "\n")
 
 open_pdf <- function(path) {
@@ -55,14 +54,14 @@ open_pdf <- function(path) {
     if (nzchar(Sys.which("zathura"))) {
       system2("zathura", path, wait = FALSE)
     } else {
-      message("PDF wurde erstellt: ", path)
+      message("PDF was created: ", path)
     }
   } else if (sysname == "Windows") {
     shell.exec(normalizePath(path))
   } else if (sysname == "Darwin") {
     system2("open", path, wait = FALSE)
   } else {
-    message("PDF wurde erstellt: ", path)
+    message("PDF was created: ", path)
   }
 }
 

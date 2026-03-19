@@ -1,31 +1,28 @@
 prepare_data <- function(path) {
   
   if (!requireNamespace("readr", quietly = TRUE)) {
-    stop("Paket 'readr' ist nicht installiert.")
+    stop("Package 'readr' not installed.")
   }
   
   if (!requireNamespace("dplyr", quietly = TRUE)) {
-    stop("Paket 'dplyr' ist nicht installiert.")
+    stop("Package 'dplyr' not installed.")
   }
-  
-  # Pakete laden:
   
   library(readr)
   library(dplyr)
   
-  # Datensatz einlesen:
-  
   df <- readr::read_csv(path, na = c("", "NA"), show_col_types = FALSE)
   df_clean <- df %>%
     
-  #####################################
-  # Oberhalb bitte nicht bearbeiten!!!#
-  #####################################
+  ################################
+  # Don't edit above this line!!!#
+  ################################
   
-  # Hier die gewünschte Aufbereitung vornehmen und die einzelnen Blöcke 
-  # mit der Pipe %>% verbinden. 
+  # Paste your desired data transformations here and
+  # chain them with the pipe operator %>% 
   
-  # Als Beispiel werden hier die kategorialen Variablen faktorisiert
+  # As part of the included example-dataset the categorial variables are factorised.
+  # You can savely delete the mutate() operator
     
     mutate(
       gender = factor(gender),
@@ -33,9 +30,9 @@ prepare_data <- function(path) {
       vote_intent = as.numeric(vote_intent)
     )
   
-  ######################################
-  # Unterhalb bitte nicht bearbeiten!!!#
-  ######################################
+  ################################
+  # Don't edit below this line!!!#
+  ################################
   
   return(df_clean)
 }

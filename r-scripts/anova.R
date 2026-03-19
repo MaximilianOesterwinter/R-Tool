@@ -20,18 +20,18 @@ all_vars <- c(dependent_var, independent_vars)
 
 missing_vars <- setdiff(all_vars, names(df))
 if (length(missing_vars) > 0) {
-  stop(paste("Folgende Variablen fehlen im Datensatz:", paste(missing_vars, collapse = ", ")))
+  stop(paste("Following variables are missing in the dataset:", paste(missing_vars, collapse = ", ")))
 }
 
 analysis_data <- df[, all_vars]
 analysis_data <- na.omit(analysis_data)
 
 if (nrow(analysis_data) == 0) {
-  stop("Keine vollständigen Fälle nach dem Entfernen fehlender Werte.")
+  stop("No cases left after excluding NAs.")
 }
 
 if (!is.numeric(analysis_data[[dependent_var]])) {
-  stop("Die abhängige Variable muss numerisch sein.")
+  stop("The dependent variable has to be numeric.")
 }
 
 for (v in independent_vars) {
@@ -62,7 +62,7 @@ if (length(independent_vars) == 1) {
   plot_path <- file.path(output_dir, paste0("boxplot_", dependent_var, "_by_", group_var, ".png"))
   png(plot_path, width = 1000, height = 700)
   boxplot(model_formula, data = analysis_data,
-          main = paste("Boxplot von", dependent_var, "nach", group_var),
+          main = paste("Boxplot of", dependent_var, "to", group_var),
           xlab = group_var, ylab = dependent_var)
   dev.off()
   
@@ -74,11 +74,11 @@ if (length(independent_vars) == 1) {
   )
   
   result_text <- paste(
-    "Deskriptive Statistik:\n",
+    "Descriptive statistics:\n",
     paste(capture.output(print(description)), collapse = "\n"),
     "\n\nANOVA:\n",
     paste(capture.output(print(summary(anova_test))), collapse = "\n"),
-    "\n\nPost-hoc-Tests:\n",
+    "\n\nPost-hoc tests:\n",
     paste(capture.output(print(t_test)), collapse = "\n"),
     sep = ""
   )
@@ -113,9 +113,9 @@ if (length(independent_vars) == 2) {
   )
   
   result_text <- paste(
-    "Deskriptive Statistik:\n",
+    "Descriptive statistics:\n",
     paste(capture.output(print(description)), collapse = "\n"),
-    "\n\nLevene-Test:\n",
+    "\n\nLevene test:\n",
     paste(capture.output(print(levene)), collapse = "\n"),
     "\n\nANOVA:\n",
     paste(capture.output(print(summary(anova_test))), collapse = "\n"),
@@ -135,7 +135,7 @@ render_report(
   plot_path = plot_path
 )
 
-cat("PDF-Bericht gespeichert unter:\n")
+cat("PDF saved in:\n")
 cat(report_file, "\n")
 
 open_pdf <- function(path) {
@@ -145,14 +145,14 @@ open_pdf <- function(path) {
     if (nzchar(Sys.which("zathura"))) {
       system2("zathura", path, wait = FALSE)
     } else {
-      message("PDF wurde erstellt: ", path)
+      message("PDF was created: ", path)
     }
   } else if (sysname == "Windows") {
     shell.exec(normalizePath(path))
   } else if (sysname == "Darwin") {
     system2("open", path, wait = FALSE)
   } else {
-    message("PDF wurde erstellt: ", path)
+    message("PDF was created: ", path)
   }
 }
 

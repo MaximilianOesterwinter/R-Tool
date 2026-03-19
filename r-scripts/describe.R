@@ -5,7 +5,6 @@ args <- commandArgs(trailingOnly = TRUE)
 data_path <- args[1]
 var1 <- args[2]
 
-# Pfad des aktuell ausgeführten Skripts bestimmen
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
 script_dir <- dirname(normalizePath(script_file))
@@ -22,7 +21,7 @@ analysis_data <- na.omit(analysis_data)
 
 
 if (length(args) > 2) {
-  stop("Zu viele Argumente. Diese Funktion behandelt nur eine Variable!")
+  stop("Too many arguments. This function only uses one variable!")
 }
 
 summary <- summary(analysis_data)
@@ -39,13 +38,13 @@ if (!dir.exists(output_dir)) {
 result_text <- paste(
   "Summary:\n",
   paste(capture.output(print(summary)), collapse = "\n"),
-  "\n\nStandardabweichung:\n",
+  "\n\nStandard deviation:\n",
   paste(capture.output(print(standard_deviance)), collapse = "\n"),
-  "\n\nVarianz:\n",
+  "\n\nVariance:\n",
   paste(capture.output(print(variance)), collapse = "\n"),
-  "\n\nSchiefe:\n",
+  "\n\nSkew:\n",
   paste(capture.output(print(skew)), collapse = "\n"),
-  "\n\nWölbung:\n",
+  "\n\nCurtosis:\n",
   paste(capture.output(print(curtosis)), collapse = "\n")
 )
 
@@ -54,14 +53,14 @@ report_file <- file.path(output_dir, paste0("describe", var1, ".pdf"))
 render_report(
   template_path = file.path(project_dir, "templates", "analysis_report.Rmd"),
   output_file = report_file,
-  analysis_title = "Deskriptive Statistik",
+  analysis_title = "Descriptive statistics",
   formula_text = paste("summary, sd, var, skew, kurtosi(", var1, ")"),
   sample_size = as.character(nrow(analysis_data)),
   result_text = result_text,
   plot_path = ""
 )
 
-cat("PDF-Bericht gespeichert unter:\n")
+cat("PDF saved in:\n")
 cat(report_file, "\n")
 
 open_pdf <- function(path) {
@@ -71,14 +70,14 @@ open_pdf <- function(path) {
     if (nzchar(Sys.which("zathura"))) {
       system2("zathura", path, wait = FALSE)
     } else {
-      message("PDF wurde erstellt: ", path)
+      message("PDF was created: ", path)
     }
   } else if (sysname == "Windows") {
     shell.exec(normalizePath(path))
   } else if (sysname == "Darwin") {
     system2("open", path, wait = FALSE)
   } else {
-    message("PDF wurde erstellt: ", path)
+    message("PDF was created: ", path)
   }
 }
 

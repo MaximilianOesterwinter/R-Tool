@@ -5,7 +5,7 @@ target_var <- args[2]
 predictor_vars <- args[3:length(args)]
 
 if (length(args) < 3) {
-  stop("Zu wenige Argumente. Erwartet: data_path, target_var, mindestens eine predictor_var")
+  stop("Too few arguments. Expected: data_path, target_var, min. 1 predictor_var")
 }
 
 script_args <- commandArgs(trailingOnly = FALSE)
@@ -22,22 +22,19 @@ all_vars <- c(target_var, predictor_vars)
 
 missing_vars <- setdiff(all_vars, names(df))
 if (length(missing_vars) > 0) {
-  stop(paste("Folgende Variablen fehlen im Datensatz:", paste(missing_vars, collapse = ", ")))
+  stop(paste("Following variables are missing in the dataset:", paste(missing_vars, collapse = ", ")))
 }
 
 analysis_data <- df[, all_vars]
 analysis_data <- na.omit(analysis_data)
 
 if (nrow(analysis_data) == 0) {
-  stop("Keine vollständigen Fälle nach dem Entfernen fehlender Werte.")
+  stop("No cases left after excluding NAs.")
 }
 
-# Prüfen, ob die Variablen metrisch sind
 if (!all(sapply(df[all_vars], is.numeric))) {
-  stop("Variablen müssen metrisch sein.")
+  stop("Variables have to be metric.")
 }
-
-# lineare Regression durchführen
 
 formula_text <- paste(target_var, "~", paste(predictor_vars, collapse = " + "))
 result <- lm(formula_text, data = df)
@@ -48,7 +45,7 @@ if (!dir.exists(output_dir)) {
 }
 
 result_text <- paste(
-  "Modellzusammenfassung:\n",
+  "Model summary:\n",
   paste(capture.output(print(formula_text)), collapse = "\n"),
   "\n\nOdds Ratios:\n",
   paste(capture.output(print(result)), collapse = "\n")
@@ -59,14 +56,14 @@ report_file <- file.path(output_dir, paste0("lin_reg_", target_var, ".pdf"))
 render_report(
   template_path = file.path(project_dir, "templates", "analysis_report.Rmd"),
   output_file = report_file,
-  analysis_title = "Lineare Regression",
+  analysis_title = "Linear regression",
   formula_text = paste(formula_text),
   sample_size = as.character(nrow(analysis_data)),
   result_text = result_text,
   plot_path = ""
 )
 
-cat("PDF-Bericht gespeichert unter:\n")
+cat("PDF saved in:\n")
 cat(report_file, "\n")
 
 open_pdf <- function(path) {
@@ -76,14 +73,14 @@ open_pdf <- function(path) {
     if (nzchar(Sys.which("zathura"))) {
       system2("zathura", path, wait = FALSE)
     } else {
-      message("PDF wurde erstellt: ", path)
+      message("PDF was created: ", path)
     }
   } else if (sysname == "Windows") {
     shell.exec(normalizePath(path))
   } else if (sysname == "Darwin") {
     system2("open", path, wait = FALSE)
   } else {
-    message("PDF wurde erstellt: ", path)
+    message("PDF was created: ", path)
   }
 }
 
