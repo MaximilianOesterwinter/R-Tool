@@ -14,7 +14,23 @@ This tool is designed to reduce the technical barrier of working with R syntax f
 ## 🚀 Installation
 
 ### 1. Required installations
-Make sure that R and Python are installed on your system.
+
+Make sure that RStudio, Git and Python are installed on your system.
+Add Rscript.exe, Python and Pandoc to your PATH.
+
+- Rscript.exe is usually found in `C:\Program Files\R\R-4.x.x\bin`.
+- Python can be automatically added to the PATH during installation.
+- The path to Pandoc can by found by running the following command in R:
+```R
+Sys.getenv("RSTUDIO_PANDOC")
+```
+
+Navigate to the folder where you want to install the program using the explorer.
+Right-click inside this folder and click "Open in Terminal".
+Once in the terminal, run the following command:
+```Bash
+git clone https://github.com/MaximilianOesterwinter/R-Tool.git
+```
 
 ---
 
@@ -39,13 +55,15 @@ Open the console (PowerShell or CMD) and run:
 
 ```Bash
 Rscript --version
+python --version
+pandoc --version
 ```
 
-If everything is installed correctly, the console will display the installed version of `Rscript`.
+If everything is installed correctly, the console will display the installed version of `Rscript`, `python` and `pandoc`.
 
 ### 4. Prepare your data
 
-Open the file `prepare_data.R` and add your desired data transformations in the designated section.
+Open the file `r-scripts\prepare_data.R` and add your desired data transformations in the designated section.
 
 👉 Important:
 Chain commands using the pipe operator:
@@ -59,7 +77,7 @@ The tool is now ready to use 🎉
 
 ## 💻 Usage
 
-The program is currently in **alpha stage** and is therefore controlled via the command line.
+The program is currently in **alpha stage** and is therefore controlled via the command line. To use it reliably, just open the console via the explorer while inside the programs directory.
 
 ### Basic command structure:
 
@@ -130,3 +148,5 @@ Performs an ANOVA including the required post-hoc tests:
 ## 📄 Lizenz
 
 MIT License
+
+See LICENSE.md
