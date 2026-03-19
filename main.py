@@ -44,6 +44,11 @@ parser_anova = subparsers.add_parser("anova")
 parser_anova.add_argument("dependent_var")
 parser_anova.add_argument("independent_vars", nargs="+")
 
+# unpaired_ttest
+parser_unpaired_ttest = subparsers.add_parser("unpaired_ttest")
+parser_unpaired_ttest.add_argument("var1")
+parser_unpaired_ttest.add_argument("var2_or_constant")
+
 args = parser.parse_args()
 
 if args.analysis == "df":
@@ -93,6 +98,15 @@ elif args.analysis == "anova":
         DATA_PATH,
         args.dependent_var
     ] + args.independent_vars
+
+elif args.analysis == "unpaired_ttest":
+    command = [
+        "Rscript",
+        "r-scripts/unpaired_ttest.R",
+        DATA_PATH,
+        args.var1,
+        args.var2_or_constant
+    ]
 
 else:
     parser.print_help()

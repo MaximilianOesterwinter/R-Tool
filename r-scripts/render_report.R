@@ -30,7 +30,7 @@ render_report <- function(template_path,
       plot_path = plot_path
     ),
     envir = new.env(parent = globalenv()),
-    quiet = FALSE
+    quiet = TRUE
   )
 }
 
