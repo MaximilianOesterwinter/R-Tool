@@ -1,20 +1,20 @@
-# 📊 R-Tool für Datenanalyse
+# 📊 R Tool for Data Analysis
 
-Danke, dass du mein kleines R-Tool nutzt!  
-Dieses Tool unterstützt dich bei grundlegenden statistischen Analysen über eine einfache Kommandozeilen-Schnittstelle.
+Thank you for using my small R tool!  
+This tool helps you perform basic statistical analyses in the social sciences via a simple command-line interface.
 
 ---
 
 ## 🚀 Installation
 
-### 1. R installieren
-Stelle sicher, dass R auf deinem System installiert ist.
+### 1. Install R
+Make sure that R is installed on your system.
 
 ---
 
-### 2. Benötigte Pakete installieren
+### 2. Install required packages
 
-Öffne ein neues R-Script und führe folgende Befehle aus:
+Open a new R script and run the following commands:
 
 ```r
 install.packages("readr")
@@ -27,100 +27,100 @@ install.packages("tinytex")
 
 tinytex::install_tinytex()
 ```
-### 3. Installation prüfen
+### 3. Verify installation
 
-Öffne die Konsole (PowerShell oder CMD) und führe aus:
+Open the console (PowerShell or CMD) and run:
 
 ```Bash
 Rscript --version
 ```
 
-Wenn alles korrekt installiert ist, wird dir die Version von `Rscript` angezeigt.
+If everything is installed correctly, the console will display the installed version of `Rscript`.
 
-### 4. Daten vorbereiten
+### 4. Prepare your data
 
-Öffne die Datei `prepare_data.R` und füge im gekennzeichneten Bereich deine gewünschte Datenaufbereitung ein.
+Open the file `prepare_data.R` and add your desired data transformations in the designated section.
 
-👉 Wichtig:
-Verkette Befehle mit der Pipe:
+👉 Important:
+Chain commands using the pipe operator:
 ```R
 %>%
 ```
 
-### 5. Fertig!
+### 5. Done!
 
-Das Tool ist jetzt einsatzbereit 🎉
+The tool is now ready to use 🎉
 
-## 💻 Verwendung
+## 💻 Usage
 
-Das Programm befindet sich noch in der Alpha und wird daher aktuell noch über die Konsole gesteuert.
+The program is currently in **alpha stage** and is therefore controlled via the command line.
 
-### Grundstruktur des Befehls:
+### Basic command structure:
 
 ```Bash
-python main.py ANALYSE VARIABLE_1 VARIABLE_2
+python main.py ANALYSIS VARIABLE_1 VARIABLE_2
 ```
 
-### 🧠 Erklärung
+### 🧠 Explanation
 
-| Bestandteil | Bedeutung |
+| Component | Description |
 |-------------|-----------|
-| `python`/`py`| Startet das Programm |
-| `main.py` | Hauptscript |
-| `ANALYSE` | Gewünschte Analyse |
-| `VARIABLE` | Variablen aus deinem Datensatz |
+| `python`/`py`| Starts the programm |
+| `main.py` | Main script |
+| `ANALYSE` | Desired analysis |
+| `VARIABLE` | Variables from your dataset |
 
-### 📌 Beispiel
+### 📌 Example
 
 ```Bash
 python main.py chi_square gender vote_intent
 ```
 
-## 📈 Unterstützte Analysen
+## 📈 Supported Analyses
 
-### 🔍 Überblick
+### 🔍 Overview
 
-| Analyse | Beschreibung | Benötigte Variablen |
+| Analysis | Description | Required Variables |
 |---------|--------------|---------------------|
-| `df` | Überblick über den Dataframe | keine |
-| `describe` | Deskriptive Statistik | 1 Variable |
-| `chi_square` | Chi-Quadrat-Test | 2 Variablen |
-| `logit` | Logistische Regression | 1 UV, >= 1 AV |
-| `lin_reg` | Lineare Regression | 1 UV, >= 1 AV |
-| `anova` | ANOVA (ein- oder zweifaktoriell) | 1 AV, 1-2 UV |
+| `df` | Overview of the dataframe | none |
+| `describe` | Descriptive statistics | 1 variable |
+| `chi_square` | Chi-square test | 2 variables |
+| `logit` | Logistic regression | 1 IV, >= 1 DV |
+| `lin_reg` | Linear regression | 1 IV, >= 1 DV |
+| `anova` | ANOVA (one- or two-factor) | 1 DV, 1-2 IVs |
 
 ### 📊 Details
 
 `df`
-Zeigt eine Übersicht über den gesamten Dataframe.
+Displays an overview of the entire dataframe.
 
 `describe`
-Berechnet grundlegende deskriptive Statistiken.
+Calculates basic descriptive statistics.
 
 `chi_square`
-Führt einen Chi-Quadrat-Test zwischen zwei Variablen durch.
+Performs a chi-square test between two variables.
 
 `logit`
-Berechnet eine logistische Regressionsanalyse.
+Performs a logistic regression analysis.
 
 `lin_reg`
-Berechnet eine lineare Regressionsanalyse.
+Performs a linear regression analysis.
 
 `anova`
-Führt eine ANOVA mit den benötigten Post-Hoc-Tests durch:
-- 1 UV -> einfaktorielle ANOVA
-- 2 UV -> zweifaktorielle ANOVA
+Performs an ANOVA including the required post-hoc tests:
+- 1 IV -> one-way ANOVA
+- 2 IVs -> two-way ANOVA
 
-## ⚠️ Hinweise
+## ⚠️ Notes
 
-- Achte unbedingt auf eine **exakte Schreibweise** der Variablen (inkl. Groß-/Kleinschreibung).
-- Das Tool ist aktuell **CLI-basiert** (keine grafische Oberfläche).
-- Fehler entstehen häufig durch falsch benannte oder in der Aufbereitung falsch formatierte Variablen.
+- Make sure to use the **exact variable** names (including case sensitivity).
+- The tool is currently **CLI-based** (no graphical interface).
+- Errors often occur due to incorrectly named or improperly formatted variables.
 
-## 🛠️ Geplante Features
+## 🛠️ Planned Features
 
-- GUI (grafische Benutzeroberfläche)
-- Erweiterte statistische Tests
+- GUI (graphical user interface)
+- Extended statistical tests
 ## 📄 Lizenz
 
 MIT License
