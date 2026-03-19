@@ -73,7 +73,7 @@ python main.py ANALYSIS VARIABLE_1 VARIABLE_2
 |-------------|-----------|
 | `python`/`py`| Starts the programm |
 | `main.py` | Main script |
-| `ANALYSE` | Desired analysis |
+| `ANALYSIS` | Desired analysis |
 | `VARIABLE` | Variables from your dataset |
 
 ### 📌 Example
