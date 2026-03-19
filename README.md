@@ -5,10 +5,16 @@ This tool helps you perform basic statistical analyses in the social sciences vi
 
 ---
 
+## Project Goal
+
+This tool is designed to reduce the technical barrier of working with R syntax for basic social science analyses. It is not intended to replace methodological understanding or the interpretation of results. Instead, it aims to support learning by making statistical workflows more accessible.
+
+---
+
 ## 🚀 Installation
 
-### 1. Install R
-Make sure that R is installed on your system.
+### 1. Required installations
+Make sure that R and Python are installed on your system.
 
 ---
 
