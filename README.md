@@ -10,6 +10,7 @@
 #     - install.packages("rmarkdown")
 #     - install.packages("knitr")
 #     - install.packages("psych")
+#     - install.packages("car")
 #     - install.packages("tinytex")
 #     - tinytex::install_tinytex()
 #
@@ -55,17 +56,21 @@
 ##########################
 #
 # Überblick über den Dataframe verschaffen: df
-#                                           Benötigt keine Variablen
+#                                           Benötigt keine Variablen.
 #
 # Deskriptive Analyse: describe
-#                      Benötigt 1 Variable
+#                      Benötigt 1 Variable.
 #
 # Chi-Quadrat: chi_square
-#              Benötigt 2 Variablen!
+#              Benötigt 2 Variablen.
 # 
 # Logistische Regressionsanalyse: logit
-#                                 Benötigt 1 UV, mind. 1 AV!
+#                                 Benötigt 1 UV, mind. 1 AV.
 #
 # Lineare Regressionsanalye: lin_reg
-#                            Benötigt 1 UV, mind. 1 AV!
+#                            Benötigt 1 UV, mind. 1 AV.
+#
+# ANOVA Test: anova
+#             Benötigt 1 AV und 1 oder 2 AV.
+# Je nachdem, wie viele AVs angegeben werden, führt das Programm automatisch eine ein- oder zweifaktorielle Analyse durch.
 #
