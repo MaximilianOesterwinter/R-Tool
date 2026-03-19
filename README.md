@@ -1,76 +1,126 @@
-# Danke, dass du mein kleines R-Tool nutzt!!
+# 📊 R-Tool für Datenanalyse
 
-# So funktioniert es:
-#
-# 1.) Installiere R
-#
-# 2.)  Öffne ein neues R-Script und führe folgende Befehle aus:
-#     - install.packages("readr")
-#     - install.packages("dplyr")
-#     - install.packages("rmarkdown")
-#     - install.packages("knitr")
-#     - install.packages("psych")
-#     - install.packages("car")
-#     - install.packages("tinytex")
-#     - tinytex::install_tinytex()
-#
-# 3.) Öffne die Konsole (PowerShell oder CMD) und gib folgenden Code ein:
-#     - Rscript --version
-#     Wenn alles funktioniert, gibt dir die Konsole die installierte Version von Rscript an.
-#
-# 4.) Öffne prepare_data.R in R und füge im gekennzeicheten Bereich die gewünschten 
-#     Aufbereitungen ein. Beachte, dass jeder neue Befehl mit einer sogenannten "Pipe",
-#     also diesem Symbol: %>% an den vorangegangenen Befehl angebunden wird.
-#
-# 5.) Jetzt ist das Programm startklar!
-#     Nach einer Erklärung zur richtigen Bedienung folgt die Liste mit den bisherigen Funktionen.
-#
-##################################
-# So bedienst du R-Tool richtig: #
-##################################
-#
-# Das Programm wird aktuell leider noch über die Konsole gesteuert.
-#
-# Gib "python" oder "py" ein. Das sagt dem Computer,
-# welche Sprache das Programm verwendet.
-# 
-# Schreibe anschließend mit einem Leerzeichen dazwischen "main.py".
-#
-# Danach, wieder mit einem Leerzeichen dazwischen folgt die Analysemethode, die du anwenden willst.
-# Eine Liste mit den derzeit verfügbaren Analysen findest du weiter unten.
-#
-# Im Anschluss folgen die zu untersuchenden Variablen. Achte auf die genaue Schreibweise und
-# Groß-/Kleinschreibung, sonst findet das Programm die Variablen in deinem Datensatz nicht!
-#
-# Der Befehl sollte jetzt so aussehen:
-# 
-# python main.py DEINE_ANALYSEMETHODE VARIABLE_1 VARIABLE_2
-#
-# Ein Beispiel aus dem mitgelieferten Beispieldatensatz wäre:
-#
-# python main.py chi_square gender vote_intent
-#
-#
-##########################
-# Unterstützte Analysen: #
-##########################
-#
-# Überblick über den Dataframe verschaffen: df
-#                                           Benötigt keine Variablen.
-#
-# Deskriptive Analyse: describe
-#                      Benötigt 1 Variable.
-#
-# Chi-Quadrat: chi_square
-#              Benötigt 2 Variablen.
-# 
-# Logistische Regressionsanalyse: logit
-#                                 Benötigt 1 UV, mind. 1 AV.
-#
-# Lineare Regressionsanalye: lin_reg
-#                            Benötigt 1 UV, mind. 1 AV.
-#
-# ANOVA Test: anova
-#             Benötigt 1 AV und 1 oder 2 AV.
-# Je nachdem, wie viele AVs angegeben werden, führt das Programm automatisch eine ein- oder zweifaktorielle Analyse durch.
-#
+Danke, dass du mein kleines R-Tool nutzt!  
+Dieses Tool unterstützt dich bei grundlegenden statistischen Analysen über eine einfache Kommandozeilen-Schnittstelle.
+
+---
+
+## 🚀 Installation
+
+### 1. R installieren
+Stelle sicher, dass R auf deinem System installiert ist.
+
+---
+
+### 2. Benötigte Pakete installieren
+
+Öffne ein neues R-Script und führe folgende Befehle aus:
+
+```r
+install.packages("readr")
+install.packages("dplyr")
+install.packages("rmarkdown")
+install.packages("knitr")
+install.packages("psych")
+install.packages("car")
+install.packages("tinytex")
+
+tinytex::install_tinytex()
+```
+### 3. Installation prüfen
+
+Öffne die Konsole (PowerShell oder CMD) und führe aus:
+
+```Bash
+Rscript --version
+```
+
+Wenn alles korrekt installiert ist, wird dir die Version von `Rscript` angezeigt.
+
+### 4. Daten vorbereiten
+
+Öffne die Datei `prepare_data.R` und füge im gekennzeichneten Bereich deine gewünschte Datenaufbereitung ein.
+
+👉 Wichtig:
+Verkette Befehle mit der Pipe:
+```R
+%>%
+```
+
+### 5. Fertig!
+
+Das Tool ist jetzt einsatzbereit 🎉
+
+## 💻 Verwendung
+
+Das Programm befindet sich noch in der Alpha und wird daher aktuell noch über die Konsole gesteuert.
+
+### Grundstruktur des Befehls:
+
+```Bash
+python main.py ANALYSE VARIABLE_1 VARIABLE_2
+```
+
+### 🧠 Erklärung
+
+| Bestandteil | Bedeutung |
+|-------------|-----------|
+| `python`/`py`| Startet das Programm |
+| `main.py` | Hauptscript |
+| `ANALYSE` | Gewünschte Analyse |
+| `VARIABLE` | Variablen aus deinem Datensatz |
+
+### 📌 Beispiel
+
+```Bash
+python main.py chi_square gender vote_intent
+```
+
+## 📈 Unterstützte Analysen
+
+### 🔍 Überblick
+
+| Analyse | Beschreibung | Benötigte Variablen |
+|---------|--------------|---------------------|
+| `df` | Überblick über den Dataframe | keine |
+| `describe` | Deskriptive Statistik | 1 Variable |
+| `chi_square` | Chi-Quadrat-Test | 2 Variablen |
+| `logit` | Logistische Regression | 1 UV, >= 1 AV |
+| `lin_reg` | Lineare Regression | 1 UV, >= 1 AV |
+| `anova` | ANOVA (ein- oder zweifaktoriell) | 1 AV, 1-2 UV |
+
+### 📊 Details
+
+`df`
+Zeigt eine Übersicht über den gesamten Dataframe.
+
+`describe`
+Berechnet grundlegende deskriptive Statistiken.
+
+`chi_square`
+Führt einen Chi-Quadrat-Test zwischen zwei Variablen durch.
+
+`logit`
+Berechnet eine logistische Regressionsanalyse.
+
+`lin_reg`
+Berechnet eine lineare Regressionsanalyse.
+
+`anova`
+Führt eine ANOVA mit den benötigten Post-Hoc-Tests durch:
+- 1 UV -> einfaktorielle ANOVA
+- 2 UV -> zweifaktorielle ANOVA
+
+## ⚠️ Hinweise
+
+- Achte unbedingt auf eine **exakte Schreibweise** der Variablen (inkl. Groß-/Kleinschreibung).
+- Das Tool ist aktuell **CLI-basiert** (keine grafische Oberfläche).
+- Fehler entstehen häufig durch falsch benannte oder in der Aufbereitung falsch formatierte Variablen.
+
+## 🛠️ Geplante Features
+
+- GUI (grafische Benutzeroberfläche)
+- Erweiterte statistische Tests
+## 📄 Lizenz
+
+MIT License
