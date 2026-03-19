@@ -38,7 +38,7 @@ git clone https://github.com/MaximilianOesterwinter/R-Tool.git
 
 Open a new R script and run the following commands:
 
-```r
+```R
 install.packages("readr")
 install.packages("dplyr")
 install.packages("rmarkdown")
@@ -113,6 +113,7 @@ python main.py chi_square gender vote_intent
 | `lin_reg` | Linear regression | 1 IV, >= 1 DV |
 | `anova` | ANOVA (one- or two-factor) | 1 DV, 1-2 IVs |
 | `unpaired_ttest` | One-sample or unpaired two-sample t-test | 1 Variable and 1 Constant or 2 Variables |
+| `norm_ttest` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
 
 ### 📊 Details
 
@@ -140,6 +141,9 @@ Performs an ANOVA including the required post-hoc tests:
 Performs a one-sample or unpaired two-sample t-test, depending on the number of variables given:
 - 1 DV and 1 Constant -> one-sample t-test
 - 2 Variables -> two-sample t-test
+
+`norm_ttest`
+Performs a Shapiro-Wilk normality test on a numerical DV grouped by the grouping variable
 
 ## ⚠️ Notes
 

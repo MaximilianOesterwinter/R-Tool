@@ -35,7 +35,7 @@ parser_lin_reg = subparsers.add_parser("lin_reg")
 parser_lin_reg.add_argument("target_var")
 parser_lin_reg.add_argument("predictor_vars", nargs="+")
 
-# desccribe
+# describe
 parser_describe = subparsers.add_parser("describe")
 parser_describe.add_argument("var1")
 
@@ -48,6 +48,11 @@ parser_anova.add_argument("independent_vars", nargs="+")
 parser_unpaired_ttest = subparsers.add_parser("unpaired_ttest")
 parser_unpaired_ttest.add_argument("var1")
 parser_unpaired_ttest.add_argument("var2_or_constant")
+
+# norm_assumption_ttest
+parser_norm_assumption_ttest = subparsers.add_parser("norm_ttest")
+parser_norm_assumption_ttest.add_argument("dependent_var")
+parser_norm_assumption_ttest.add_argument("group_var")
 
 args = parser.parse_args()
 
@@ -106,6 +111,15 @@ elif args.analysis == "unpaired_ttest":
         DATA_PATH,
         args.var1,
         args.var2_or_constant
+    ]
+
+elif args.analysis == "norm_ttest":
+    command = [
+        "Rscript",
+        "r-scripts/norm_assumption_ttest.R",
+        DATA_PATH,
+        args.dependent_var,
+        args.group_var
     ]
 
 else:
