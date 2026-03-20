@@ -1,7 +1,6 @@
 import subprocess
 import argparse
 import sys
-#import pandas as pd
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -10,9 +9,6 @@ DATA_PATH = BASE_DIR / "data"/ "survey_data.csv"
                                ############
     # Enter your exact filename of the dataset here but keep the file-type
     ######################################################################
-
-#df = pd.read_csv(DATA_PATH)
-#columns = df.columns.tolist()
 
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(dest="analysis")
@@ -170,13 +166,6 @@ else:
 
 result = subprocess.run(command, capture_output=True, text=True)
 
-#print("STDOUT:")
-#print(result.stdout)
-
-#print("STDERR:")
-#print(result.stderr)
-
-#print("Return code:", result.returncode)
 if result.returncode != 0:
     print("Error while executing the r-script:")
     print(result.stderr)

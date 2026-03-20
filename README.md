@@ -168,7 +168,7 @@ Performs a Welch test for two unpaired samples, while their variances are unequa
 
 - GUI (graphical user interface)
 - Extended statistical tests
-## 📄 Lizenz
+## 📄 License
 
 MIT License
 

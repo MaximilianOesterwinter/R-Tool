@@ -22,6 +22,14 @@ df <- prepare_data(data_path)
 analysis_data <- df[, c(var1, var2)]
 analysis_data <- na.omit(analysis_data)
 
+if (!is.numeric(analysis_data[[var1]])) {
+  stop(var1, " has to be numeric")
+}
+
+if (!is.numeric(analysis_data[[var2]])) {
+  stop(var2, " has to be numeric")
+}
+
 difference <- analysis_data[[var1]] - analysis_data[[var2]]
 
 normality <- shapiro.test(difference)
