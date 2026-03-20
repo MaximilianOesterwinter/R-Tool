@@ -32,10 +32,6 @@ if (nrow(analysis_data) == 0) {
   stop("No cases left after excluding NAs.")
 }
 
-if (!all(sapply(df[all_vars], is.numeric))) {
-  stop("Variables have to be metric.")
-}
-
 formula_text <- paste(target_var, "~", paste(predictor_vars, collapse = " + "))
 result <- lm(formula_text, data = df)
 
@@ -47,7 +43,7 @@ if (!dir.exists(output_dir)) {
 result_text <- paste(
   "Model summary:\n",
   paste(capture.output(print(formula_text)), collapse = "\n"),
-  "\n\nOdds Ratios:\n",
+  "\n\nLinear regression:\n",
   paste(capture.output(print(result)), collapse = "\n")
 )
 

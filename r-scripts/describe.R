@@ -33,7 +33,7 @@ summary <- summary(analysis_data)
 standard_deviance <- sd(analysis_data)
 variance <- var(analysis_data)
 skew <- skew(analysis_data)
-curtosis <- kurtosi(analysis_data)
+kurtosi <- kurtosi(analysis_data)
 normality <- shapiro.test(analysis_data)
 
 plot_path <- file.path(output_dir, paste0("qqline_", var1, ".png"))
@@ -53,7 +53,7 @@ result_text <- paste(
   "\n\nSkew:\n",
   paste(capture.output(print(skew)), collapse = "\n"),
   "\n\nCurtosis:\n",
-  paste(capture.output(print(curtosis)), collapse = "\n"),
+  paste(capture.output(print(kurtosi)), collapse = "\n"),
   "\n\nNormality:\n",
   paste(capture.output(print(normality)), collapse = "\n")
 )
