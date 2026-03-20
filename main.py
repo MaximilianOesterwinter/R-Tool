@@ -54,6 +54,11 @@ parser_unpaired_ttest = subparsers.add_parser("unpaired_ttest")
 parser_unpaired_ttest.add_argument("var1")
 parser_unpaired_ttest.add_argument("var2_or_constant")
 
+# paired_ttest
+parser_paired_ttest = subparsers.add_parser("paired_ttest")
+parser_paired_ttest.add_argument("var1")
+parser_paired_ttest.add_argument("var2")
+
 # norm_assumption_ttest
 parser_norm_assumption_ttest = subparsers.add_parser("norm_ttest")
 parser_norm_assumption_ttest.add_argument("dependent_var")
@@ -130,6 +135,15 @@ elif args.analysis == "unpaired_ttest":
         DATA_PATH,
         args.var1,
         args.var2_or_constant
+    ]
+
+elif args.analysis == "paired_ttest":
+    command = [
+        "Rscript",
+        "r-scripts/paired_ttest.R",
+        DATA_PATH,
+        args.var1,
+        args.var2
     ]
 
 elif args.analysis == "norm_ttest":
