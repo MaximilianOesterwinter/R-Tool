@@ -39,6 +39,11 @@ parser_lin_reg.add_argument("predictor_vars", nargs="+")
 parser_describe = subparsers.add_parser("describe")
 parser_describe.add_argument("var1")
 
+# describeBy
+parser_describeBy = subparsers.add_parser("describeBy")
+parser_describeBy.add_argument("dependent_var")
+parser_describeBy.add_argument("group_var")
+
 # anova
 parser_anova = subparsers.add_parser("anova")
 parser_anova.add_argument("dependent_var")
@@ -53,6 +58,11 @@ parser_unpaired_ttest.add_argument("var2_or_constant")
 parser_norm_assumption_ttest = subparsers.add_parser("norm_ttest")
 parser_norm_assumption_ttest.add_argument("dependent_var")
 parser_norm_assumption_ttest.add_argument("group_var")
+
+# welch_test
+parser_welch_test = subparsers.add_parser("welch_test")
+parser_welch_test.add_argument("dependent_var")
+parser_welch_test.add_argument("group_var")
 
 args = parser.parse_args()
 
@@ -96,6 +106,15 @@ elif args.analysis == "describe":
         args.var1
     ]
 
+elif args.analysis == "describeBy":
+    command = [
+        "Rscript",
+        "r-scripts/describeBy.R",
+        DATA_PATH,
+        args.dependent_var,
+        args.group_var
+    ]
+
 elif args.analysis == "anova":
     command = [
         "Rscript",
@@ -117,6 +136,15 @@ elif args.analysis == "norm_ttest":
     command = [
         "Rscript",
         "r-scripts/norm_assumption_ttest.R",
+        DATA_PATH,
+        args.dependent_var,
+        args.group_var
+    ]
+
+elif args.analysis == "welch_test":
+    command = [
+        "Rscript",
+        "r-scripts/welch_test.R",
         DATA_PATH,
         args.dependent_var,
         args.group_var

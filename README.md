@@ -108,12 +108,14 @@ python main.py chi_square gender vote_intent
 |---------|--------------|---------------------|
 | `df` | Overview of the dataframe | none |
 | `describe` | Descriptive statistics | 1 variable |
+| `describeBy` | Grouped descriptive statistics | 1 DV, 1 binary grouping variable |
 | `chi_square` | Chi-square test | 2 variables |
 | `logit` | Logistic regression | 1 IV, >= 1 DV |
 | `lin_reg` | Linear regression | 1 IV, >= 1 DV |
 | `anova` | ANOVA (one- or two-factor) | 1 DV, 1-2 IVs |
 | `unpaired_ttest` | One-sample or unpaired two-sample t-test | 1 Variable and 1 Constant or 2 Variables |
 | `norm_ttest` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
+| `welch_test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
 
 ### 📊 Details
 
@@ -122,6 +124,10 @@ Displays an overview of the entire dataframe.
 
 `describe`
 Calculates basic descriptive statistics.
+
+`describeBy`
+Calculates grouped descriptive statistics. Mainly to check for equal variances.
+If variances are about equal, perform `unpaired_ttest`, else perform `welch_test`.
 
 `chi_square`
 Performs a chi-square test between two variables.
@@ -140,10 +146,13 @@ Performs an ANOVA including the required post-hoc tests:
 `unpaired_ttest`
 Performs a one-sample or unpaired two-sample t-test, depending on the number of variables given:
 - 1 DV and 1 Constant -> one-sample t-test
-- 2 Variables -> two-sample t-test
+- 2 Variables -> two-sample t-test for equal variances!!! If the variances are not equal, perform `welch_test`.
 
 `norm_ttest`
 Performs a Shapiro-Wilk normality test on a numerical DV grouped by the grouping variable
+
+`welch_test`
+Performs a Welch test for two unpaired samples, while their variances are unequal.
 
 ## ⚠️ Notes
 
