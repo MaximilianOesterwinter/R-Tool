@@ -21,6 +21,10 @@ df <- prepare_data(data_path)
 
 analysis_data <- na.omit(df[, c(dependent_var, group_var)])
 
+if (!is.numeric(analysis_data[[dependent_var]])) {
+  stop("The dependent variable has to be numeric.")
+}
+
 if (length(unique(analysis_data[[group_var]])) != 2) {
   stop("The grouping variable must have exactly 2 levels.")
 }

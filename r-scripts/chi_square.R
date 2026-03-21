@@ -21,10 +21,8 @@ analysis_data[[var1]] <- as.factor(analysis_data[[var1]])
 analysis_data[[var2]] <- as.factor(analysis_data[[var2]])
 
 tab <- table(analysis_data[[var1]], analysis_data[[var2]])
-#print(tab)
 
 test_result <- chisq.test(tab)
-#print(test_result)
 
 output_dir <- file.path(project_dir, "output")
 if (!dir.exists(output_dir)) {

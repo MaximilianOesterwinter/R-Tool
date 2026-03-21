@@ -17,6 +17,7 @@ This tool is designed to reduce the technical barrier of working with R syntax f
 
 Make sure that RStudio, Git and Python are installed on your system.
 Add Rscript.exe, Python and Pandoc to your PATH.
+For a tutorial on how to do that, visit `https://www.wikihow.com/Change-the-PATH-Environment-Variable-on-Windows`.
 
 - Rscript.exe is usually found in `C:\Program Files\R\R-4.x.x\bin`.
 - Python can be automatically added to the PATH during installation.
@@ -24,6 +25,7 @@ Add Rscript.exe, Python and Pandoc to your PATH.
 ```R
 Sys.getenv("RSTUDIO_PANDOC")
 ```
+---
 
 Navigate to the folder where you want to install the program using the explorer.
 Right-click inside this folder and click "Open in Terminal".
