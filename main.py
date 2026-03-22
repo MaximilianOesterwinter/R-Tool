@@ -13,6 +13,10 @@ DATA_PATH = BASE_DIR / "data"/ "survey_data.csv"
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(dest="analysis")
 
+# get_variables
+parser_get_variables = subparsers.add_parser("get_variables")
+parser_get_variables.add_argument("out_path")
+
 # df
 parser_df = subparsers.add_parser("df")
 
@@ -67,7 +71,15 @@ parser_welch_test.add_argument("group_var")
 
 args = parser.parse_args()
 
-if args.analysis == "df":
+if args.analysis == "get_variables":
+    command = [
+        "Rscript",
+        "r-scripts/get_variables.R",
+        DATA_PATH,
+        args.out_path
+    ]
+
+elif args.analysis == "df":
     command = [
         "Rscript",
         "r-scripts/dataframe.R",

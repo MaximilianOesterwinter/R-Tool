@@ -1,6 +1,21 @@
 import tkinter as tk
 from tkinter import ttk
 import subprocess
+import json
+
+def load_names():
+    out_path = "variables.json"
+    subprocess.run(
+        [
+            "python",
+            "main.py",
+            "get_variables",
+            out_path
+        ], check=True
+    )
+
+    with open(out_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 root = tk.Tk()
 
@@ -14,6 +29,15 @@ more_variables_needed = ["logit", "lin_reg", "anova"]
 one_variable_needed = ["describe"]
 
 variable_entries = []
+variable_names = load_names() or []
+variable_display = [
+    f"{name}: {var_type}"
+    for name, var_type in variable_names.items()
+]
+display_to_name = {
+    f"{name}: {var_type}": name
+    for name, var_type in variable_names.items()
+}
 
 def clear_input_fields():
     global variable_entries
@@ -22,10 +46,11 @@ def clear_input_fields():
     variable_entries = []
 
 def add_variable_field():
-    entry = tk.Entry(input_frame)
+    combo = ttk.Combobox(input_frame, values=variable_display, state="readonly")
     tk.Label(input_frame, text=f"Variable {len(variable_entries) + 1}").pack()
-    entry.pack(fill="x", padx=5, pady=2)
-    variable_entries.append(entry)
+    combo.pack(fill="x", padx=5, pady=2)
+    combo.set("Select variable")
+    variable_entries.append(combo)
 
 def update_input_fields(event=None):
     analysis = combobox.get()
@@ -47,7 +72,10 @@ def update_input_fields(event=None):
 
 def run_analysis():
     analysis = combobox.get()
-    variables = [entry.get().strip() for entry in variable_entries if entry.get().strip()]
+    variables = [display_to_name.get(entry.get().strip()) 
+                for entry in variable_entries 
+                if entry.get().strip()
+                ]
 
     command = ["python", "main.py", analysis, *variables]
     print(command)  # zum Debuggen

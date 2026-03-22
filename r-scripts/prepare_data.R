@@ -37,3 +37,9 @@ prepare_data <- function(path) {
   return(df_clean)
 }
 
+export_variable_names <- function(path, out_path = "variables.json") {
+  df <- prepare_data(path)
+  vars <- colnames(df)
+  jsonlite::write_json(vars, out_path)
+}
+
