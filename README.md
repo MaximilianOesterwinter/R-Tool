@@ -1,7 +1,7 @@
 # 📊 R Tool for Data Analysis
 
 Thank you for using my small R tool!  
-This tool helps you perform basic statistical analyses in the social sciences via a simple command-line interface.
+This tool helps you perform basic statistical analyses in the social sciences via a simple graphical interface.
 
 ---
 
