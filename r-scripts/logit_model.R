@@ -5,7 +5,7 @@ dependent_var <- args[2]
 independent_vars <- args[3:length(args)]
 
 if (length(args) < 3) {
-  stop("Too few arguments. Erwartet: data_path, dependent_var, mindestens eine independent_var")
+  stop("Too few arguments. Expected: data_path, dependent_var, min. one independent_var")
 }
 
 script_args <- commandArgs(trailingOnly = FALSE)
@@ -35,7 +35,7 @@ if (nrow(analysis_data) == 0) {
 unique_values <- sort(unique(analysis_data[[dependent_var]]))
 if (!(length(unique_values) == 2 && all(unique_values %in% c(0, 1)))) {
   stop(paste(
-    "Die dependent variable must be coded binary as 0/1. Found:",
+    "The dependent variable must be coded binary as 0/1. Found:",
     paste(unique_values, collapse = ", ")
   ))
 }

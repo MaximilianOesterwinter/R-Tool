@@ -42,7 +42,7 @@ def update_input_fields(event=None):
         add_variable_field()
         add_variable_field()
 
-        add_button = tk.Button(input_frame, text="Weitere Variable", command=add_variable_field)
+        add_button = tk.Button(input_frame, text="Additional variables", command=add_variable_field)
         add_button.pack(pady=5)
 
 def run_analysis():
@@ -76,7 +76,7 @@ combobox.bind("<<ComboboxSelected>>", update_input_fields)
 input_frame = tk.Frame(root)
 input_frame.pack(fill="x", padx=5, pady=5)
 
-tk.Button(root, text="Analyse ausführen", command=run_analysis).pack(pady=10)
+tk.Button(root, text="Execute analysis", command=run_analysis).pack(pady=10)
 
 update_input_fields()
 

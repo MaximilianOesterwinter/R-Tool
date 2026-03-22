@@ -79,28 +79,10 @@ The tool is now ready to use 🎉
 
 ## 💻 Usage
 
-The program is currently in **alpha stage** and is therefore controlled via the command line. To use it reliably, just open the console via the explorer while inside the programs directory.
+Open `R_Tool.R` and select the desired analysis. 
+Input-fields for the expected number of variables will appear, where you enter the **exact** variable-name.
+Finally, press `Execute analysis` and wait a few seconds for the output-PDF to appear.
 
-### Basic command structure:
-
-```Bash
-python main.py ANALYSIS VARIABLE_1 VARIABLE_2
-```
-
-### 🧠 Explanation
-
-| Component | Description |
-|-------------|-----------|
-| `python`/`py`| Starts the programm |
-| `main.py` | Main script |
-| `ANALYSIS` | Desired analysis |
-| `VARIABLE` | Variables from your dataset |
-
-### 📌 Example
-
-```Bash
-python main.py chi_square gender vote_intent
-```
 
 ## 📈 Supported Analyses
 
@@ -163,12 +145,11 @@ Performs a Welch test for two unpaired samples, while their variances are unequa
 ## ⚠️ Notes
 
 - Make sure to use the **exact variable** names (including case sensitivity).
-- The tool is currently **CLI-based** (no graphical interface).
 - Errors often occur due to incorrectly named or improperly formatted variables.
 
 ## 🛠️ Planned Features
 
-- GUI (graphical user interface)
+- More functionality for the GUI
 - Extended statistical tests
 ## 📄 License
 
