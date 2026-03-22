@@ -80,7 +80,8 @@ The tool is now ready to use 🎉
 ## 💻 Usage
 
 Open `R_Tool.R` and select the desired analysis. 
-Input-fields for the expected number of variables will appear, where you enter the **exact** variable-name.
+If variables are needed for the selected type of analysis, dropdown-menus will appear, where you can select your variables.
+Note, that the corresponding variable-type is written next to the variable-name, as not every analysis supports every type.
 Finally, press `Execute analysis` and wait a few seconds for the output-PDF to appear.
 
 
@@ -144,13 +145,14 @@ Performs a Welch test for two unpaired samples, while their variances are unequa
 
 ## ⚠️ Notes
 
-- Make sure to use the **exact variable** names (including case sensitivity).
-- Errors often occur due to incorrectly named or improperly formatted variables.
+- Errors often occur due to improperly formatted variables.
+- I'm no software engineer nor have I any background in programming. So please don't expect a perfectly written program. However, if you stumble upon mistakes or have ideas for improvement, please let me know and I'll do my best to implement your idea.
 
 ## 🛠️ Planned Features
 
 - More functionality for the GUI
 - Extended statistical tests
+
 ## 📄 License
 
 MIT License
