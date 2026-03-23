@@ -1,3 +1,6 @@
+library(sandwich)
+library(lmtest)
+
 args <- commandArgs(trailingOnly = TRUE)
 
 data_path <- args[1]
@@ -33,7 +36,13 @@ if (nrow(analysis_data) == 0) {
 }
 
 formula_text <- paste(target_var, "~", paste(predictor_vars, collapse = " + "))
-result <- lm(formula_text, data = df)
+model <- lm(formula_text, data = df)
+result <- coeftest(model, vcov=vcovHC(model, type=c("HC3")))
+
+formula <- paste(
+  "model <- lm(", formula_text, ", data = df)\n",
+  "coeftest(model, vcov=vcovHC(model, type=c('HC3')))"
+)
 
 output_dir <- file.path(project_dir, "output")
 if (!dir.exists(output_dir)) {
@@ -53,7 +62,7 @@ render_report(
   template_path = file.path(project_dir, "templates", "analysis_report.Rmd"),
   output_file = report_file,
   analysis_title = "Linear regression",
-  formula_text = paste(formula_text),
+  formula_text = paste(formula),
   sample_size = as.character(nrow(analysis_data)),
   result_text = result_text,
   plot_path = ""
