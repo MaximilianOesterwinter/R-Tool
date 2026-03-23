@@ -100,7 +100,7 @@ Finally, press `Execute analysis` and wait a few seconds for the output-PDF to a
 | `anova` | ANOVA (one- or two-factor) | 1 DV, 1-2 IVs |
 | `unpaired_ttest` | One-sample or unpaired two-sample t-test | 1 Variable and 1 Constant or 2 Variables |
 | `paired_ttest` | Paired two-sample t-test | 2 Variables |
-| `norm_ttest` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
+| `norm_test` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
 | `welch_test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
 
 ### 📊 Details
@@ -137,7 +137,7 @@ Performs a one-sample or unpaired two-sample t-test, depending on the number of 
 `paired_ttest`
 Performs a paired two-sample t-test and also outputs the paired normality
 
-`norm_ttest`
+`norm_test`
 Performs a Shapiro-Wilk normality test on a numerical DV grouped by the grouping variable
 
 `welch_test`

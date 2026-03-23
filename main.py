@@ -59,8 +59,8 @@ parser_paired_ttest = subparsers.add_parser("paired_ttest")
 parser_paired_ttest.add_argument("var1")
 parser_paired_ttest.add_argument("var2")
 
-# norm_assumption_ttest
-parser_norm_assumption_ttest = subparsers.add_parser("norm_ttest")
+# normality_test
+parser_norm_assumption_ttest = subparsers.add_parser("norm_test")
 parser_norm_assumption_ttest.add_argument("dependent_var")
 parser_norm_assumption_ttest.add_argument("group_var")
 
@@ -154,10 +154,10 @@ elif args.analysis == "paired_ttest":
         args.var2
     ]
 
-elif args.analysis == "norm_ttest":
+elif args.analysis == "norm_test":
     command = [
         "Rscript",
-        "r-scripts/norm_assumption_ttest.R",
+        "r-scripts/normality_test.R",
         DATA_PATH,
         args.dependent_var,
         args.group_var
