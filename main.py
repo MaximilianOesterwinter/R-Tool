@@ -69,6 +69,11 @@ parser_welch_test = subparsers.add_parser("welch_test")
 parser_welch_test.add_argument("dependent_var")
 parser_welch_test.add_argument("group_var")
 
+# correlation
+parser_correlation = subparsers.add_parser("correlation")
+parser_correlation.add_argument("var1")
+parser_correlation.add_argument("var2")
+
 args = parser.parse_args()
 
 if args.analysis == "get_variables":
@@ -170,6 +175,15 @@ elif args.analysis == "welch_test":
         DATA_PATH,
         args.dependent_var,
         args.group_var
+    ]
+
+elif args.analysis == "correlation":
+    command = [
+        "Rscript",
+        "r-scripts/correlation.R",
+        DATA_PATH,
+        args.var1,
+        args.var2
     ]
 
 else:

@@ -102,6 +102,7 @@ Finally, press `Execute analysis` and wait a few seconds for the output-PDF to a
 | `paired_ttest` | Paired two-sample t-test | 2 Variables |
 | `norm_test` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
 | `welch_test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
+| `correlation` | Pearson's r, Kendall's tau, Spearman's rho | 2 numerical variables |
 
 ### 📊 Details
 
@@ -142,6 +143,9 @@ Performs a Shapiro-Wilk normality test on a numerical DV grouped by the grouping
 
 `welch_test`
 Performs a Welch test for two unpaired samples, while their variances are unequal.
+
+`correlation`
+Calculates Pearson's r, Kendall's tau and Spearman's rho and plots the two variables
 
 ## ⚠️ Notes
 
