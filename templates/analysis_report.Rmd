@@ -1,8 +1,8 @@
 ---
-title: "Analysebericht"
+title: "Analysisreport"
 output: pdf_document
 params:
-  analysis_title: "Analyse"
+  analysis_title: "Analysis"
   formula_text: ""
   sample_size: ""
   result_text: ""
@@ -13,15 +13,15 @@ params:
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
-# Überblick
+# Overview
 
-**Analyse:** `r params$analysis_title`
+**Analysis:** `r params$analysis_title`
 
-**Formel / Spezifikation:** `r params$formula_text`
+**Formula / Specification:** `r params$formula_text`
 
-**Verwendete Fälle:** `r params$sample_size`
+**Number of cases:** `r params$sample_size`
 
-# Ergebnis
+# Results
 
 ```{r}
 writeLines(params$result_text)

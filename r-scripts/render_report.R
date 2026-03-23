@@ -7,11 +7,11 @@ render_report <- function(template_path,
                           plot_path = "") {
 
   if (!requireNamespace("rmarkdown", quietly = TRUE)) {
-    stop("Paket 'rmarkdown' ist nicht installiert.")
+    stop("Package 'rmarkdown' is not installed.")
   }
 
   if (!requireNamespace("knitr", quietly = TRUE)) {
-    stop("Paket 'knitr' ist nicht installiert.")
+    stop("Package 'knitr' is not installed.")
   }
 
   analysis_title <- sanitize_text_for_pdf(analysis_title)
