@@ -155,7 +155,10 @@ Calculates Pearson's r, Kendall's tau and Spearman's rho and plots the two varia
 ## 🛠️ Planned Features
 
 - More functionality for the GUI
-- Extended statistical tests
+- Non-parametric statistical methods (e.g., Mann–Whitney U, Wilcoxon, Kruskal–Wallis)
+- Effect size calculations (e.g., Cohen’s d, η², Cramér’s V)
+- Enhanced data visualization (e.g., histograms, boxplots, scatter plots)
+- Factor analysis (e.g., PCA, exploratory factor analysis)
 
 ## 📄 License
 
