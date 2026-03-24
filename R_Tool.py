@@ -24,7 +24,15 @@ root.minsize(200, 200)
 root.maxsize(1280, 1080)
 root.geometry("800x800+50+50")
 
-two_variables_needed = ["chi_square", "paired_ttest", "unpaired_ttest", "norm_test", "welch_test", "describeBy", "correlation", "mann_whitney_test"]
+two_variables_needed = ["chi_square", 
+                        "paired_ttest", 
+                        "unpaired_ttest", 
+                        "norm_test", 
+                        "welch_test", 
+                        "describeBy", 
+                        "correlation", 
+                        "mann_whitney_test"
+                        ]
 more_variables_needed = ["logit", "lin_reg", "anova"]
 one_variable_needed = ["describe"]
 
