@@ -103,6 +103,7 @@ Finally, press `Execute analysis` and wait a few seconds for the output-PDF to a
 | `norm_test` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
 | `welch_test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
 | `correlation` | Pearson's r, Kendall's tau, Spearman's rho | 2 numerical variables |
+| `mann_whitney_test` | non-parametric Mann-Whitney-U-Test | 1 DV, 1 binary grouping variable |
 
 ### 📊 Details
 
@@ -145,7 +146,10 @@ Performs a Shapiro-Wilk normality test on a numerical DV grouped by the grouping
 Performs a Welch test for two unpaired samples, while their variances are unequal.
 
 `correlation`
-Calculates Pearson's r, Kendall's tau and Spearman's rho and plots the two variables
+Calculates Pearson's r, Kendall's tau and Spearman's rho and plots the two variables.
+
+`mann_whitney_test`
+Performs the non-parametric Mann-Whitney-U-Test.
 
 ## ⚠️ Notes
 
@@ -155,7 +159,7 @@ Calculates Pearson's r, Kendall's tau and Spearman's rho and plots the two varia
 ## 🛠️ Planned Features
 
 - More functionality for the GUI
-- Non-parametric statistical methods (e.g., Mann–Whitney U, Wilcoxon, Kruskal–Wallis)
+- Non-parametric statistical methods (e.g., Wilcoxon, Kruskal–Wallis)
 - Effect size calculations (e.g., Cohen’s d, η², Cramér’s V)
 - Enhanced data visualization (e.g., histograms, boxplots, scatter plots)
 - Factor analysis (e.g., PCA, exploratory factor analysis)

@@ -25,9 +25,14 @@ prepare_data <- function(path) {
   # You can savely delete the mutate() operator
     
     mutate(
-      gender = factor(gender),
-      education = factor(education, levels = c("Abitur", "Bachelor", "Master", "Promotion")),
-      vote_intent = as.numeric(vote_intent)
+      gender = factor(gender, levels = c("male", "female")),
+      education = factor(education, levels = c("highscool", "Bachelor", "Master", "phd")),
+      region = factor(region, levels = c("north", "east", "south", "west")),
+      smoker_status = factor(smoker_status, levels = c("non_smoker", "former", "smoker")),
+      has_children = factor(has_children),
+      is_employed = factor(is_employed),
+      owns_home = factor(owns_home)
+      
     )
   
   ################################

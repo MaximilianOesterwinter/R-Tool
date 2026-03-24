@@ -74,6 +74,11 @@ parser_correlation = subparsers.add_parser("correlation")
 parser_correlation.add_argument("var1")
 parser_correlation.add_argument("var2")
 
+# mann_whitney_test
+parser_mann_whitney_test = subparsers.add_parser("mann_whitney_test")
+parser_mann_whitney_test.add_argument("dependent_var")
+parser_mann_whitney_test.add_argument("group_var")
+
 args = parser.parse_args()
 
 if args.analysis == "get_variables":
@@ -184,6 +189,15 @@ elif args.analysis == "correlation":
         DATA_PATH,
         args.var1,
         args.var2
+    ]
+
+elif args.analysis == "mann_whitney_test":
+    command = [
+        "Rscript",
+        "r-scripts/mann_whitney_test.R",
+        DATA_PATH,
+        args.dependent_var,
+        args.group_var
     ]
 
 else:
