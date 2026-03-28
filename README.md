@@ -47,6 +47,7 @@ install.packages("rmarkdown")
 install.packages("knitr")
 install.packages("psych")
 install.packages("car")
+install.packages("DescTools")
 install.packages("tinytex")
 
 tinytex::install_tinytex()
@@ -128,7 +129,7 @@ Performs a linear regression analysis.
 
 `anova`
 Performs an ANOVA including the required post-hoc tests:
-- 1 IV -> one-way ANOVA
+- 1 IV -> one-way ANOVA, Cohen's f
 - 2 IVs -> two-way ANOVA
 
 `unpaired_ttest`

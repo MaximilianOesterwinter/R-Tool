@@ -1,5 +1,6 @@
 library(psych)
 library(car)
+library(DescTools)
 
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -52,6 +53,9 @@ if (length(independent_vars) == 1) {
   
   model_formula <- as.formula(paste(dependent_var, "~", group_var))
   anova_test <- aov(model_formula, data = analysis_data)
+  eta <- EtaSq(anova_test)
+  eta_sq <- eta[1, "eta.sq"]
+  f <- sqrt(eta_sq / (1 - eta_sq))
   
   t_test <- pairwise.t.test(
     x = analysis_data[[dependent_var]],
@@ -68,8 +72,9 @@ if (length(independent_vars) == 1) {
   
   formula_text <- paste(
     "describeBy(", dependent_var, ", ", group_var, ")\n",
-    "aov(", dependent_var, " ~ ", group_var, ")\n",
-    "pairwise.t.test(", dependent_var, ", ", group_var, ", p.adjust.method='bonferroni')",
+    "anova_test <- aov(", dependent_var, " ~ ", group_var, ")\n",
+    "pairwise.t.test(", dependent_var, ", ", group_var, ", p.adjust.method='bonferroni')\n",
+    "sqrt(EtaSq(anova_test)[1, 'eta.sq'] / (1 - EtaSq(anova_test)[1, 'eta.sq']))",
     sep = ""
   )
   
@@ -80,6 +85,8 @@ if (length(independent_vars) == 1) {
     paste(capture.output(print(summary(anova_test))), collapse = "\n"),
     "\n\nPost-hoc tests:\n",
     paste(capture.output(print(t_test)), collapse = "\n"),
+    "\n\nEffect size Cohen's f:\n",
+    paste(capture.output(print(f)), collapse = "\n"),
     sep = ""
   )
 }
