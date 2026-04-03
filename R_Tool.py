@@ -1,17 +1,27 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
+import os
 import subprocess
 import json
+import sys
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MAIN_PY = os.path.join(BASE_DIR, "main.py")
 
 def load_names():
-    out_path = "variables.json"
+    out_path = os.path.join(BASE_DIR, "variables.json")
+
     subprocess.run(
         [
-            "python",
-            "main.py",
+            sys.executable,
+            MAIN_PY,
             "get_variables",
             out_path
-        ], check=True
+        ], 
+        check=True,
+        capture_output=True,
+        text=True
     )
 
     with open(out_path, "r", encoding="utf-8") as f:
@@ -80,14 +90,42 @@ def update_input_fields(event=None):
 
 def run_analysis():
     analysis = combobox.get()
-    variables = [display_to_name.get(entry.get().strip()) 
-                for entry in variable_entries 
-                if entry.get().strip()
+
+    selected_displays = [
+        entry.get().strip()
+        for entry in variable_entries
+    ]
+    if any(value == "Select variable" or not value for value in selected_displays):
+        messagebox.showwarning("Missing input", "Please select all required variables.")
+        return
+
+    variables = [display_to_name[display] 
+                for display in selected_displays
                 ]
 
-    command = ["python", "main.py", analysis, *variables]
+    command = [sys.executable, MAIN_PY, analysis, *variables]
     print(command)  # zum Debuggen
-    subprocess.run(command)
+    
+    try:
+        result = subprocess.run(
+            command,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        print("STDOUT:", result.stdout)
+        print("STDERR:", result.stderr)
+        messagebox.showinfo("Success", result.stdout or "Analysis executed successfully.")
+    except subprocess.CalledProcessError as e:
+        print("RETURN CODE:", e.returncode)
+        print("STDOUT", e.stdout)
+        print("STDERR", e.stderr)
+        messagebox.showerror(
+            "Error",
+            e.stderr or e.stdout or str(e)
+        )
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
 
 combobox = ttk.Combobox(
     root,
