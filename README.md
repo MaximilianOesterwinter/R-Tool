@@ -15,26 +15,10 @@ This tool is designed to reduce the technical barrier of working with R syntax f
 
 ### 1. Required installations
 
-Make sure that RStudio, Git and Python are installed on your system.
-Add Rscript.exe, Python and Pandoc to your PATH.
-For a tutorial on how to do that, visit `https://www.wikihow.com/Change-the-PATH-Environment-Variable-on-Windows`.
-
-- Rscript.exe is usually found in `C:\Program Files\R\R-4.x.x\bin`.
-- Python can be automatically added to the PATH during installation.
-- The path to Pandoc can by found by running the following command in R:
-```R
-Sys.getenv("RSTUDIO_PANDOC")
-```
+Make sure that RStudio and Pandoc are installed on your system.
 ---
 
-Navigate to the folder where you want to install the program using the explorer.
-Right-click inside this folder and click "Open in Terminal".
-Once in the terminal, run the following command:
-```Bash
-git clone https://github.com/MaximilianOesterwinter/R-Tool.git
-```
-
----
+Download the ZIP-File and unpack it. You can find the File in the assets under the releases.
 
 ### 2. Install required packages
 
@@ -52,17 +36,6 @@ install.packages("tinytex")
 
 tinytex::install_tinytex()
 ```
-### 3. Verify installation
-
-Open the console (PowerShell or CMD) and run:
-
-```Bash
-Rscript --version
-python --version
-pandoc --version
-```
-
-If everything is installed correctly, the console will display the installed version of `Rscript`, `python` and `pandoc`.
 
 ### 4. Prepare your data
 
