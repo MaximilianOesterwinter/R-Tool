@@ -1,3 +1,9 @@
 output/
 templates/*.log
 variables.json
+.venv/
+build/
+dist/
+*.spec
+*.zip
+__pycache__/
