@@ -66,6 +66,8 @@ If everything is installed correctly, the console will display the installed ver
 
 ### 4. Prepare your data
 
+The tool comes with an example-dataset to try it out. When you are ready, you can replace the `survey_data.csv` file with your own dataset. It is important to keep the exact file-name. Alternatively you can change the source in `main.py` to your dataset-name. The corresponding line is marked in the code.
+
 Open the file `r-scripts\prepare_data.R` and add your desired data transformations in the designated section.
 
 👉 Important:
@@ -73,6 +75,12 @@ Chain commands using the pipe operator:
 ```R
 %>%
 ```
+
+You can also used an already prepared dataset with this program. Just delete the example-mutations in `r-scripts\prepare_data.R` as well as the pipe-operator `%>%` in this line:
+```R
+df_clean <- df %>%
+```
+
 
 ### 5. Done!
 

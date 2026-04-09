@@ -13,7 +13,7 @@ prepare_data <- function(path) {
   
   df <- readr::read_csv(path, na = c("", "NA"), show_col_types = FALSE)
   df_clean <- df %>%
-    
+                 ### 
   ################################
   # Don't edit above this line!!!#
   ################################
@@ -23,6 +23,7 @@ prepare_data <- function(path) {
   
   # As part of the included example-dataset the categorial variables are factorised.
   # You can savely delete the mutate() operator
+  # If you already transformed your data, you can delete the mutate() orperator and the pipe operator %>% above.
     
     mutate(
       gender = factor(gender, levels = c("male", "female")),
