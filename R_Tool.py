@@ -5,25 +5,22 @@ import os
 import subprocess
 import json
 import sys
+from pathlib import Path
+
+from main import get_variable_names, run_analysis as execute_backend_analysis
+from runtime_paths import BASE_DIR
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MAIN_PY = os.path.join(BASE_DIR, "main.py")
 
 def load_names():
-    out_path = os.path.join(BASE_DIR, "variables.json")
+    out_path = str(Path(BASE_DIR) / "variables.json")
 
-    subprocess.run(
-        [
-            sys.executable,
-            MAIN_PY,
-            "get_variables",
-            out_path
-        ], 
-        check=True,
-        capture_output=True,
-        text=True
-    )
+    result = get_variable_names(out_path)
 
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr or "Error while loading variables")
+    
     with open(out_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -91,39 +88,25 @@ def update_input_fields(event=None):
 def run_analysis():
     analysis = combobox.get()
 
-    selected_displays = [
-        entry.get().strip()
-        for entry in variable_entries
-    ]
-    if any(value == "Select variable" or not value for value in selected_displays):
-        messagebox.showwarning("Missing input", "Please select all required variables.")
-        return
-
-    variables = [display_to_name[display] 
-                for display in selected_displays
-                ]
-
-    command = [sys.executable, MAIN_PY, analysis, *variables]
-    print(command)  # zum Debuggen
+    variables = []
+    for entry in variable_entries:
+        display_value = entry.get()
+        if display_value in display_to_name:
+            variables.append(display_to_name[display_value])
+        elif display_value:
+            variables.append(display_value)
     
     try:
-        result = subprocess.run(
-            command,
-            check=True,
-            capture_output=True,
-            text=True
+        result = execute_backend_analysis(analysis, variables)
+
+        if result.returncode != 0:
+            raise RuntimeError(result.stderr or "Unknown Error in the R-Script.")
+        
+        messagebox.showinfo(
+            "Success",
+            result.stdout or "Analysis executed successfully."
         )
-        print("STDOUT:", result.stdout)
-        print("STDERR:", result.stderr)
-        messagebox.showinfo("Success", result.stdout or "Analysis executed successfully.")
-    except subprocess.CalledProcessError as e:
-        print("RETURN CODE:", e.returncode)
-        print("STDOUT", e.stdout)
-        print("STDERR", e.stderr)
-        messagebox.showerror(
-            "Error",
-            e.stderr or e.stdout or str(e)
-        )
+    
     except Exception as e:
         messagebox.showerror("Error", str(e))
 

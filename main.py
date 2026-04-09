@@ -1,213 +1,208 @@
+from __future__ import annotations
+
+import json
 import subprocess
 import argparse
 import sys
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+from runtime_paths import BASE_DIR, get_rscript_path, build_subprocess_env
+
 
 DATA_PATH = BASE_DIR / "data"/ "survey_data.csv"
                                ############
     # Enter your exact filename of the dataset here but keep the file-type
     ######################################################################
 
-parser = argparse.ArgumentParser()
-subparsers = parser.add_subparsers(dest="analysis")
+R_SCRIPTS_DIR = BASE_DIR / "r-scripts"
 
-# get_variables
-parser_get_variables = subparsers.add_parser("get_variables")
-parser_get_variables.add_argument("out_path")
+def run_r_script(script_name: str, *args: str) -> subprocess.CompletedProcess:
+    rscript_path = get_rscript_path()
+    script_path = R_SCRIPTS_DIR / script_name
 
-# df
-parser_df = subparsers.add_parser("df")
+    command = [rscript_path, str(script_path), str(DATA_PATH), *map(str, args)]
 
-# chi_square
-parser_chi = subparsers.add_parser("chi_square")
-parser_chi.add_argument("var1")
-parser_chi.add_argument("var2")
+    return subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        env=build_subprocess_env()
+    )
 
-# logit
-parser_logit = subparsers.add_parser("logit")
-parser_logit.add_argument("dependent_var")
-parser_logit.add_argument("independent_vars", nargs="+")
+def get_variable_names(out_path: str) -> subprocess.CompletedProcess:
+    rscript_path = get_rscript_path()
+    script_path = R_SCRIPTS_DIR / "get_variables.R"
 
-# lin_reg
-parser_lin_reg = subparsers.add_parser("lin_reg")
-parser_lin_reg.add_argument("target_var")
-parser_lin_reg.add_argument("predictor_vars", nargs="+")
+    command = [rscript_path, str(script_path), str(DATA_PATH), str(out_path)]
 
-# describe
-parser_describe = subparsers.add_parser("describe")
-parser_describe.add_argument("var1")
+    return subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        env=build_subprocess_env()
+    )
 
-# describeBy
-parser_describeBy = subparsers.add_parser("describeBy")
-parser_describeBy.add_argument("dependent_var")
-parser_describeBy.add_argument("group_var")
+def run_analysis(analysis: str, variables: list[str]) -> subprocess.CompletedProcess:
+    if analysis == "df":
+        return run_r_script("dataframe.R")
 
-# anova
-parser_anova = subparsers.add_parser("anova")
-parser_anova.add_argument("dependent_var")
-parser_anova.add_argument("independent_vars", nargs="+")
+    if analysis == "chi_square":
+        return run_r_script("chi_square.R", variables[0], variables[1])
 
-# unpaired_ttest
-parser_unpaired_ttest = subparsers.add_parser("unpaired_ttest")
-parser_unpaired_ttest.add_argument("var1")
-parser_unpaired_ttest.add_argument("var2_or_constant")
+    if analysis == "logit":
+        return run_r_script("logit_model.R", variables[0], *variables[1:])
 
-# paired_ttest
-parser_paired_ttest = subparsers.add_parser("paired_ttest")
-parser_paired_ttest.add_argument("var1")
-parser_paired_ttest.add_argument("var2")
+    if analysis == "lin_reg":
+        return run_r_script("lin_reg.R", variables[0], *variables[1:])
 
-# normality_test
-parser_norm_assumption_ttest = subparsers.add_parser("norm_test")
-parser_norm_assumption_ttest.add_argument("dependent_var")
-parser_norm_assumption_ttest.add_argument("group_var")
+    if analysis == "describe":
+        return run_r_script("describe.R", variables[0])
 
-# welch_test
-parser_welch_test = subparsers.add_parser("welch_test")
-parser_welch_test.add_argument("dependent_var")
-parser_welch_test.add_argument("group_var")
+    if analysis == "describeBy":
+        return run_r_script("describeBy.R", variables[0], variables[1])
 
-# correlation
-parser_correlation = subparsers.add_parser("correlation")
-parser_correlation.add_argument("var1")
-parser_correlation.add_argument("var2")
+    if analysis == "anova":
+        return run_r_script("anova.R", variables[0], *variables[1:])
 
-# mann_whitney_test
-parser_mann_whitney_test = subparsers.add_parser("mann_whitney_test")
-parser_mann_whitney_test.add_argument("dependent_var")
-parser_mann_whitney_test.add_argument("group_var")
+    if analysis == "unpaired_ttest":
+        return run_r_script("unpaired_ttest.R", variables[0], variables[1])
 
-args = parser.parse_args()
+    if analysis == "paired_ttest":
+        return run_r_script("paired_ttest.R", variables[0], variables[1])
 
-if args.analysis == "get_variables":
-    command = [
-        "Rscript",
-        "r-scripts/get_variables.R",
-        DATA_PATH,
-        args.out_path
-    ]
+    if analysis == "norm_test":
+        return run_r_script("normality_test.R", variables[0], variables[1])
 
-elif args.analysis == "df":
-    command = [
-        "Rscript",
-        "r-scripts/dataframe.R",
-        DATA_PATH
-    ]
+    if analysis == "welch_test":
+        return run_r_script("welch_test.R", variables[0], variables[1])
 
-elif args.analysis == "chi_square":
-    command = [
-        "Rscript",
-        "r-scripts/chi_square.R",
-        DATA_PATH,
-        args.var1,
-        args.var2
-    ]
+    if analysis == "correlation":
+        return run_r_script("correlation.R", variables[0], variables[1])
 
-elif args.analysis == "logit":
-    command = [
-        "Rscript",
-        "r-scripts/logit_model.R",
-        DATA_PATH,
-        args.dependent_var
-    ] + args.independent_vars
+    if analysis == "mann_whitney_test":
+        return run_r_script("mann_whitney_test.R", variables[0], variables[1])
 
-elif args.analysis == "lin_reg":
-    command = [
-        "Rscript",
-        "r-scripts/lin_reg.R",
-        DATA_PATH,
-        args.target_var
-    ] + args.predictor_vars
+    raise ValueError(f"Unbekannte Analyse: {analysis}")
 
-elif args.analysis == "describe":
-    command = [
-        "Rscript",
-        "r-scripts/describe.R",
-        DATA_PATH,
-        args.var1
-    ]
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="analysis")
 
-elif args.analysis == "describeBy":
-    command = [
-        "Rscript",
-        "r-scripts/describeBy.R",
-        DATA_PATH,
-        args.dependent_var,
-        args.group_var
-    ]
+    # get_variables
+    parser_get_variables = subparsers.add_parser("get_variables")
+    parser_get_variables.add_argument("out_path")
 
-elif args.analysis == "anova":
-    command = [
-        "Rscript",
-        "r-scripts/anova.R",
-        DATA_PATH,
-        args.dependent_var
-    ] + args.independent_vars
+    # df
+    subparsers.add_parser("df")
 
-elif args.analysis == "unpaired_ttest":
-    command = [
-        "Rscript",
-        "r-scripts/unpaired_ttest.R",
-        DATA_PATH,
-        args.var1,
-        args.var2_or_constant
-    ]
+    # chi_square
+    parser_chi = subparsers.add_parser("chi_square")
+    parser_chi.add_argument("var1")
+    parser_chi.add_argument("var2")
 
-elif args.analysis == "paired_ttest":
-    command = [
-        "Rscript",
-        "r-scripts/paired_ttest.R",
-        DATA_PATH,
-        args.var1,
-        args.var2
-    ]
+    # logit
+    parser_logit = subparsers.add_parser("logit")
+    parser_logit.add_argument("dependent_var")
+    parser_logit.add_argument("independent_vars", nargs="+")
 
-elif args.analysis == "norm_test":
-    command = [
-        "Rscript",
-        "r-scripts/normality_test.R",
-        DATA_PATH,
-        args.dependent_var,
-        args.group_var
-    ]
+    # lin_reg
+    parser_lin_reg = subparsers.add_parser("lin_reg")
+    parser_lin_reg.add_argument("target_var")
+    parser_lin_reg.add_argument("predictor_vars", nargs="+")
 
-elif args.analysis == "welch_test":
-    command = [
-        "Rscript",
-        "r-scripts/welch_test.R",
-        DATA_PATH,
-        args.dependent_var,
-        args.group_var
-    ]
+    # describe
+    parser_describe = subparsers.add_parser("describe")
+    parser_describe.add_argument("var1")
 
-elif args.analysis == "correlation":
-    command = [
-        "Rscript",
-        "r-scripts/correlation.R",
-        DATA_PATH,
-        args.var1,
-        args.var2
-    ]
+    # describeBy
+    parser_describeBy = subparsers.add_parser("describeBy")
+    parser_describeBy.add_argument("dependent_var")
+    parser_describeBy.add_argument("group_var")
 
-elif args.analysis == "mann_whitney_test":
-    command = [
-        "Rscript",
-        "r-scripts/mann_whitney_test.R",
-        DATA_PATH,
-        args.dependent_var,
-        args.group_var
-    ]
+    # anova
+    parser_anova = subparsers.add_parser("anova")
+    parser_anova.add_argument("dependent_var")
+    parser_anova.add_argument("independent_vars", nargs="+")
 
-else:
-    parser.print_help()
-    sys.exit(1)
+    # unpaired_ttest
+    parser_unpaired_ttest = subparsers.add_parser("unpaired_ttest")
+    parser_unpaired_ttest.add_argument("var1")
+    parser_unpaired_ttest.add_argument("var2_or_constant")
 
-result = subprocess.run(command, capture_output=True, text=True)
+    # paired_ttest
+    parser_paired_ttest = subparsers.add_parser("paired_ttest")
+    parser_paired_ttest.add_argument("var1")
+    parser_paired_ttest.add_argument("var2")
 
-if result.returncode != 0:
-    print("Error while executing the r-script:")
-    print(result.stderr)
-else:
+    # normality_test
+    parser_norm_assumption_ttest = subparsers.add_parser("norm_test")
+    parser_norm_assumption_ttest.add_argument("dependent_var")
+    parser_norm_assumption_ttest.add_argument("group_var")
+
+    # welch_test
+    parser_welch_test = subparsers.add_parser("welch_test")
+    parser_welch_test.add_argument("dependent_var")
+    parser_welch_test.add_argument("group_var")
+
+    # correlation
+    parser_correlation = subparsers.add_parser("correlation")
+    parser_correlation.add_argument("var1")
+    parser_correlation.add_argument("var2")
+
+    # mann_whitney_test
+    parser_mann_whitney_test = subparsers.add_parser("mann_whitney_test")
+    parser_mann_whitney_test.add_argument("dependent_var")
+    parser_mann_whitney_test.add_argument("group_var")
+
+    return parser
+
+def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    if not args.analysis:
+        parser.print_help()
+        return 1
+    
+    if args.analysis == "get_variables":
+        result = get_variable_names(args.out_path)
+    elif args.analysis == "df":
+        result = run_analysis("df", [])
+    elif args.analysis == "chi_square":
+        result = run_analysis("chi_square", [args.var1, args.var2])
+    elif args.analysis == "logit":
+        result = run_analysis("logit", [args.dependent_var, *args.independent_vars])
+    elif args.analysis == "lin_reg":
+        result = run_analysis("lin_reg", [args.target_var, *args.predictor_vars])
+    elif args.analysis == "describe":
+        result = run_analysis("describe", [args.var1])
+    elif args.analysis == "describeBy":
+        result = run_analysis("describeBy", [args.dependent_var, args.group_var])
+    elif args.analysis == "anova":
+        result = run_analysis("anova", [args.dependent_var, *args.independent_vars])
+    elif args.analysis == "unpaired_ttest":
+        result = run_analysis("unpaired_ttest", [args.var1, args.var2_or_constant])
+    elif args.analysis == "paired_ttest":
+        result = run_analysis("paired_ttest", [args.var1, args.var2])
+    elif args.analysis == "norm_test":
+        result = run_analysis("norm_test", [args.dependent_var, args.group_var])
+    elif args.analysis == "welch_test":
+        result = run_analysis("welch_test", [args.dependent_var, args.group_var])
+    elif args.analysis == "correlation":
+        result = run_analysis("correlation", [args.var1, args.var2])
+    elif args.analysis == "mann_whitney_test":
+        result = run_analysis("mann_whitney_test", [args.dependent_var, args.group_var])
+    else:
+        parser.print_help()
+        return 1
+    
+    if result.returncode != 0:
+        print("Error while executing the r-script:")
+        print(result.stderr)
+        return result.returncode
+    
     print(result.stdout)
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())
