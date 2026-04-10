@@ -39,20 +39,10 @@ tinytex::install_tinytex()
 
 ### 4. Prepare your data
 
-The tool comes with an example-dataset to try it out. When you are ready, you can replace the `survey_data.csv` file with your own dataset. It is important to keep the exact file-name. Alternatively you can change the source in `main.py` to your dataset-name. The corresponding line is marked in the code.
+The tool comes with two example-datasets to try it out.
 
-Open the file `r-scripts\prepare_data.R` and add your desired data transformations in the designated section.
-
-👉 Important:
-Chain commands using the pipe operator:
-```R
-%>%
-```
-
-You can also used an already prepared dataset with this program. Just delete the example-mutations in `r-scripts\prepare_data.R` as well as the pipe-operator `%>%` in this line:
-```R
-df_clean <- df %>%
-```
+Open the file `r-scripts\preparation_template.R` and add your desired data transformations in the designated section.
+Note, that you also have to set the correct path to your data in this file. All important locations are marked inside the template.
 
 
 ### 5. Done!
@@ -61,7 +51,7 @@ The tool is now ready to use 🎉
 
 ## 💻 Usage
 
-Open `R_Tool.R` and select the desired analysis. 
+Open `R_Tool.R` and select in the bottom right the dataset, you want to work with. After that, choose the desired analysis. 
 If variables are needed for the selected type of analysis, dropdown-menus will appear, where you can select your variables.
 Note, that the corresponding variable-type is written next to the variable-name, as not every analysis supports every type.
 Finally, press `Execute analysis` and wait a few seconds for the output-PDF to appear.

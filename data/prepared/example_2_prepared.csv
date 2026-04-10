@@ -1,0 +1,16 @@
+id,age,gender,income,education,satisfaction,used_product,recommendation_score,region
+1,25,male,32000,bachelor,4,yes,7,urban
+2,34,female,45000,master,5,yes,9,suburban
+3,29,female,38000,bachelor,3,no,6,urban
+4,45,male,52000,phd,4,yes,8,rural
+5,52,female,61000,master,5,yes,10,suburban
+6,23,male,29000,highschool,2,no,5,urban
+7,39,female,47000,bachelor,4,yes,8,rural
+8,31,male,41000,master,3,no,6,suburban
+9,28,female,36000,bachelor,4,yes,7,urban
+10,47,male,55000,phd,5,yes,9,rural
+11,36,female,48000,master,4,yes,8,suburban
+12,27,male,34000,bachelor,3,no,6,urban
+13,42,female,50000,master,5,yes,9,rural
+14,33,male,43000,bachelor,4,yes,7,suburban
+15,50,female,60000,phd,5,yes,10,rural
