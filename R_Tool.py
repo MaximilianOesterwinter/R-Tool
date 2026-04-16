@@ -38,10 +38,10 @@ root.maxsize(1280, 1080)
 root.geometry("800x800+50+50")
 
 two_variables_needed = [
-    "chi_square", "paired_ttest", "unpaired_ttest", "norm_test",
-    "welch_test", "describeBy", "correlation", "mann_whitney_test"
+    "chi-square", "paired-t-test", "unpaired-t-test", "normality-test",
+    "welch-test", "describeBy", "correlation", "mann-whitney-u-test"
 ]
-more_variables_needed = ["logit", "lin_reg", "anova"]
+more_variables_needed = ["logistic-regression", "linear-regression", "anova"]
 one_variable_needed = ["describe"]
 
 variable_entries = []
@@ -145,13 +145,13 @@ def run_analysis():
 combobox = ttk.Combobox(
     root,
     values=[
-        "df", "describe", "describeBy", "anova", "chi_square", "logit",
-        "lin_reg", "paired_ttest", "unpaired_ttest", "norm_test",
-        "welch_test", "correlation", "mann_whitney_test"
+        "dataframe", "describe", "describeBy", "anova", "chi-square", "logistic-regression",
+        "linear-regression", "paired-t-test", "unpaired-t-test", "normality-test",
+        "welch-test", "correlation", "mann-whitney-u-test"
     ],
     state="readonly"
 )
-combobox.set("df")
+combobox.set("Select Analysis")
 combobox.pack(fill="x", padx=5, pady=5)
 combobox.bind("<<ComboboxSelected>>", update_input_fields)
 

@@ -57,16 +57,16 @@ def get_variable_names(out_path: str, dataset_name: str | None = None) -> subpro
 
 
 def run_analysis(analysis: str, variables: list[str], dataset_name: str | None = None) -> subprocess.CompletedProcess:
-    if analysis == "df":
+    if analysis == "dataframe":
         return run_r_script("dataframe.R", dataset_name)
 
-    if analysis == "chi_square":
+    if analysis == "chi-square":
         return run_r_script("chi_square.R", dataset_name, variables[0], variables[1])
 
-    if analysis == "logit":
+    if analysis == "logistic-regression":
         return run_r_script("logit_model.R", dataset_name, variables[0], *variables[1:])
 
-    if analysis == "lin_reg":
+    if analysis == "linear-regression":
         return run_r_script("lin_reg.R", dataset_name, variables[0], *variables[1:])
 
     if analysis == "describe":
@@ -78,25 +78,25 @@ def run_analysis(analysis: str, variables: list[str], dataset_name: str | None =
     if analysis == "anova":
         return run_r_script("anova.R", dataset_name, variables[0], *variables[1:])
 
-    if analysis == "unpaired_ttest":
+    if analysis == "unpaired-t-test":
         return run_r_script("unpaired_ttest.R", dataset_name, variables[0], variables[1])
 
-    if analysis == "paired_ttest":
+    if analysis == "paired-t-test":
         return run_r_script("paired_ttest.R", dataset_name, variables[0], variables[1])
 
-    if analysis == "norm_test":
+    if analysis == "normality-test":
         return run_r_script("normality_test.R", dataset_name, variables[0], variables[1])
 
-    if analysis == "welch_test":
+    if analysis == "welch-test":
         return run_r_script("welch_test.R", dataset_name, variables[0], variables[1])
 
     if analysis == "correlation":
         return run_r_script("correlation.R", dataset_name, variables[0], variables[1])
 
-    if analysis == "mann_whitney_test":
+    if analysis == "mann-whitney-u-test":
         return run_r_script("mann_whitney_test.R", dataset_name, variables[0], variables[1])
 
-    raise ValueError(f"Unbekannte Analyse: {analysis}")
+    raise ValueError(f"Unknown Analysis: {analysis}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -108,17 +108,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser_get_variables = subparsers.add_parser("get_variables")
     parser_get_variables.add_argument("out_path")
 
-    subparsers.add_parser("df")
+    subparsers.add_parser("dataframe")
 
-    parser_chi = subparsers.add_parser("chi_square")
+    parser_chi = subparsers.add_parser("chi-square")
     parser_chi.add_argument("var1")
     parser_chi.add_argument("var2")
 
-    parser_logit = subparsers.add_parser("logit")
+    parser_logit = subparsers.add_parser("logistic-regression")
     parser_logit.add_argument("dependent_var")
     parser_logit.add_argument("independent_vars", nargs="+")
 
-    parser_lin_reg = subparsers.add_parser("lin_reg")
+    parser_lin_reg = subparsers.add_parser("linear-regression")
     parser_lin_reg.add_argument("target_var")
     parser_lin_reg.add_argument("predictor_vars", nargs="+")
 
@@ -133,19 +133,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser_anova.add_argument("dependent_var")
     parser_anova.add_argument("independent_vars", nargs="+")
 
-    parser_unpaired_ttest = subparsers.add_parser("unpaired_ttest")
+    parser_unpaired_ttest = subparsers.add_parser("unpaired-t-test")
     parser_unpaired_ttest.add_argument("var1")
     parser_unpaired_ttest.add_argument("var2_or_constant")
 
-    parser_paired_ttest = subparsers.add_parser("paired_ttest")
+    parser_paired_ttest = subparsers.add_parser("paired-t-test")
     parser_paired_ttest.add_argument("var1")
     parser_paired_ttest.add_argument("var2")
 
-    parser_norm_assumption_ttest = subparsers.add_parser("norm_test")
+    parser_norm_assumption_ttest = subparsers.add_parser("normality-test")
     parser_norm_assumption_ttest.add_argument("dependent_var")
     parser_norm_assumption_ttest.add_argument("group_var")
 
-    parser_welch_test = subparsers.add_parser("welch_test")
+    parser_welch_test = subparsers.add_parser("welch-test")
     parser_welch_test.add_argument("dependent_var")
     parser_welch_test.add_argument("group_var")
 
@@ -153,7 +153,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser_correlation.add_argument("var1")
     parser_correlation.add_argument("var2")
 
-    parser_mann_whitney_test = subparsers.add_parser("mann_whitney_test")
+    parser_mann_whitney_test = subparsers.add_parser("mann-whitney-u-test")
     parser_mann_whitney_test.add_argument("dependent_var")
     parser_mann_whitney_test.add_argument("group_var")
 
@@ -170,32 +170,32 @@ def main() -> int:
 
     if args.analysis == "get_variables":
         result = get_variable_names(args.out_path, args.dataset)
-    elif args.analysis == "df":
-        result = run_analysis("df", [], args.dataset)
-    elif args.analysis == "chi_square":
-        result = run_analysis("chi_square", [args.var1, args.var2], args.dataset)
-    elif args.analysis == "logit":
-        result = run_analysis("logit", [args.dependent_var, *args.independent_vars], args.dataset)
-    elif args.analysis == "lin_reg":
-        result = run_analysis("lin_reg", [args.target_var, *args.predictor_vars], args.dataset)
+    elif args.analysis == "dataframe":
+        result = run_analysis("dataframe", [], args.dataset)
+    elif args.analysis == "chi-square":
+        result = run_analysis("chi-square", [args.var1, args.var2], args.dataset)
+    elif args.analysis == "logistic-regression":
+        result = run_analysis("logistic-regression", [args.dependent_var, *args.independent_vars], args.dataset)
+    elif args.analysis == "linear-regression":
+        result = run_analysis("linear-regression", [args.target_var, *args.predictor_vars], args.dataset)
     elif args.analysis == "describe":
         result = run_analysis("describe", [args.var1], args.dataset)
     elif args.analysis == "describeBy":
         result = run_analysis("describeBy", [args.dependent_var, args.group_var], args.dataset)
     elif args.analysis == "anova":
         result = run_analysis("anova", [args.dependent_var, *args.independent_vars], args.dataset)
-    elif args.analysis == "unpaired_ttest":
-        result = run_analysis("unpaired_ttest", [args.var1, args.var2_or_constant], args.dataset)
-    elif args.analysis == "paired_ttest":
-        result = run_analysis("paired_ttest", [args.var1, args.var2], args.dataset)
-    elif args.analysis == "norm_test":
-        result = run_analysis("norm_test", [args.dependent_var, args.group_var], args.dataset)
-    elif args.analysis == "welch_test":
-        result = run_analysis("welch_test", [args.dependent_var, args.group_var], args.dataset)
+    elif args.analysis == "unpaired-t-test":
+        result = run_analysis("unpaired-t-test", [args.var1, args.var2_or_constant], args.dataset)
+    elif args.analysis == "paired-t-test":
+        result = run_analysis("paired-t-test", [args.var1, args.var2], args.dataset)
+    elif args.analysis == "normality-test":
+        result = run_analysis("normality-test", [args.dependent_var, args.group_var], args.dataset)
+    elif args.analysis == "welch-test":
+        result = run_analysis("welch-test", [args.dependent_var, args.group_var], args.dataset)
     elif args.analysis == "correlation":
         result = run_analysis("correlation", [args.var1, args.var2], args.dataset)
-    elif args.analysis == "mann_whitney_test":
-        result = run_analysis("mann_whitney_test", [args.dependent_var, args.group_var], args.dataset)
+    elif args.analysis == "mann-whitney-u-test":
+        result = run_analysis("mann-whitney-u-test", [args.dependent_var, args.group_var], args.dataset)
     else:
         parser.print_help()
         return 1
@@ -205,7 +205,7 @@ def main() -> int:
         print(result.stderr)
         return result.returncode
 
-    print(result.stdout)
+    print("Analysis executed successfully!")
     return 0
 
 

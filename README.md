@@ -22,7 +22,7 @@ Download the ZIP-File and unpack it. You can find the File in the assets under t
 
 ### 2. Install required packages
 
-Open a new R script and run the following commands:
+Open a new R script and run the following commands (You can copy/paste them and run them one by one):
 
 ```R
 install.packages("readr")
@@ -40,9 +40,21 @@ tinytex::install_tinytex()
 ### 4. Prepare your data
 
 The tool comes with two example-datasets to try it out.
+---
 
-Open the file `r-scripts\preparation_template.R` and add your desired data transformations in the designated section.
-Note, that you also have to set the correct path to your data in this file. All important locations are marked inside the template.
+When you want to add your own data, complete the following steps:
+
+- Open the file `r-scripts\preparation_template.R`
+- Import your dataset into the R-Script using the pre-written command. If you save your raw data in ```/data/raw/```, you only need minimal changes to the provided path!
+- Add your desired data transformations in the designated section.
+- Complete the output-path at the bottom. If you used the trick in step 2, you can use the import-path from above with small changes at the end: Replace ```raw``` with ```prepared``` and change the file-name to a recognizable name you like.
+---
+
+⚠️ Notes:
+
+- The prepared dataset needs to be in the folder ```/data/prepared/``` for the program to find it!
+- All locations, that need to be tampered with, are marked in the template!
+- Don't forget to save the template in a separate file. If the analyses don't work properly, it's mostly due to improperly formatted variables in the dataset. Being able to quickly change the formatting is invaluable for a smooth workflow!
 
 
 ### 5. Done!
@@ -63,23 +75,23 @@ Finally, press `Execute analysis` and wait a few seconds for the output-PDF to a
 
 | Analysis | Description | Required Variables |
 |---------|--------------|---------------------|
-| `df` | Overview of the dataframe | none |
+| `dataframe` | Overview of the dataframe | none |
 | `describe` | Descriptive statistics | 1 variable |
 | `describeBy` | Grouped descriptive statistics | 1 DV, 1 binary grouping variable |
-| `chi_square` | Chi-square test | 2 variables |
-| `logit` | Logistic regression | 1 IV, >= 1 DV |
-| `lin_reg` | Linear regression | 1 IV, >= 1 DV |
+| `chi-square` | Chi-square test | 2 variables |
+| `logistic-regression` | Logistic regression | 1 IV, >= 1 DV |
+| `linear-regression` | Linear regression | 1 IV, >= 1 DV |
 | `anova` | ANOVA (one- or two-factor) | 1 DV, 1-2 IVs |
-| `unpaired_ttest` | One-sample or unpaired two-sample t-test | 1 Variable and 1 Constant or 2 Variables |
-| `paired_ttest` | Paired two-sample t-test | 2 Variables |
-| `norm_test` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
-| `welch_test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
+| `unpaired-t-test` | One-sample or unpaired two-sample t-test | 1 Variable and 1 Constant or 2 Variables |
+| `paired-t-test` | Paired two-sample t-test | 2 Variables |
+| `normality-test` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
+| `welch-test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
 | `correlation` | Pearson's r, Kendall's tau, Spearman's rho | 2 numerical variables |
-| `mann_whitney_test` | non-parametric Mann-Whitney-U-Test | 1 DV, 1 binary grouping variable |
+| `mann-whitney-u-test` | non-parametric Mann-Whitney-U-Test | 1 DV, 1 binary grouping variable |
 
 ### 📊 Details
 
-`df`
+`dataframe`
 Displays an overview of the entire dataframe.
 
 `describe`
@@ -89,13 +101,13 @@ Calculates basic descriptive statistics.
 Calculates grouped descriptive statistics. Mainly to check for equal variances.
 If variances are about equal, perform `unpaired_ttest`, else perform `welch_test`.
 
-`chi_square`
+`chi-square`
 Performs a chi-square test between two variables.
 
-`logit`
+`logistic-regression`
 Performs a logistic regression analysis.
 
-`lin_reg`
+`linear-regression`
 Performs a linear regression analysis.
 
 `anova`
@@ -103,24 +115,24 @@ Performs an ANOVA including the required post-hoc tests:
 - 1 IV -> one-way ANOVA, Cohen's f
 - 2 IVs -> two-way ANOVA
 
-`unpaired_ttest`
+`unpaired-t-test`
 Performs a one-sample or unpaired two-sample t-test, depending on the number of variables given:
 - 1 DV and 1 Constant -> one-sample t-test
 - 2 Variables -> two-sample t-test for equal variances!!! If the variances are not equal, perform `welch_test`.
 
-`paired_ttest`
+`paired-t-test`
 Performs a paired two-sample t-test and also outputs the paired normality
 
-`norm_test`
+`normality-test`
 Performs a Shapiro-Wilk normality test on a numerical DV grouped by the grouping variable
 
-`welch_test`
+`welch-test`
 Performs a Welch test for two unpaired samples, while their variances are unequal.
 
 `correlation`
 Calculates Pearson's r, Kendall's tau and Spearman's rho and plots the two variables.
 
-`mann_whitney_test`
+`mann-whitney-u-test`
 Performs the non-parametric Mann-Whitney-U-Test.
 
 ## ⚠️ Notes
