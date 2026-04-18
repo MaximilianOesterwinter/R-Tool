@@ -110,7 +110,7 @@ class RToolGUI:
 
         tk.Radiobutton(
             self.mode_frame,
-            text="Analyse",
+            text="Analysis",
             variable=self.mode_var,
             value="analysis",
             command=self.on_mode_change
@@ -118,7 +118,7 @@ class RToolGUI:
 
         tk.Radiobutton(
             self.mode_frame,
-            text="Grafik",
+            text="Graphics",
             variable=self.mode_var,
             value="plot",
             command=self.on_mode_change

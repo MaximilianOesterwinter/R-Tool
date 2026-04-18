@@ -1,0 +1,37 @@
+---
+title: "Plot Report"
+output: pdf_document
+params:
+  plot_title: ""
+  dataset_name: ""
+  variable_x: ""
+  variable_y: ""
+  plot_type: ""
+  description_text: ""
+  plot_path: ""
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+# `r params$plot_title`
+
+**Plot type:** `r params$plot_type`  
+**Dataset:** `r params$dataset_name`  
+**X variable:** `r params$variable_x`  
+**Y variable:** `r if (nzchar(params$variable_y)) params$variable_y else "-"`
+
+## Description
+
+`r params$description_text`
+
+## Plot
+
+```{r plot_section, eval = nzchar(params$plot_path)}
+knitr::include_graphics(params$plot_path)
+```

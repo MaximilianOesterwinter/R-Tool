@@ -27,6 +27,7 @@ Open a new R script and run the following commands (You can copy/paste them and 
 ```R
 install.packages("readr")
 install.packages("dplyr")
+install.packages("ggplot2")
 install.packages("rmarkdown")
 install.packages("knitr")
 install.packages("psych")
