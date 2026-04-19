@@ -62,7 +62,7 @@ def load_names(dataset_name: str):
 class RToolGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("R-Tool")
+        self.root.title("R-Tool version 1.2.0")
         self.root.minsize(300, 300)
         self.root.maxsize(1280, 1080)
         self.root.geometry("900x850+50+50")

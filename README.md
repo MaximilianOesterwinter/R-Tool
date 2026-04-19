@@ -64,7 +64,9 @@ The tool is now ready to use 🎉
 
 ## 💻 Usage
 
-Open `R_Tool.R` and select in the bottom right the dataset, you want to work with. After that, choose the desired analysis. 
+Open `R_Tool.R` and select in the bottom right the dataset, you want to work with. 
+Then you can choose in the bottom right, whether you want to perform an analysis or create a plot.
+Choose the desired analysis or plot-type. 
 If variables are needed for the selected type of analysis, dropdown-menus will appear, where you can select your variables.
 Note, that the corresponding variable-type is written next to the variable-name, as not every analysis supports every type.
 Finally, press `Execute analysis` and wait a few seconds for the output-PDF to appear.
@@ -76,65 +78,75 @@ Finally, press `Execute analysis` and wait a few seconds for the output-PDF to a
 
 | Analysis | Description | Required Variables |
 |---------|--------------|---------------------|
-| `dataframe` | Overview of the dataframe | none |
-| `describe` | Descriptive statistics | 1 variable |
-| `describeBy` | Grouped descriptive statistics | 1 DV, 1 binary grouping variable |
-| `chi-square` | Chi-square test | 2 variables |
-| `logistic-regression` | Logistic regression | 1 IV, >= 1 DV |
-| `linear-regression` | Linear regression | 1 IV, >= 1 DV |
-| `anova` | ANOVA (one- or two-factor) | 1 DV, 1-2 IVs |
-| `unpaired-t-test` | One-sample or unpaired two-sample t-test | 1 Variable and 1 Constant or 2 Variables |
-| `paired-t-test` | Paired two-sample t-test | 2 Variables |
-| `normality-test` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
-| `welch-test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
-| `correlation` | Pearson's r, Kendall's tau, Spearman's rho | 2 numerical variables |
-| `mann-whitney-u-test` | non-parametric Mann-Whitney-U-Test | 1 DV, 1 binary grouping variable |
+| `Dataframe` | Overview of the dataframe | none |
+| `Describe` | Descriptive statistics | 1 variable |
+| `Describe By` | Grouped descriptive statistics | 1 DV, 1 binary grouping variable |
+| `Chi Square` | Chi-square test | 2 variables |
+| `Logit Model` | Logistic regression | 1 IV, >= 1 DV |
+| `Linear Regression` | Linear regression | 1 IV, >= 1 DV |
+| `ANOVA` | ANOVA (one- or two-factor) | 1 DV, 1-2 IVs |
+| `Unpaired t-test` | One-sample or unpaired two-sample t-test | 1 Variable and 1 Constant or 2 Variables |
+| `Paired t-test` | Paired two-sample t-test | 2 Variables |
+| `Normality Test` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
+| `Welch Test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
+| `Correlation` | Pearson's r, Kendall's tau, Spearman's rho | 2 numerical variables |
+| `Mann-Whitney Test` | non-parametric Mann-Whitney-U-Test | 1 DV, 1 binary grouping variable |
 
 ### 📊 Details
 
-`dataframe`
+`Dataframe`
 Displays an overview of the entire dataframe.
 
-`describe`
+`Describe`
 Calculates basic descriptive statistics.
 
-`describeBy`
+`Describe By`
 Calculates grouped descriptive statistics. Mainly to check for equal variances.
 If variances are about equal, perform `unpaired_ttest`, else perform `welch_test`.
 
-`chi-square`
+`Chi Square`
 Performs a chi-square test between two variables.
 
-`logistic-regression`
+`Logit Model`
 Performs a logistic regression analysis.
 
-`linear-regression`
+`Linear Regression`
 Performs a linear regression analysis.
 
-`anova`
+`ANOVA`
 Performs an ANOVA including the required post-hoc tests:
 - 1 IV -> one-way ANOVA, Cohen's f
 - 2 IVs -> two-way ANOVA
 
-`unpaired-t-test`
+`Unpaired t-test`
 Performs a one-sample or unpaired two-sample t-test, depending on the number of variables given:
 - 1 DV and 1 Constant -> one-sample t-test
 - 2 Variables -> two-sample t-test for equal variances!!! If the variances are not equal, perform `welch_test`.
 
-`paired-t-test`
+`Paired t-test`
 Performs a paired two-sample t-test and also outputs the paired normality
 
-`normality-test`
+`Normality Test`
 Performs a Shapiro-Wilk normality test on a numerical DV grouped by the grouping variable
 
-`welch-test`
+`Welch Test`
 Performs a Welch test for two unpaired samples, while their variances are unequal.
 
-`correlation`
+`Correlation`
 Calculates Pearson's r, Kendall's tau and Spearman's rho and plots the two variables.
 
-`mann-whitney-u-test`
+`Mann-Whitney Test`
 Performs the non-parametric Mann-Whitney-U-Test.
+
+## 📈 Supported Plots
+
+- Histogram
+- Boxplot
+- Boxplot by Group
+- Scatterplot
+- Barplot
+- Barplot by Group
+- Lineplot
 
 ## ⚠️ Notes
 
