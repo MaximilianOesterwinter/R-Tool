@@ -1,14 +1,36 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import json
+import webbrowser
 from pathlib import Path
 
+from version import APP_VERSION
+from update_check import is_newer_version_available
 from main import get_variable_names, run_analysis, run_plot
 from runtime_paths import BASE_DIR
 
 BASE_DIR = Path(BASE_DIR)
 PREPARED_DATA_DIR = BASE_DIR / "data" / "prepared"
 
+def check_for_updates():
+    is_newer, release = is_newer_version_available(APP_VERSION)
+    if not is_newer or not release:
+        return
+    
+    latest_tag = release.get("tag_name", "unknown")
+    html_url = release.get("html_url", "")
+    body = release.get("body", "")
+
+    msg = (
+        f"A new version is available.\n\n"
+        f"Installed: v{APP_VERSION}\n"
+        f"New: {latest_tag}\n\n"
+        f"Open release-page?"
+    )
+
+    if messagebox.askyesno("Update available", msg):
+        if html_url:
+            webbrowser.open(html_url)
 
 METHOD_CONFIG = {
     "analysis": {
@@ -306,5 +328,6 @@ class RToolGUI:
 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.after(500, check_for_updates)
     app = RToolGUI(root)
     root.mainloop()
