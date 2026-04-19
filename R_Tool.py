@@ -118,7 +118,7 @@ class RToolGUI:
 
         tk.Radiobutton(
             self.mode_frame,
-            text="Graphics",
+            text="Plots",
             variable=self.mode_var,
             value="plot",
             command=self.on_mode_change

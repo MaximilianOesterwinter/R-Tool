@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 **Plot type:** `r params$plot_type`  
 **Dataset:** `r params$dataset_name`  
-**X variable:** `r params$variable_x`  
+**X variable:** `r if (nzchar(params$variable_x)) params$variable_x else "-"`  
 **Y variable:** `r if (nzchar(params$variable_y)) params$variable_y else "-"`
 
 ## Description
