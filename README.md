@@ -33,6 +33,7 @@ install.packages("knitr")
 install.packages("psych")
 install.packages("car")
 install.packages("DescTools")
+install.packages("readxl")
 install.packages("tinytex")
 
 tinytex::install_tinytex()
@@ -40,15 +41,15 @@ tinytex::install_tinytex()
 
 ### 4. Prepare your data
 
-The tool comes with two example-datasets to try it out.
+The tool comes with one example-dataset to try it out.
 ---
 
 When you want to add your own data, complete the following steps:
 
 - Open the file `r-scripts\preparation_template.R`
-- Import your dataset into the R-Script using the pre-written command. If you save your raw data in ```/data/raw/```, you only need minimal changes to the provided path!
+- Import your dataset into the R-Script.
 - Add your desired data transformations in the designated section.
-- Complete the output-path at the bottom. If you used the trick in step 2, you can use the import-path from above with small changes at the end: Replace ```raw``` with ```prepared``` and change the file-name to a recognizable name you like.
+- Complete the output-path at the bottom.
 ---
 
 ⚠️ Notes:
@@ -158,7 +159,6 @@ Performs the non-parametric Mann-Whitney-U-Test.
 - More functionality for the GUI
 - Non-parametric statistical methods (e.g., Wilcoxon, Kruskal–Wallis)
 - Effect size calculations (e.g., Cohen’s d, η², Cramér’s V)
-- Enhanced data visualization (e.g., histograms, boxplots, scatter plots)
 - Factor analysis (e.g., PCA, exploratory factor analysis)
 
 ## 📄 License

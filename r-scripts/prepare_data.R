@@ -1,13 +1,7 @@
-prepare_data <- function(path) {
-  if (!requireNamespace("readr", quietly = TRUE)) {
-    stop("Package 'readr' not installed.")
-  }
+prepare_data <- function(path, sheet = 1) {
+  ext <- tolower(tools::file_ext(path))
   
-  df <- readr::read_csv(
-    path,
-    na = c("", "NA"),
-    show_col_types = FALSE
-  )
+  df <- readRDS(path)
   
   return(df)
 }

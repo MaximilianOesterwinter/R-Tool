@@ -61,6 +61,7 @@ def get_rscript_path() -> str:
 
     if system == "Windows":
         candidates = [
+            Path(r"C:\Program Files\R\R-4.6.0\bin\Rscript.exe"),
             Path(r"C:\Program Files\R\R-4.5.1\bin\Rscript.exe"),
             Path(r"C:\Program Files\R\R-4.5.0\bin\Rscript.exe"),
             Path(r"C:\Program Files\R\R-4.4.3\bin\Rscript.exe"),

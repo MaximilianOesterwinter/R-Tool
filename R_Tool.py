@@ -66,7 +66,7 @@ def get_available_datasets():
 
     return sorted(
         p.name for p in PREPARED_DATA_DIR.iterdir()
-        if p.is_file() and p.suffix.lower() == ".csv"
+        if p.is_file() and p.suffix.lower() == ".rds"
     )
 
 

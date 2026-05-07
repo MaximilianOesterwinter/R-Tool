@@ -10,7 +10,7 @@ from runtime_paths import BASE_DIR, get_rscript_path, build_subprocess_env
 BASE_DIR = Path(BASE_DIR)
 R_SCRIPTS_DIR = BASE_DIR / "r-scripts"
 PREPARED_DATA_DIR = BASE_DIR / "data" / "prepared"
-DEFAULT_DATASET = "example_1_prepared.csv"
+DEFAULT_DATASET = "example_1_prepared.rds"
 
 
 def resolve_dataset_path(dataset_name: str | None) -> Path:
@@ -22,8 +22,8 @@ def resolve_dataset_path(dataset_name: str | None) -> Path:
     if not dataset_path.exists():
         raise FileNotFoundError(f"Dataset not found: {dataset_path}")
 
-    if dataset_path.suffix.lower() != ".csv":
-        raise ValueError("Only .csv datasets are supported.")
+    if dataset_path.suffix.lower() != ".rds":
+        raise ValueError("Only .rds datasets are supported.")
 
     return dataset_path
 
