@@ -318,7 +318,7 @@ class RToolGUI:
         combo.pack(fill="x", padx=5, pady=2)
 
         if self.variable_display:
-            combo.set("Select variable")
+            combo.set("Select variable or enter constant")
         else:
             combo.set("No variables available")
 
@@ -380,13 +380,19 @@ class RToolGUI:
         variables = []
 
         for entry in self.variable_entries:
-            display_value = entry.get().strip()
+            value = entry.get().strip()
 
-            if not display_value or display_value in ("Select variable", "No variables available"):
+            if not value or value in (
+                "Select variable",
+                "No variables available",
+                "Select variable or enter constant"
+            ):
                 continue
 
-            if display_value in self.display_to_name:
-                variables.append(self.display_to_name[display_value])
+            if value in self.display_to_name:
+                variables.append(self.display_to_name[value])
+            else:
+                variables.append(value)
 
         return variables
 
