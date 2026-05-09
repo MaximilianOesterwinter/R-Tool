@@ -24,8 +24,8 @@ source(file.path("r-scripts", "prepare_data.R"))
 df <- prepare_data(data_path)
 
 plot <- ggplot(df, aes(y = .data[[var1]], x = .data[[var2]])) +
-  geom_boxplot(fill = c("lightgreen", "steelblue"))
-
+  geom_boxplot()
+#fill = c("lightgreen", "steelblue"
 output_dir <- file.path(project_dir, "output")
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)

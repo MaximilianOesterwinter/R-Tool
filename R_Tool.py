@@ -36,26 +36,26 @@ METHOD_CONFIG = {
     "analysis": {
         "df": {"label": "Dataframe", "var_count": 0},
         "describe": {"label": "Describe", "var_count": 1},
-        "describeBy": {"label": "Describe By", "var_count": 2},
+        "describeBy": {"label": "Describe By", "var_count": "dep_group"},
         "anova": {"label": "ANOVA", "var_count": "multiple"},
         "chi_square": {"label": "Chi Square", "var_count": 2},
         "logit": {"label": "Logit Model", "var_count": "multiple"},
         "lin_reg": {"label": "Linear Regression", "var_count": "multiple"},
         "paired_ttest": {"label": "Paired t-test", "var_count": 2},
-        "unpaired_ttest": {"label": "Unpaired t-test", "var_count": 2},
-        "norm_test": {"label": "Normality Test", "var_count": 2},
-        "welch_test": {"label": "Welch Test", "var_count": 2},
+        "unpaired_ttest": {"label": "Unpaired t-test", "var_count": "var_const"},
+        "norm_test": {"label": "Normality Test", "var_count": "dep_group"},
+        "welch_test": {"label": "Welch Test", "var_count": "dep_group"},
         "correlation": {"label": "Correlation", "var_count": 2},
-        "mann_whitney_test": {"label": "Mann-Whitney Test", "var_count": 2},
+        "mann_whitney_test": {"label": "Mann-Whitney Test", "var_count": "dep_group"},
     },
     "plot": {
-        "histogram": {"label": "Histogram", "var_count": 1},
-        "boxplot": {"label": "Boxplot", "var_count": 1},
-        "boxplot_by_group": {"label": "Boxplot by Group", "var_count": 2},
-        "scatterplot": {"label": "Scatterplot", "var_count": 2},
-        "barplot": {"label": "Barplot", "var_count": 1},
-        "barplot_by_group": {"label": "Barplot by Group", "var_count": 2},
-        "lineplot": {"label": "Lineplot", "var_count": 2},
+        "histogram": {"label": "Histogram", "var_count": "x"},
+        "boxplot": {"label": "Boxplot", "var_count": "x"},
+        "boxplot_by_group": {"label": "Boxplot by Group", "var_count": "grouped"},
+        "scatterplot": {"label": "Scatterplot", "var_count": "xy"},
+        "barplot": {"label": "Barplot", "var_count": "y"},
+        "barplot_by_group": {"label": "Barplot by Group", "var_count": "grouped"},
+        "lineplot": {"label": "Lineplot", "var_count": "xy"},
     }
 }
 
@@ -216,6 +216,113 @@ class RToolGUI:
             combo.set("No variables available")
 
         self.variable_entries.append(combo)
+    
+    def add_variable_field_x(self):
+        label = tk.Label(self.input_frame, text="Variable x-axis")
+        label.pack(anchor="w")
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            values=self.variable_display,
+            state="readonly"
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+
+        if self.variable_display:
+            combo.set("Select variable")
+        else:
+            combo.set("No variables available")
+
+        self.variable_entries.append(combo)
+    
+    def add_variable_field_y(self):
+        label = tk.Label(self.input_frame, text="Variable y-axis")
+        label.pack(anchor="w")
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            values=self.variable_display,
+            state="readonly"
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+
+        if self.variable_display:
+            combo.set("Select variable")
+        else:
+            combo.set("No variables available")
+
+        self.variable_entries.append(combo)
+    
+    def add_variable_field_grouping(self):
+        label = tk.Label(self.input_frame, text="Grouping-variable")
+        label.pack(anchor="w")
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            values=self.variable_display,
+            state="readonly"
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+
+        if self.variable_display:
+            combo.set("Select variable")
+        else:
+            combo.set("No variables available")
+
+        self.variable_entries.append(combo)
+    
+    def add_variable_field_dependent(self):
+        label = tk.Label(self.input_frame, text="Dependent variable")
+        label.pack(anchor="w")
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            values=self.variable_display,
+            state="readonly"
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+
+        if self.variable_display:
+            combo.set("Select variable")
+        else:
+            combo.set("No variables available")
+
+        self.variable_entries.append(combo)
+    
+    def add_variable_field_independent(self):
+        label = tk.Label(self.input_frame, text="Independent variable")
+        label.pack(anchor="w")
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            values=self.variable_display,
+            state="readonly"
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+
+        if self.variable_display:
+            combo.set("Select variable")
+        else:
+            combo.set("No variables available")
+
+        self.variable_entries.append(combo)
+    
+    def add_variable_field_write(self):
+        label = tk.Label(self.input_frame, text="Variable or constant")
+        label.pack(anchor="w")
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            values=self.variable_display
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+
+        if self.variable_display:
+            combo.set("Select variable")
+        else:
+            combo.set("No variables available")
+
+        self.variable_entries.append(combo)
 
     def add_additional_variable_button(self):
         button = tk.Button(
@@ -252,6 +359,22 @@ class RToolGUI:
             self.add_variable_field()
             self.add_variable_field()
             self.add_additional_variable_button()
+        if var_count == "x":
+            self.add_variable_field_x()
+        if var_count == "y":
+            self.add_variable_field_y()
+        if var_count == "xy":
+            self.add_variable_field_y()
+            self.add_variable_field_x()
+        if var_count == "grouped":
+            self.add_variable_field()
+            self.add_variable_field_grouping()
+        if var_count == "dep_group":
+            self.add_variable_field_dependent()
+            self.add_variable_field_grouping()
+        if var_count == "var_const":
+            self.add_variable_field()
+            self.add_variable_field_write()
 
     def collect_selected_variables(self):
         variables = []
