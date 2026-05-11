@@ -56,7 +56,7 @@ rmarkdown::render(
   input = file.path(project_dir, "templates", "plot_report.Rmd"),
   output_file = report_file,
   params = list(
-    plot_title = paste("Barplot of", var1),
+    plot_title = paste("Grouped barplot of", var1, "by", var2),
     dataset_name = dataset_name,
     variable_x = "",
     variable_y = var1,

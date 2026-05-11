@@ -254,7 +254,7 @@ class RToolGUI:
         self.variable_entries.append(combo)
     
     def add_variable_field_grouping(self):
-        label = tk.Label(self.input_frame, text="Grouping-variable")
+        label = tk.Label(self.input_frame, text="Grouping variable")
         label.pack(anchor="w")
 
         combo = ttk.Combobox(
