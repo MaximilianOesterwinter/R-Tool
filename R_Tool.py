@@ -371,6 +371,7 @@ class RToolGUI:
     
     def add_factorize_fields(self):
         self.add_variable_field()
+        self.add_additional_variable_button()
 
         levels_label = tk.Label(
             self.input_frame,
