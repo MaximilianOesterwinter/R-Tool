@@ -160,6 +160,19 @@ def run_preparation(
             *kwargs.get("rename_pairs", [])
         )
     
+    if preparation == "mutate":
+        return run_r_script(
+            "mutate.R",
+            dataset_name,
+            kwargs.get("new_var_name", ""),
+            kwargs.get("mutate_operation", ""),
+            kwargs.get("mutate_operator", ""),
+            str(kwargs.get("na_rm", False)).lower(),
+            kwargs.get("reverse_min", ""),
+            kwargs.get("reverse_max", ""),
+            *variables
+        )
+    
     raise ValueError(f"Unknown preparation method: {preparation}")
 
 

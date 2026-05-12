@@ -61,6 +61,7 @@ METHOD_CONFIG = {
         "subframe": {"label": "Create a subframe", "var_count": "subframe"},
         "factorize": {"label": "Factorize variable", "var_count": "factorize"},
         "rename": {"label": "Rename variables", "var_count": "rename"},
+        "mutate": {"label": "Mutate variables", "var_count": "mutate"},
     }
 }
 
@@ -109,6 +110,24 @@ class RToolGUI:
         self.factor_levels_var = tk.StringVar()
         self.factor_labels_var = tk.StringVar()
         self.rename_entries = []
+
+        self.mutate_new_var_name = tk.StringVar()
+        self.mutate_operation_var = tk.StringVar()
+        self.mutate_operator_var = tk.StringVar()
+        self.mutate_na_rm_var = tk.BooleanVar(value=False)
+        self.mutate_variable_entries = []
+        self.recode_entries = []
+        self.reverse_min_var = tk.StringVar()
+        self.reverse_max_var = tk.StringVar()
+        self.mutate_operations = {
+            "Arithmetic": "arithmetic",
+            "Row mean": "row_mean",
+            "Row sum": "row_sum",
+            "Log": "log",
+            "Z-standardize": "z_standardize",
+            "Reverse scale": "reverse_scale",
+            "Recode / case_when": "recode"
+        }
 
         if self.available_datasets:
             self.selected_dataset.set(self.available_datasets[0])
@@ -222,12 +241,21 @@ class RToolGUI:
             widget.destroy()
         self.variable_entries = []
 
-    def add_variable_field(self):
-        label = tk.Label(self.input_frame, text=f"Variable {len(self.variable_entries) + 1}")
+    def add_variable_field(self, parent=None):
+        if parent is None:
+            parent = self.input_frame
+        
+        frame = ttk.Frame(parent)
+        frame.pack(fill="x", padx=5, pady=5)
+
+        label = ttk.Label(
+            frame, 
+            text=f"Variable {len(self.variable_entries) + 1}"
+        )
         label.pack(anchor="w")
 
         combo = ttk.Combobox(
-            self.input_frame,
+            frame,
             values=self.variable_display,
             state="readonly"
         )
@@ -347,9 +375,12 @@ class RToolGUI:
 
         self.variable_entries.append(combo)
 
-    def add_additional_variable_button(self):
+    def add_additional_variable_button(self, parent=None):
+        if parent is None:
+            parent = self.input_frame
+
         button = tk.Button(
-            self.input_frame,
+            parent,
             text="Additional variables",
             command=self.add_variable_field
         )
@@ -447,6 +478,149 @@ class RToolGUI:
         )
         add_button.pack(pady=5)
     
+    def add_mutation_fields(self):
+        frame = ttk.Frame(self.input_frame)
+        frame.pack(fill="x", padx=5, pady=5)
+
+        label = ttk.Label(frame, text="Name for the new variable:")
+        label.pack(side="left")
+
+        entry = ttk.Entry(
+            frame,
+            textvariable=self.mutate_new_var_name
+        )
+        entry.pack(side="left", fill="x", expand=True, padx=5)
+
+
+        label = tk.Label(self.input_frame, text="Operation:")
+        label.pack(anchor="w", padx=5, pady=(10, 0))
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            textvariable=self.mutate_operation_var,
+            values=list(self.mutate_operations.keys()),
+            state="readonly"
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+
+        combo.bind(
+            "<<ComboboxSelected>>",
+            self.update_mutation_operation_fields
+        )
+
+        self.mutation_dynamic_frame = ttk.Frame(self.input_frame)
+        self.mutation_dynamic_frame.pack(fill="x", padx=5, pady=5)
+    
+    def update_mutation_operation_fields(self, event=None):
+        for widget in self.mutation_dynamic_frame.winfo_children():
+            widget.destroy()
+        
+        self.variable_entries = []
+        self.mutate_operator_var.set("")
+        self.mutate_na_rm_var.set(False)
+        self.reverse_min_var.set("")
+        self.reverse_max_var.set("")
+        
+        operation_label = self.mutate_operation_var.get()
+        operation = self.mutate_operations.get(operation_label)
+
+        if operation == "arithmetic":
+            self.add_variable_field(parent=self.mutation_dynamic_frame)
+
+            operator_label = ttk.Label(self.mutation_dynamic_frame, text="Operator:")
+            operator_label.pack(anchor="w", padx=5)
+
+            operator_combo = ttk.Combobox(
+                self.mutation_dynamic_frame,
+                textvariable=self.mutate_operator_var,
+                values=["+", "-", "*", "/", "^"],
+                state="readonly"
+            )
+            operator_combo.pack(fill="x")
+
+            self.add_variable_field(parent=self.mutation_dynamic_frame)
+
+        elif operation in ["row_mean", "row_sum"]:
+            self.add_variable_field(parent=self.mutation_dynamic_frame)
+            self.add_variable_field(parent=self.mutation_dynamic_frame)
+
+            self.add_additional_variable_button(
+                parent=self.mutation_dynamic_frame
+            )   
+
+            check = ttk.Checkbutton(
+                self.mutation_dynamic_frame,
+                text="Remove NAs",
+                variable=self.mutate_na_rm_var
+            )
+            check.pack(anchor="w", padx=5, pady=5)
+        
+        elif operation in ["log", "z_standardize"]:
+            self.add_variable_field(parent=self.mutation_dynamic_frame)
+        
+        elif operation == "reverse_scale":
+            self.add_variable_field(parent=self.mutation_dynamic_frame)
+
+            min_label = ttk.Label(
+                self.mutation_dynamic_frame,
+                text="Minimum scale value:"
+            )
+            min_label.pack(anchor="w", padx=5)
+
+            min_entry = ttk.Entry(
+                self.mutation_dynamic_frame,
+                textvariable=self.reverse_min_var
+            )
+            min_entry.pack(fill="x", padx=5, pady=2)
+
+            max_label = ttk.Label(
+                self.mutation_dynamic_frame,
+                text="Maximum scale value:"
+            )
+            max_label.pack(anchor="w", padx=5)
+
+            max_entry = ttk.Entry(
+                self.mutation_dynamic_frame,
+                textvariable=self.reverse_max_var
+            )
+            max_entry.pack(fill="x", padx=5, pady=2)
+        
+        elif operation == "recode":
+            self.add_variable_field(parent=self.mutation_dynamic_frame)
+
+            self.recode_rules_frame = ttk.Frame(self.mutation_dynamic_frame)
+            self.recode_rules_frame.pack(fill="x", pady=5)
+
+            self.add_recode_rule_field()
+
+            button = ttk.Button(
+                self.mutation_dynamic_frame,
+                text="Add recode rule",
+                command=self.add_recode_rule_field
+            )
+            button.pack(pady=5)
+    
+    def add_recode_rule_field(self):
+        frame = ttk.Frame(self.recode_rules_frame)
+        frame.pack(fill="x", pady=2)
+
+        old_var = tk.StringVar()
+        new_var = tk.StringVar()
+
+        old_entry = ttk.Entry(
+            frame,
+            textvariable=old_var
+        )
+        old_entry.pack(side="left", fill="x", expand=True, padx=2)
+
+        new_entry = ttk.Entry(
+            frame,
+            textvariable=new_var
+        )
+        new_entry.pack(side="left", fill="x", expand=True, padx=2)
+
+        self.recode_entries.append((old_var, new_var))
+    
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
 
@@ -518,6 +692,18 @@ class RToolGUI:
             return
         if var_count == "rename":
             self.add_rename_fields()
+            return
+        if var_count == "mutate":
+            self.variable_entries = []
+
+            self.mutate_new_var_name.set("")
+            self.mutate_operation_var.set("")
+            self.mutate_operator_var.set("")
+            self.mutate_na_rm_var.set(False)
+            self.reverse_min_var.set("")
+            self.reverse_max_var.set("")
+
+            self.add_mutation_fields()
             return
 
     def collect_selected_variables(self):
@@ -647,6 +833,59 @@ class RToolGUI:
                         dataset_name=dataset_name,
                         rename_pairs=rename_pairs
                     )
+                elif method == "mutate":
+                    new_var_name = self.mutate_new_var_name.get().strip()
+
+                    if not new_var_name:
+                        messagebox.showerror(
+                            "Error",
+                            "Please enter a name for the new variable."
+                        )
+                        return
+                    
+                    if " " in new_var_name:
+                        messagebox.showerror(
+                            "Error",
+                            "Variable names should not contain spaces."
+                        )
+                        return
+                    
+                    operation_label = self.mutate_operation_var.get()
+                    operation = self.mutate_operations.get(operation_label)
+
+                    if not operation:
+                        messagebox.showerror(
+                            "Error",
+                            "Please select a mutate operation."
+                        )
+                        return
+                    
+                    if operation == "arithmetic" and not self.mutate_operator_var.get():
+                        messagebox.showerror(
+                            "Error",
+                            "Please select an arithmetic operator."
+                        )
+                        return
+                    
+                    if operation == "reverse_scale":
+                        if not self.reverse_min_var.get().strip() or not self.reverse_max_var.get().strip():
+                            messagebox.showerror(
+                                "Error",
+                                "Please enter minimum and maximum scale values."
+                            )
+                            return
+                    result = run_preparation(
+                        method,
+                        variables,
+                        dataset_name,
+                        new_var_name=new_var_name,
+                        mutate_operation=operation,
+                        mutate_operator=self.mutate_operator_var.get(),
+                        na_rm=self.mutate_na_rm_var.get(),
+                        reverse_min=self.reverse_min_var.get().strip(),
+                        reverse_max=self.reverse_max_var.get().strip()
+                    )
+
                 if result.returncode == 0:
                     if method == "subframe":
                         new_dataset_name = f"{self.subframe_name_var.get().strip()}.rds"
@@ -657,6 +896,7 @@ class RToolGUI:
                         self.refresh_after_preparation(
                             selected_dataset=self.selected_dataset.get()
                         )
+                
                 
             else:
                 raise ValueError(f"Unknown mode: {mode}")
