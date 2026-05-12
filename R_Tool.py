@@ -56,6 +56,9 @@ METHOD_CONFIG = {
         "barplot": {"label": "Barplot", "var_count": "y"},
         "barplot_by_group": {"label": "Barplot by Group", "var_count": "grouped"},
         "lineplot": {"label": "Lineplot", "var_count": "xy"},
+    },
+    "preparation": {
+        "subframe": {"label": "Create a subframe", "var_count": "multiple"}
     }
 }
 
@@ -143,6 +146,14 @@ class RToolGUI:
             text="Plots",
             variable=self.mode_var,
             value="plot",
+            command=self.on_mode_change
+        ).pack(side="left", padx=5)
+
+        tk.Radiobutton(
+            self.mode_frame,
+            text="Preparation",
+            variable=self.mode_var,
+            value="preparation",
             command=self.on_mode_change
         ).pack(side="left", padx=5)
 
@@ -443,6 +454,8 @@ class RToolGUI:
                 result = run_analysis(method, variables, dataset_name)
             elif mode == "plot":
                 result = run_plot(method, variables, dataset_name)
+            elif mode == "preparation":
+                result = run_preparation(method, variables, dataset_name)
             else:
                 raise ValueError(f"Unknown mode: {mode}")
 
