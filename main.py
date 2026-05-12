@@ -128,8 +128,7 @@ def run_plot(plot_type: str, variables: list[str], dataset_name: str | None = No
 def run_preparation(
     preparation: str, 
     variables: list[str], 
-    dataset_name: str | None = None, 
-    output_name: str = "", 
+    dataset_name: str | None = None,
     levels: str = "",
     labels: str = "",
     **kwargs
@@ -149,8 +148,16 @@ def run_preparation(
             "subframe.R", 
             dataset_name, 
             kwargs.get("subframe_name", ""), 
-            str(kwargs.get("pivot_longer", False)), 
+            str(kwargs.get("pivot_longer", False)).lower(), 
+            str(kwargs.get("remove_na", False)).lower(),
             *variables
+        )
+    
+    if preparation == "rename":
+        return run_r_script(
+            "rename.R",
+            dataset_name,
+            *kwargs.get("rename_pairs", [])
         )
     
     raise ValueError(f"Unknown preparation method: {preparation}")

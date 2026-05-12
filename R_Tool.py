@@ -58,8 +58,9 @@ METHOD_CONFIG = {
         "lineplot": {"label": "Lineplot", "var_count": "xy"},
     },
     "preparation": {
-        "subframe": {"label": "Create a subframe", "var_count": "multiple"},
+        "subframe": {"label": "Create a subframe", "var_count": "subframe"},
         "factorize": {"label": "Factorize variable", "var_count": "factorize"},
+        "rename": {"label": "Rename variables", "var_count": "rename"},
     }
 }
 
@@ -103,9 +104,11 @@ class RToolGUI:
         self.selected_dataset = tk.StringVar()
         self.mode_var = tk.StringVar(value="analysis")
         self.pivot_longer_var = tk.BooleanVar(value=False)
+        self.remove_na_var = tk.BooleanVar(value=False)
         self.subframe_name_var = tk.StringVar()
         self.factor_levels_var = tk.StringVar()
         self.factor_labels_var = tk.StringVar()
+        self.rename_entries = []
 
         if self.available_datasets:
             self.selected_dataset.set(self.available_datasets[0])
@@ -174,6 +177,10 @@ class RToolGUI:
         )
         self.dataset_combobox.pack(side="right")
         self.dataset_combobox.bind("<<ComboboxSelected>>", self.on_dataset_change)
+
+    def refresh_dataset_list(self):
+        self.dataset_names = get_available_datasets()
+        self.dataset_combobox["values"] = self.dataset_names
 
     def refresh_variable_mappings(self):
         dataset_name = self.selected_dataset.get().strip()
@@ -356,6 +363,14 @@ class RToolGUI:
         )
         check.pack(anchor="w", padx=5, pady=5)
     
+    def add_remove_na_checkbox(self):
+        check = ttk.Checkbutton(
+            self.input_frame,
+            text="Remove NA's",
+            variable=self.remove_na_var
+        )
+        check.pack(anchor="w", padx=5, pady=5)
+    
     def add_subframe_name_field(self):
         frame = ttk.Frame(self.input_frame)
         frame.pack(fill="x", padx=5, pady=5)
@@ -396,6 +411,50 @@ class RToolGUI:
             textvariable=self.factor_labels_var
         )
         labels_entry.pack(fill="x", padx=5, pady=2)
+    
+    def add_rename_pair_field(self):
+        frame = ttk.Frame(self.input_frame)
+        frame.pack(fill="x", padx=5, pady=5)
+
+        old_var = tk.StringVar()
+        new_var = tk.StringVar()
+
+        old_menu = ttk.Combobox(
+            frame,
+            textvariable=old_var,
+            values=self.variable_display,
+            state="readonly"
+        )
+        old_menu.pack(side="left", fill="x", expand=True, padx=2)
+
+        new_entry = ttk.Entry(
+            frame,
+            textvariable=new_var
+        )
+        new_entry.pack(side="left", fill="x", expand=True, padx=2)
+
+        self.rename_entries.append((old_var, new_var))
+    
+    def add_rename_fields(self):
+        self.rename_entries = []
+
+        self.add_rename_pair_field()
+
+        add_button = ttk.Button(
+            self.input_frame,
+            text="Add variable to rename",
+            command=self.add_rename_pair_field
+        )
+        add_button.pack(pady=5)
+    
+    def refresh_after_preparation(self, selected_dataset: str | None = None):
+        self.refresh_dataset_list()
+
+        if selected_dataset:
+            self.selected_dataset.set(selected_dataset)
+        
+        self.refresh_variable_mappings()
+        self.update_input_fields()
 
     def update_input_fields(self, event=None):
         self.clear_input_fields()
@@ -410,16 +469,6 @@ class RToolGUI:
         config = METHOD_CONFIG[mode].get(method)
 
         var_count = config["var_count"]
-
-        if mode == "preparation" and method == "subframe":
-            self.pivot_longer_var.set(False)
-            self.subframe_name_var.set("")
-
-            self.add_subframe_name_field()
-            self.add_variable_field()
-            self.add_additional_variable_button()
-            self.add_pivot_longer_checkbox()
-            return
 
         if var_count == 0:
             return
@@ -450,11 +499,25 @@ class RToolGUI:
         if var_count == "var_const":
             self.add_variable_field()
             self.add_variable_field_write()
+        if var_count == "subframe":
+            self.pivot_longer_var.set(False)
+            self.remove_na_var.set(False)
+            self.subframe_name_var.set("")
+
+            self.add_subframe_name_field()
+            self.add_variable_field()
+            self.add_additional_variable_button()
+            self.add_pivot_longer_checkbox()
+            self.add_remove_na_checkbox()
+            return
         if var_count == "factorize":
             self.factor_levels_var.set("")
             self.factor_labels_var.set("")
 
             self.add_factorize_fields()
+            return
+        if var_count == "rename":
+            self.add_rename_fields()
             return
 
     def collect_selected_variables(self):
@@ -536,10 +599,11 @@ class RToolGUI:
                         method, 
                         variables, 
                         dataset_name, 
-                        subframe_name=self.subframe_name_var.get(), 
-                        pivot_longer=self.pivot_longer_var.get()
+                        subframe_name=self.subframe_name_var.get().strip(), 
+                        pivot_longer=self.pivot_longer_var.get(),
+                        remove_na=self.remove_na_var.get()
                     )
-                    
+
                 elif method == "factorize":
                     if not self.factor_levels_var.get().strip():
                         raise ValueError("Please enter factor levels")
@@ -550,8 +614,50 @@ class RToolGUI:
                         variables,
                         dataset_name,
                         levels=self.factor_levels_var.get().strip(),
-                        labels=self.factor_levels_var.get().strip()
+                        labels=self.factor_lebels_var.get().strip()
                     )
+                elif method == "rename":
+                    rename_pairs = []
+                    
+                    for old_var, new_var in self.rename_entries:
+                        selected_display = old_var.get().strip()
+                        old_name = self.display_to_name.get(selected_display)
+                        new_name = new_var.get().strip()
+
+                        if " " in new_name:
+                            messagebox.showerror(
+                                "Error",
+                                "Variable names should not contain spaces."
+                            )
+                            return
+
+                        if old_name and new_name:
+                            rename_pairs.append(f"{old_name}={new_name}")
+                    
+                    if not rename_pairs:
+                        messagebox.showerror(
+                            "Error",
+                            "Please select at least one variable and enter a new name."
+                        )
+                        return
+                    
+                    result = run_preparation(
+                        method,
+                        variables=[],
+                        dataset_name=dataset_name,
+                        rename_pairs=rename_pairs
+                    )
+                if result.returncode == 0:
+                    if method == "subframe":
+                        new_dataset_name = f"{self.subframe_name_var.get().strip()}.rds"
+                        self.refresh_after_preparation(
+                            selected_dataset=new_dataset_name
+                        )
+                    else:
+                        self.refresh_after_preparation(
+                            selected_dataset=self.selected_dataset.get()
+                        )
+                
             else:
                 raise ValueError(f"Unknown mode: {mode}")
 

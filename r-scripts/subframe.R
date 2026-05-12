@@ -3,7 +3,8 @@ args <- commandArgs(trailingOnly = TRUE)
 data_path <- args[1]
 subframe_name <- args[2]
 use_pivot_longer <- args[3] == "true"
-selected_vars <- args[4:length(args)]
+remove_na <- args[4] == "true"
+selected_vars <- args[5:length(args)]
 
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
@@ -35,6 +36,11 @@ if (use_pivot_longer){
       names_to = "variable",
       values_to = "value"
     )
+}
+
+if (remove_na){
+  df_subframe <- df_subframe %>%
+    drop_na()
 }
 
 output_path <- file.path(
