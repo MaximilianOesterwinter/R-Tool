@@ -161,6 +161,21 @@ def run_preparation(
         )
     
     if preparation == "mutate":
+        if kwargs.get("mutate_operation") == "recode":
+            return run_r_script(
+                "mutate.R",
+                dataset_name,
+                kwargs.get("new_var_name", ""),
+                kwargs.get("mutate_operation", ""),
+                kwargs.get("mutate_operator", ""),
+                str(kwargs.get("na_rm", False)).lower(),
+                kwargs.get("reverse_min", ""),
+                kwargs.get("reverse_max", ""),
+                kwargs.get("recode_else", ""),
+                variables[0],
+                *kwargs.get("recode_rules", [])
+            )
+
         return run_r_script(
             "mutate.R",
             dataset_name,

@@ -7,9 +7,108 @@ This tool helps you perform basic statistical analyses in the social sciences vi
 
 ## Project Goal
 
-This tool is designed to reduce the technical barrier of working with R syntax for basic social science analyses. It is not intended to replace methodological understanding or the interpretation of results. Instead, it aims to support learning by making statistical workflows more accessible.
+R-Tool is a graphical user interface for R that is primarily intended as 
+a support tool for students working with empirical social science data. 
+The program aims to reduce syntactic barriers in R without automating 
+the analytical process itself. Instead of replacing methodological reasoning,
+R-Tool is designed to simplify common workflows in data preparation,
+statistical analysis and visualization so that users can focus more strongly 
+on research design, variable selection, interpretation and methodological 
+decision-making.
 
+The project was developed in Python using tkinter for the graphical user 
+interface, while the statistical operations themselves are executed through R 
+scripts in the background. The application is especially aimed at students who 
+are beginning to work with R and frequently struggle with syntax, object 
+handling or data management.
 ---
+
+## Supported Workflow
+
+The program currently supports the following workflow:
+
+- Select a dataset
+- Prepare and manage variables
+- Create subsets of datasets
+- Factorize variables
+- Rename variables
+- Create new variables through mutate operations
+- Run statistical analyses
+- Generate plots
+
+The preparation module has been expanded significantly and now allows several 
+important data management operations directly through the GUI.
+
+### "Subframe"
+
+The “Subframe” function allows users to create a subset of a dataset by 
+selecting only the variables needed for further analysis. The new subframe can 
+be named freely by the user and is saved as a new `.rds` dataset in the 
+`prepared` data directory. Optionally, the selected variables can be 
+transformed into long format using `pivot_longer()`. Missing values can also be 
+removed automatically during the creation of the subframe.
+
+### "Factorize variables"
+
+The “Factorize variables” function allows users to transform selected variables 
+into factors directly inside the dataset. Users can define levels and labels 
+manually through the GUI. The transformation is performed in-place, meaning 
+that the existing dataset is updated instead of creating unnecessary copies of 
+the data.
+
+### "Rename variables"
+
+The “Rename variables” function allows users to rename variables directly 
+through the graphical interface. This is especially useful when working with 
+larger datasets containing cryptic or automatically generated variable names. 
+Variables are selected from dropdown menus displaying both variable names and 
+their data types. The dataset is updated in-place after renaming.
+
+### "Mutate variables"
+
+The “Mutate variables” function introduces several common data transformation 
+workflows frequently used in social science research. Instead of requiring 
+users to write R syntax manually, the GUI generates the necessary mutate 
+operations automatically.
+
+Currently supported mutate operations include:
+
+- Arithmetic operations between variables (+, -, *, /, ^)
+- Row means
+- Row sums
+- Log transformations
+- Z-standardization
+- Reverse scaling
+- Recode / case_when operations
+
+The `row mean` and `row sum` functions allow users to create indices or
+additive scales from multiple variables while optionally removing missing
+values.
+
+The `reverse scale` function allows users to reverse Likert-type scales by 
+specifying the minimum and maximum scale values.
+
+The `recode / case_when` functionality allows users to create new categorical 
+variables through conditional logic directly in the GUI. Users can define 
+multiple recode rules using comparison operators such as ==, !=, >, >=, < and 
+<=.
+
+Examples of possible workflows include:
+
+- Creating additive democracy indices
+- Reverse coding survey items
+- Building age categories
+- Creating dummy variables
+- Renaming variables before analysis
+- Constructing smaller analysis-ready datasets
+
+## Limits
+
+The program deliberately does not provide automated interpretations of 
+statistical results and does not decide which analytical methods should be 
+used. The goal is to support methodological learning rather than replacing it 
+through automation or AI-generated analyses.
+
 
 ## 🚀 Installation
 
@@ -60,16 +159,6 @@ When you want to add your own data, complete the following steps:
 ### 5. Done!
 
 The tool is now ready to use 🎉
-
-## 💻 Usage
-
-Open `R_Tool.R` and select in the bottom right the dataset, you want to work with. 
-Then you can choose in the bottom right, whether you want to perform an analysis or create a plot.
-Choose the desired analysis or plot-type. 
-If variables are needed for the selected type of analysis, dropdown-menus will appear, where you can select your variables.
-Note, that the corresponding variable-type is written next to the variable-name, as not every analysis supports every type.
-Finally, press `Execute analysis` and wait a few seconds for the output-PDF to appear.
-
 
 ## 📈 Supported Analyses
 
@@ -149,8 +238,9 @@ Performs the non-parametric Mann-Whitney-U-Test.
 
 ## ⚠️ Notes
 
-- Errors often occur due to improperly formatted variables.
-- I'm no software engineer nor have I any background in programming. So please don't expect a perfectly written program. However, if you stumble upon mistakes or have ideas for improvement, please let me know and I'll do my best to implement your idea.
+Datasets and generated files are stored locally. Statistical analyses and plots are executed through dedicated R scripts located in the r-scripts directory. The modular architecture makes it relatively easy to add new analysis methods, plotting functions or data preparation workflows in the future.
+
+R-Tool is still under active development and new features are continuously being added.
 
 ## 🛠️ Planned Features
 

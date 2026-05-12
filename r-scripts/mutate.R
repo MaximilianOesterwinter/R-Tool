@@ -7,7 +7,13 @@ operator <- args[4]
 na_rm <- args[5] == "true"
 reverse_min <- args[6]
 reverse_max <- args[7]
-selected_vars <- args[8:length(args)]
+if (operation == "recode"){
+  recode_else <- args[8]
+  selected_vars <- args[9]
+  recode_rules <- args[10:length(args)]
+} else {
+  selected_vars <- args[8:length(args)]
+}
 
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
@@ -76,6 +82,56 @@ if (operation == "arithmetic") {
   max_value <- as.numeric(reverse_max)
   
   df[[new_var_name]] <- max_value + min_value - df[[selected_vars[1]]]
+} else if (operation == "recode") {
+  if (length(selected_vars) != 1) {
+    stop("Recode requires exactly one source variable.")
+  }
+  
+  source_var <- selected_vars[1]
+  
+  result <- rep(NA_character_, nrow(df))
+  
+  for (rule in recode_rules) {
+    parts <- strsplit(rule, "\\|")[[1]]
+    
+    operator <- parts[1]
+    compare_value_raw <- parts[2]
+    result_value <- parts[3]
+    
+    source_values <- df[[source_var]]
+    
+    compare_value <- suppressWarnings(as.numeric(compare_value_raw))
+    
+    if (!is.na(compare_value) && is.numeric(source_values)) {
+      compare_to <- compare_value
+    } else {
+      compare_to <- compare_value_raw
+    }
+    
+    if (operator == "==") {
+      condition <- source_values == compare_to
+    } else if (operator == "!=") {
+      condition <- source_values != compare_to
+    } else if (operator == ">") {
+      condition <- source_values > compare_to
+    } else if (operator == ">=") {
+      condition <- source_values >= compare_to
+    } else if (operator == "<") {
+      condition <- source_values < compare_to
+    } else if (operator == "<=") {
+      condition <- source_values <= compare_to
+    } else {
+      stop("Unknown recode operator.")
+    }
+    
+    result[condition & is.na(result)] <- result_value
+  }
+  
+  if (recode_else != "") {
+    result[is.na(result)] <- recode_else
+  }
+  
+  df[[new_var_name]] <- result
 } else {
   stop("Unknown mutate operation.")
 }

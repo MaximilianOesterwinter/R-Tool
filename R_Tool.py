@@ -117,6 +117,7 @@ class RToolGUI:
         self.mutate_na_rm_var = tk.BooleanVar(value=False)
         self.mutate_variable_entries = []
         self.recode_entries = []
+        self.recode_else_var = tk.StringVar()
         self.reverse_min_var = tk.StringVar()
         self.reverse_max_var = tk.StringVar()
         self.mutate_operations = {
@@ -588,38 +589,72 @@ class RToolGUI:
         elif operation == "recode":
             self.add_variable_field(parent=self.mutation_dynamic_frame)
 
+            self.recode_entries = []
+
             self.recode_rules_frame = ttk.Frame(self.mutation_dynamic_frame)
-            self.recode_rules_frame.pack(fill="x", pady=5)
+            self.recode_rules_frame.pack(fill="x", padx=5, pady=5)
 
             self.add_recode_rule_field()
 
-            button = ttk.Button(
+            add_rule_button = ttk.Button(
                 self.mutation_dynamic_frame,
                 text="Add recode rule",
                 command=self.add_recode_rule_field
             )
-            button.pack(pady=5)
+            add_rule_button.pack(pady=5)
+
+            else_frame = ttk.Frame(self.mutation_dynamic_frame)
+            else_frame.pack(fill="x", padx=5, pady=5)
+
+            else_label = ttk.Label(else_frame, text="Else value:")
+            else_label.pack(side="left")
+
+            else_entry = ttk.Entry(
+                else_frame,
+                textvariable=self.recode_else_var
+            )
+            else_entry.pack(side="left", fill="x", expand=True, padx=5)
     
     def add_recode_rule_field(self):
         frame = ttk.Frame(self.recode_rules_frame)
         frame.pack(fill="x", pady=2)
 
-        old_var = tk.StringVar()
-        new_var = tk.StringVar()
+        operator_var = tk.StringVar()
+        value_var = tk.StringVar()
+        result_var = tk.StringVar()
 
-        old_entry = ttk.Entry(
+        if_label = ttk.Label(frame, text="IF value")
+        if_label.pack(side="left", padx=2)
+
+        operator_combo = ttk.Combobox(
             frame,
-            textvariable=old_var
+            textvariable=operator_var,
+            values=["==", "!=", ">", ">=", "<", "<="],
+            state="readonly",
+            width=5
         )
-        old_entry.pack(side="left", fill="x", expand=True, padx=2)
+        operator_combo.pack(side="left", padx=2)
 
-        new_entry = ttk.Entry(
+        value_entry = ttk.Entry(
             frame,
-            textvariable=new_var
+            textvariable=value_var,
+            width=12
         )
-        new_entry.pack(side="left", fill="x", expand=True, padx=2)
+        value_entry.pack(side="left", padx=2)
 
-        self.recode_entries.append((old_var, new_var))
+        then_label = ttk.Label(frame, text="THEN")
+        then_label.pack(side="left", padx=2)
+
+        result_entry = ttk.Entry(
+            frame,
+            textvariable=result_var,
+            width=12
+        )
+        result_entry.pack(side="left", padx=2)
+
+        self.recode_entries.append(
+            (operator_var, value_var, result_var)
+        )
     
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
@@ -800,7 +835,7 @@ class RToolGUI:
                         variables,
                         dataset_name,
                         levels=self.factor_levels_var.get().strip(),
-                        labels=self.factor_lebels_var.get().strip()
+                        labels=self.factor_labels_var.get().strip()
                     )
                 elif method == "rename":
                     rename_pairs = []
@@ -874,6 +909,26 @@ class RToolGUI:
                                 "Please enter minimum and maximum scale values."
                             )
                             return
+                        
+                    recode_rules = []
+                    if operation == "recode":
+                        for operator_var, value_var, result_var in self.recode_entries:
+                            operator = operator_var.get().strip()
+                            value = value_var.get().strip()
+                            result_value = result_var.get().strip()
+
+                            if operator and value and result_value:
+                                recode_rules.append(
+                                    f"{operator}|{value}|{result_value}"
+                                )
+                        
+                        if not recode_rules:
+                            messagebox.showerror(
+                                "Error",
+                                "Please enter at least one recode rule"
+                            )
+                            return
+
                     result = run_preparation(
                         method,
                         variables,
@@ -883,7 +938,9 @@ class RToolGUI:
                         mutate_operator=self.mutate_operator_var.get(),
                         na_rm=self.mutate_na_rm_var.get(),
                         reverse_min=self.reverse_min_var.get().strip(),
-                        reverse_max=self.reverse_max_var.get().strip()
+                        reverse_max=self.reverse_max_var.get().strip(),
+                        recode_else=self.recode_else_var.get().strip(),
+                        recode_rules=recode_rules
                     )
 
                 if result.returncode == 0:
