@@ -125,6 +125,19 @@ def run_plot(plot_type: str, variables: list[str], dataset_name: str | None = No
 
     raise ValueError(f"Unknown plot type: {plot_type}")
 
+def run_preparation(
+    preparation: str, 
+    variables: list[str], 
+    dataset_name: str | None = None, 
+    subframe_name: str = "", 
+    pivot_longer: bool = False
+    ) -> subprocess.CompletedProcess:
+
+    if preparation == "subframe":
+        return run_r_script("subframe.R", dataset_name, subframe_name, str(pivot_longer).lower(), *variables)
+    
+    raise ValueError(f"Unknown preparation method: {preparation}")
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()

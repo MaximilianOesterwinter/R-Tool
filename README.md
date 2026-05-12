@@ -25,9 +25,7 @@ Download the ZIP-File and unpack it. You can find the File in the assets under t
 Open a new R script and run the following commands (You can copy/paste them and run them one by one):
 
 ```R
-install.packages("readr")
-install.packages("dplyr")
-install.packages("ggplot2")
+install.packages("tidyverse")
 install.packages("rmarkdown")
 install.packages("knitr")
 install.packages("psych")

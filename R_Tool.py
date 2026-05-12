@@ -6,7 +6,7 @@ from pathlib import Path
 
 from version import APP_VERSION
 from update_check import is_newer_version_available
-from main import get_variable_names, run_analysis, run_plot
+from main import get_variable_names, run_analysis, run_plot, run_preparation
 from runtime_paths import BASE_DIR
 
 BASE_DIR = Path(BASE_DIR)
@@ -101,6 +101,8 @@ class RToolGUI:
 
         self.selected_dataset = tk.StringVar()
         self.mode_var = tk.StringVar(value="analysis")
+        self.pivot_longer_var = tk.BooleanVar(value=False)
+        self.subframe_name_var = tk.StringVar()
 
         if self.available_datasets:
             self.selected_dataset.set(self.available_datasets[0])
@@ -342,6 +344,27 @@ class RToolGUI:
             command=self.add_variable_field
         )
         button.pack(pady=5)
+    
+    def add_pivot_longer_checkbox(self):
+        check = ttk.Checkbutton(
+            self.input_frame,
+            text="Use pivot_longer()",
+            variable=self.pivot_longer_var
+        )
+        check.pack(anchor="w", padx=5, pady=5)
+    
+    def add_subframe_name_field(self):
+        frame = ttk.Frame(self.input_frame)
+        frame.pack(fill="x", padx=5, pady=5)
+
+        label = ttk.Label(frame, text="New subframe name:")
+        label.pack(side="left")
+
+        entry = ttk.Entry(
+            frame,
+            textvariable=self.subframe_name_var
+        )
+        entry.pack(side="left", fill="x", expand=True, padx=5)
 
     def update_input_fields(self, event=None):
         self.clear_input_fields()
@@ -356,6 +379,16 @@ class RToolGUI:
         config = METHOD_CONFIG[mode].get(method)
 
         var_count = config["var_count"]
+
+        if mode == "preparation" and method == "subframe":
+            self.pivot_longer_var.set(False)
+            self.subframe_name_var.set("")
+
+            self.add_subframe_name_field()
+            self.add_variable_field()
+            self.add_additional_variable_button()
+            self.add_pivot_longer_checkbox()
+            return
 
         if var_count == 0:
             return
@@ -455,7 +488,13 @@ class RToolGUI:
             elif mode == "plot":
                 result = run_plot(method, variables, dataset_name)
             elif mode == "preparation":
-                result = run_preparation(method, variables, dataset_name)
+                if not self.subframe_name_var.get().strip():
+                    messagebox.showerror(
+                        "Error",
+                        "Please enter a subframe name."
+                    )
+                    return
+                result = run_preparation(method, variables, dataset_name, subframe_name=self.subframe_name_var.get(), pivot_longer=self.pivot_longer_var.get())
             else:
                 raise ValueError(f"Unknown mode: {mode}")
 
