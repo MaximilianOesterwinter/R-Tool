@@ -58,7 +58,8 @@ METHOD_CONFIG = {
         "lineplot": {"label": "Lineplot", "var_count": "xy"},
     },
     "preparation": {
-        "subframe": {"label": "Create a subframe", "var_count": "multiple"}
+        "subframe": {"label": "Create a subframe", "var_count": "multiple"},
+        "factorize": {"label": "Factorize variable", "var_count": "factorize"},
     }
 }
 
@@ -103,6 +104,8 @@ class RToolGUI:
         self.mode_var = tk.StringVar(value="analysis")
         self.pivot_longer_var = tk.BooleanVar(value=False)
         self.subframe_name_var = tk.StringVar()
+        self.factor_levels_var = tk.StringVar()
+        self.factor_labels_var = tk.StringVar()
 
         if self.available_datasets:
             self.selected_dataset.set(self.available_datasets[0])
@@ -365,6 +368,33 @@ class RToolGUI:
             textvariable=self.subframe_name_var
         )
         entry.pack(side="left", fill="x", expand=True, padx=5)
+    
+    def add_factorize_fields(self):
+        self.add_variable_field()
+
+        levels_label = tk.Label(
+            self.input_frame,
+            text="Levels, separated by comma, e.g. 1,2,3"
+        )
+        levels_label.pack(anchor="w")
+
+        levels_entry = ttk.Entry(
+            self.input_frame,
+            textvariable=self.factor_levels_var
+        )
+        levels_entry.pack(fill="x", padx=5, pady=2)
+
+        labels_label = tk.Label(
+            self.input_frame,
+            text="Labels, separated by comma, e.g. low,medium,high"
+        )
+        labels_label.pack(anchor="w")
+
+        labels_entry = ttk.Entry(
+            self.input_frame,
+            textvariable=self.factor_labels_var
+        )
+        labels_entry.pack(fill="x", padx=5, pady=2)
 
     def update_input_fields(self, event=None):
         self.clear_input_fields()
@@ -419,6 +449,12 @@ class RToolGUI:
         if var_count == "var_const":
             self.add_variable_field()
             self.add_variable_field_write()
+        if var_count == "factorize":
+            self.factor_levels_var.set("")
+            self.factor_labels_var.set("")
+
+            self.add_factorize_fields()
+            return
 
     def collect_selected_variables(self):
         variables = []
@@ -488,13 +524,33 @@ class RToolGUI:
             elif mode == "plot":
                 result = run_plot(method, variables, dataset_name)
             elif mode == "preparation":
-                if not self.subframe_name_var.get().strip():
-                    messagebox.showerror(
-                        "Error",
-                        "Please enter a subframe name."
+                if method == "subframe":
+                    if not self.subframe_name_var.get().strip():
+                        messagebox.showerror(
+                            "Error",
+                            "Please enter a subframe name."
+                        )
+                        return
+                    result = run_preparation(
+                        method, 
+                        variables, 
+                        dataset_name, 
+                        subframe_name=self.subframe_name_var.get(), 
+                        pivot_longer=self.pivot_longer_var.get()
                     )
-                    return
-                result = run_preparation(method, variables, dataset_name, subframe_name=self.subframe_name_var.get(), pivot_longer=self.pivot_longer_var.get())
+                    
+                elif method == "factorize":
+                    if not self.factor_levels_var.get().strip():
+                        raise ValueError("Please enter factor levels")
+                    if not self.factor_labels_var.get().strip():
+                        raise ValueError("Please enter factor labels")
+                    result = run_preparation(
+                        method,
+                        variables,
+                        dataset_name,
+                        levels=self.factor_levels_var.get().strip(),
+                        labels=self.factor_levels_var.get().strip()
+                    )
             else:
                 raise ValueError(f"Unknown mode: {mode}")
 

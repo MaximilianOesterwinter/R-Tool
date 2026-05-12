@@ -129,12 +129,29 @@ def run_preparation(
     preparation: str, 
     variables: list[str], 
     dataset_name: str | None = None, 
-    subframe_name: str = "", 
-    pivot_longer: bool = False
+    output_name: str = "", 
+    levels: str = "",
+    labels: str = "",
+    **kwargs
     ) -> subprocess.CompletedProcess:
 
+    if preparation == "factorize":
+        return run_r_script(
+            "factorize.R",
+            dataset_name,
+            levels,
+            labels,
+            *variables
+        )
+
     if preparation == "subframe":
-        return run_r_script("subframe.R", dataset_name, subframe_name, str(pivot_longer).lower(), *variables)
+        return run_r_script(
+            "subframe.R", 
+            dataset_name, 
+            kwargs.get("subframe_name", ""), 
+            str(kwargs.get("pivot_longer", False)), 
+            *variables
+        )
     
     raise ValueError(f"Unknown preparation method: {preparation}")
 
