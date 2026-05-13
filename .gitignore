@@ -1,11 +1,79 @@
-output/
-templates/*.log
-variables.json
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env/
 .venv/
+
+# Distribution / packaging
 build/
 dist/
-*.spec
-*.zip
-__pycache__
-.Rhistory
+*.egg-info/
 
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# =========================
+# R
+# =========================
+.Rhistory
+.RData
+.Ruserdata
+
+# RStudio
+.Rproj.user/
+
+# Generated plots
+Rplots.pdf
+
+# Temporary files
+*.tmp
+*.temp
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# PyInstaller
+# =========================
+*.spec
+
+# =========================
+# Output / generated data
+# =========================
+output/
+results/
+exports/
+
+# =========================
+# Cache
+# =========================
+.cache/
+
+# =========================
+# Environment files
+# =========================
+.env
+.env.local
+
+# =========================
+# Misc
+# =========================
+*.bak
+*.swp
+variables.json
