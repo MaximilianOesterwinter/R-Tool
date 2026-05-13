@@ -16,12 +16,13 @@ statistical analysis and visualization so that users can focus more strongly
 on research design, variable selection, interpretation and methodological 
 decision-making.
 
+---
 The project was developed in Python using tkinter for the graphical user 
 interface, while the statistical operations themselves are executed through R 
 scripts in the background. The application is especially aimed at students who 
 are beginning to work with R and frequently struggle with syntax, object 
 handling or data management.
----
+
 
 ## Supported Workflow
 
@@ -139,6 +140,7 @@ tinytex::install_tinytex()
 ### 4. Prepare your data
 
 The tool comes with one example-dataset to try it out.
+
 ---
 
 When you want to add your own data, complete the following steps:

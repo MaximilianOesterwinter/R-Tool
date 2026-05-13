@@ -62,6 +62,7 @@ METHOD_CONFIG = {
         "factorize": {"label": "Factorize variable", "var_count": "factorize"},
         "rename": {"label": "Rename variables", "var_count": "rename"},
         "mutate": {"label": "Mutate variables", "var_count": "mutate"},
+        "summarise": {"label": "Create summary dataset", "var_count": "summary"}
     }
 }
 
@@ -128,6 +129,20 @@ class RToolGUI:
             "Z-standardize": "z_standardize",
             "Reverse scale": "reverse_scale",
             "Recode / case_when": "recode"
+        }
+
+        self.summary_name_var = tk.StringVar()
+        self.summary_na_rm_var = tk.BooleanVar(value=False)
+        self.summary_function_var = tk.StringVar(value="Mean")
+        self.summary_functions = {
+            "Mean": "mean",
+            "Median": "median",
+            "Standard deviation": "sd",
+            "Minimum": "min",
+            "Maximum": "max",
+            "Sum": "sum",
+            "Observations": "n",
+            "Distinct observations": "n_distinct"
         }
 
         if self.available_datasets:
@@ -375,6 +390,24 @@ class RToolGUI:
             combo.set("No variables available")
 
         self.variable_entries.append(combo)
+    
+    def add_variable_field_summary(self):
+        label = tk.Label(self.input_frame, text="Summary variable")
+        label.pack(anchor="w")
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            values=self.variable_display,
+            state="readonly"
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+
+        if self.variable_display:
+            combo.set("Select variable")
+        else:
+            combo.set("No variables available")
+
+        self.variable_entries.append(combo)
 
     def add_additional_variable_button(self, parent=None):
         if parent is None:
@@ -478,6 +511,54 @@ class RToolGUI:
             command=self.add_rename_pair_field
         )
         add_button.pack(pady=5)
+
+    def add_summary_fields(self):
+        frame = ttk.Frame(self.input_frame)
+        frame.pack(fill="x", padx=5, pady=5)
+
+        label = ttk.Label(frame, text="Name for the new dataframe:")
+        label.pack(side="left")
+
+        entry = ttk.Entry(frame, textvariable=self.summary_name_var)
+        entry.pack(side="left", fill="x", expand=True, padx=5)
+
+        function_frame = ttk.Frame(self.input_frame)
+        function_frame.pack(fill="x", padx=5, pady=5)
+
+        ttk.Label(function_frame, text="Summary function:").pack(side="left")
+
+        function_box = ttk.Combobox(
+            function_frame,
+            textvariable=self.summary_function_var,
+            values=list(self.summary_functions.keys()),
+            state="readonly"
+        )
+        function_box.pack(side="left", fill="x", expand=True, padx=5)
+
+        na_checkbox = ttk.Checkbutton(
+            self.input_frame,
+            text="Remove missing values",
+            variable=self.summary_na_rm_var
+        )
+        na_checkbox.pack(anchor="w", padx=5, pady=5)
+
+        ttk.Label(self.input_frame, text="Variable to summarise").pack(anchor="w", padx=5)
+
+        self.summary_target_entries_start = len(self.variable_entries)
+
+        self.add_variable_field_summary()
+        
+        add_target_button = ttk.Button(
+            self.input_frame,
+            text="Add another summary variable",
+            command=self.add_variable_field_summary
+        )
+        add_target_button.pack(anchor="w", padx=5, pady=5)
+
+        ttk.Label(self.input_frame, text="Grouping variable optional").pack(anchor="w", padx=5)
+
+        self.summary_group_entry_index = len(self.variable_entries)
+        self.add_variable_field_grouping()
     
     def add_mutation_fields(self):
         frame = ttk.Frame(self.input_frame)
@@ -740,6 +821,9 @@ class RToolGUI:
 
             self.add_mutation_fields()
             return
+        if var_count == "summary":
+            self.add_summary_fields()
+            return
 
     def collect_selected_variables(self):
         variables = []
@@ -943,6 +1027,52 @@ class RToolGUI:
                         recode_rules=recode_rules
                     )
 
+                elif method == "summarise":
+                    output_name = self.summary_name_var.get().strip()
+
+                    if not output_name:
+                        raise ValueError(
+                            "Error"
+                            "Please enter a name for the new dataframe."
+                        )
+                    
+                    selected_function = self.summary_functions[self.summary_function_var.get()]
+                    na_rm = str(self.summary_na_rm_var.get()).lower()
+
+                    target_vars = variables[
+                        self.summary_target_entries_start:self.summary_group_entry_index
+                    ]
+
+                    group_vars = variables[
+                        self.summary_group_entry_index:
+                    ]
+
+                    target_vars = [
+                        var for var in target_vars
+                        if var not in ("Select variable", "No variables available")
+                    ]
+
+                    group_vars = [
+                        var for var in group_vars
+                        if var not in ("Select variable", "No variables available")
+                    ]
+
+                    if selected_function != "n" and not target_vars:
+                        raise ValueError(
+                            "Error"
+                            "Please select at least one variable to summarise."
+                        )
+
+                    result = run_preparation(
+                        method,
+                        target_vars,
+                        dataset_name,
+                        output_name=output_name,
+                        selected_function=selected_function,
+                        na_rm=na_rm,
+                        group_vars=group_vars
+                    )
+
                 if result.returncode == 0:
                     if method == "subframe":
                         new_dataset_name = f"{self.subframe_name_var.get().strip()}.rds"
@@ -959,7 +1089,16 @@ class RToolGUI:
                 raise ValueError(f"Unknown mode: {mode}")
 
             if result.returncode != 0:
-                raise RuntimeError(result.stderr or "Unknown backend error.")
+                error_message = result.stderr.strip()
+
+                if not error_message:
+                    error_message = result.stdout.strip()
+
+                if not error_message:
+                    error_message = "Unknown backend error."
+
+                messagebox.showerror("Backend error", error_message)
+                return
 
             messagebox.showinfo("Success", result.stdout or "Action executed successfully.")
 

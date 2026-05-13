@@ -188,6 +188,29 @@ def run_preparation(
             *variables
         )
     
+    if preparation == "summarise":
+        output_name = kwargs.get("output_name", "")
+        selected_function = kwargs.get("selected_function", "")
+        na_rm = str(kwargs.get("na_rm", False)).lower()
+
+        group_vars = kwargs.get("group_vars", [])
+
+        if isinstance(group_vars, list):
+            group_vars = ",".join(group_vars)
+        
+        if group_vars is None:
+            group_vars = ""
+        
+        return run_r_script(
+            "summarise.R",
+            dataset_name,
+            output_name,
+            selected_function,
+            na_rm,
+            group_vars,
+            *variables
+        )
+    
     raise ValueError(f"Unknown preparation method: {preparation}")
 
 
