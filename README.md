@@ -94,6 +94,21 @@ variables through conditional logic directly in the GUI. Users can define
 multiple recode rules using comparison operators such as ==, !=, >, >=, < and 
 <=.
 
+### "Create summary dataset"
+
+This function reduces the number of variables in the new subframe by summarising the selected variables. It also includes the option to group the new dataframe by a grouping variable or to remove all missing values. This is important for some of the currently included summary-functions. These include:
+
+- Mean
+- Median
+- Standard deviation
+- Minimum
+- Maximum
+- Sum
+- Observations
+- Distinct observations
+
+---
+
 Examples of possible workflows include:
 
 - Creating additive democracy indices
@@ -116,6 +131,7 @@ through automation or AI-generated analyses.
 ### 1. Required installations
 
 Make sure that RStudio and Pandoc are installed on your system.
+
 ---
 
 Download the ZIP-File and unpack it. You can find the File in the assets under the releases.
@@ -147,15 +163,14 @@ When you want to add your own data, complete the following steps:
 
 - Open the file `r-scripts\preparation_template.R`
 - Import your dataset into the R-Script.
-- Add your desired data transformations in the designated section.
 - Complete the output-path at the bottom.
+- The template automatically saves your dataset as a `.rds` file in `/data/prepared/`
 ---
 
 ⚠️ Notes:
 
 - The prepared dataset needs to be in the folder ```/data/prepared/``` for the program to find it!
 - All locations, that need to be tampered with, are marked in the template!
-- Don't forget to save the template in a separate file. If the analyses don't work properly, it's mostly due to improperly formatted variables in the dataset. Being able to quickly change the formatting is invaluable for a smooth workflow!
 
 
 ### 5. Done!
