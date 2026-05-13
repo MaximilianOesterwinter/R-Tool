@@ -58,70 +58,195 @@ def get_variable_names(out_path: str, dataset_name: str | None = None) -> subpro
     )
 
 
-def run_analysis(analysis: str, variables: list[str], dataset_name: str | None = None) -> subprocess.CompletedProcess:
+def run_analysis(
+    analysis: str, 
+    variables: list[str], 
+    dataset_name: str | None = None
+    ) -> subprocess.CompletedProcess:
+
     if analysis == "df":
-        return run_r_script("dataframe.R", dataset_name)
+        return run_r_script(
+            "dataframe.R", 
+            dataset_name
+            )
 
     if analysis == "chi_square":
-        return run_r_script("chi_square.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "chi_square.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if analysis == "logit":
-        return run_r_script("logit_model.R", dataset_name, variables[0], *variables[1:])
+        return run_r_script(
+            "logit_model.R", 
+            dataset_name, 
+            variables[0], 
+            *variables[1:]
+            )
 
     if analysis == "lin_reg":
-        return run_r_script("lin_reg.R", dataset_name, variables[0], *variables[1:])
+        return run_r_script(
+            "lin_reg.R", 
+            dataset_name, 
+            variables[0], 
+            *variables[1:]
+            )
 
     if analysis == "describe":
-        return run_r_script("describe.R", dataset_name, variables[0])
+        return run_r_script(
+            "describe.R", 
+            dataset_name, 
+            variables[0]
+            )
 
     if analysis == "describeBy":
-        return run_r_script("describeBy.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "describeBy.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if analysis == "anova":
-        return run_r_script("anova.R", dataset_name, variables[0], *variables[1:])
+        return run_r_script(
+            "anova.R", 
+            dataset_name, 
+            variables[0], 
+            *variables[1:]
+            )
 
     if analysis == "unpaired_ttest":
-        return run_r_script("unpaired_ttest.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "unpaired_ttest.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if analysis == "paired_ttest":
-        return run_r_script("paired_ttest.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "paired_ttest.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if analysis == "norm_test":
-        return run_r_script("normality_test.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "normality_test.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if analysis == "welch_test":
-        return run_r_script("welch_test.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "welch_test.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if analysis == "correlation":
-        return run_r_script("correlation.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "correlation.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if analysis == "mann_whitney_test":
-        return run_r_script("mann_whitney_test.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "mann_whitney_test.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     raise ValueError(f"Unknown analysis: {analysis}")
 
 
-def run_plot(plot_type: str, variables: list[str], dataset_name: str | None = None) -> subprocess.CompletedProcess:
+def run_plot(
+    plot_type: str, 
+    variables: list[str], 
+    dataset_name: str | None = None,
+    **kwargs
+    ) -> subprocess.CompletedProcess:
+
     if plot_type == "histogram":
-        return run_r_script("histogram.R", dataset_name, variables[0])
+        return run_r_script(
+            "histogram.R", 
+            dataset_name, 
+            variables[0]
+            )
 
     if plot_type == "boxplot":
-        return run_r_script("boxplot.R", dataset_name, variables[0])
+        return run_r_script(
+            "boxplot.R", 
+            dataset_name, 
+            variables[0]
+            )
 
     if plot_type == "boxplot_by_group":
-        return run_r_script("boxplot_by_group.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "boxplot_by_group.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if plot_type == "scatterplot":
-        return run_r_script("scatterplot.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "scatterplot.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if plot_type == "barplot":
-        return run_r_script("barplot.R", dataset_name, variables[0])
+        return run_r_script(
+            "barplot.R",
+            dataset_name,
+            str(kwargs.get("flip", False)).lower(),
+            str(kwargs.get("beside", False)).lower(),
+            kwargs.get("main_lab", ""),
+            kwargs.get("x_lab", ""),
+            kwargs.get("y_lab", ""),
+            kwargs.get("group_var", ""),
+            variables[0]
+        )
 
     if plot_type == "barplot_by_group":
-        return run_r_script("barplot_by_group.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "barplot_by_group.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
 
     if plot_type == "lineplot":
-        return run_r_script("lineplot.R", dataset_name, variables[0], variables[1])
+        return run_r_script(
+            "lineplot.R", 
+            dataset_name, 
+            variables[0], 
+            variables[1]
+            )
+
+    if plot_type == "column_chart":
+        return run_r_script(
+            "column_chart.R",
+            dataset_name,
+            str(kwargs.get("flip", False)).lower(),
+            str(kwargs.get("beside", False)).lower(),
+            kwargs.get("main_lab", ""),
+            kwargs.get("x_lab", ""),
+            kwargs.get("y_lab", ""),
+            kwargs.get("group_var", ""),
+            variables[1],
+            variables[0]
+        )
 
     raise ValueError(f"Unknown plot type: {plot_type}")
 
@@ -213,8 +338,9 @@ def run_preparation(
     
     raise ValueError(f"Unknown preparation method: {preparation}")
 
+# Legacy CLI interface
 
-def build_parser() -> argparse.ArgumentParser:
+#def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default=None, help="CSV filename inside ./data/prepared/")
 
@@ -306,7 +432,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> int:
+#def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
@@ -379,5 +505,5 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     raise SystemExit(main())

@@ -165,6 +165,7 @@ When you want to add your own data, complete the following steps:
 - Import your dataset into the R-Script.
 - Complete the output-path at the bottom.
 - The template automatically saves your dataset as a `.rds` file in `/data/prepared/`
+- If your dataset is already in `.rds` format, you can skip this step and directly save it into `/data/prepared/`.
 ---
 
 ⚠️ Notes:
@@ -245,13 +246,14 @@ Performs the non-parametric Mann-Whitney-U-Test.
 
 ## 📈 Supported Plots
 
-- Histogram
-- Boxplot
-- Boxplot by Group
-- Scatterplot
+- Histogram (WIP)
+- Boxplot (WIP)
+- Boxplot by Group (WIP)
+- Scatterplot (WIP)
 - Barplot
-- Barplot by Group
-- Lineplot
+- Barplot by Group (WIP)
+- Lineplot (WIP)
+- Column chart
 
 ## ⚠️ Notes
 

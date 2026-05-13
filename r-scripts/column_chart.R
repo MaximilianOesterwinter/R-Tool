@@ -7,7 +7,8 @@ main_lab <- args[4]
 x_lab <- args[5]
 y_lab <- args[6]
 group_var <- args[7]
-var_x <- args[8]
+var_y <- args[8]
+var_x <- args[9]
 
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
@@ -21,10 +22,10 @@ if (!requireNamespace("rmarkdown", quietly = TRUE)) {
   stop("Package 'rmarkdown' not installed.")
 }
 
-library(tidyverse)
 library(rmarkdown)
+library(tidyverse)
 
-source(file.path(project_dir, "r-scripts", "prepare_data.R"))
+source(file.path("r-scripts", "prepare_data.R"))
 
 output_dir <- file.path(project_dir, "output")
 if (!dir.exists(output_dir)) {
@@ -33,14 +34,25 @@ if (!dir.exists(output_dir)) {
 
 df <- prepare_data(data_path)
 
+if (var_x == "" || var_y == "") {
+  stop("Column chart requires both an x variable and a y variable.")
+}
+
 position_type <- if (beside) "dodge" else "stack"
 
 if (group_var == "") {
-  plot <- ggplot(df, aes(x = .data[[var_x]])) +
-    geom_bar()
+  plot <- ggplot(df, aes(x = .data[[var_x]], y = .data[[var_y]])) +
+    geom_col()
 } else {
-  plot <- ggplot(df, aes(x = .data[[var_x]], fill = .data[[group_var]])) +
-    geom_bar(position = position_type)
+  plot <- ggplot(
+    df,
+    aes(
+      x = .data[[var_x]],
+      y = .data[[var_y]],
+      fill = .data[[group_var]]
+    )
+  ) +
+    geom_col(position = position_type)
 }
 
 plot <- plot +
@@ -56,17 +68,13 @@ if (flip) {
   plot <- plot + coord_flip()
 }
 
-safe_group <- if (group_var == "") "no_group" else group_var
+output_dir <- file.path(project_dir, "output")
+if (!dir.exists(output_dir)) {
+  dir.create(output_dir, recursive = TRUE)
+}
 
-plot_path <- file.path(
-  output_dir,
-  paste0("barplot_", var_x, "_by_", safe_group, "_", ".png")
-)
-
-report_file <- file.path(
-  output_dir,
-  paste0("barplot_", var_x, "_by_", safe_group, "_", ".pdf")
-)
+plot_path <- file.path(output_dir, paste0("columnchart_", var_x, "_", var_y, ".png"))
+report_file <- file.path(output_dir, paste0("columnchart_", var_x, "_", var_y, ".pdf"))
 
 ggsave(
   filename = plot_path,
@@ -77,22 +85,6 @@ ggsave(
 
 dataset_name <- basename(data_path)
 
-description <- if (group_var == "") {
-  paste(
-    "This barplot shows the frequency distribution of the variable",
-    var_x,
-    "."
-  )
-} else {
-  paste(
-    "This barplot shows the frequency distribution of the variable",
-    var_x,
-    "grouped by",
-    group_var,
-    "."
-  )
-}
-
 rmarkdown::render(
   input = file.path(project_dir, "templates", "plot_report.Rmd"),
   output_file = report_file,
@@ -100,9 +92,15 @@ rmarkdown::render(
     plot_title = main_lab,
     dataset_name = dataset_name,
     variable_x = var_x,
-    variable_y = "",
-    plot_type = "Barplot",
-    description_text = description,
+    variable_y = var_y,
+    plot_type = "Column chart",
+    description_text = paste(
+      "This column chart shows",
+      var_y,
+      "by",
+      var_x,
+      "."
+    ),
     plot_path = plot_path
   ),
   envir = new.env(parent = globalenv())

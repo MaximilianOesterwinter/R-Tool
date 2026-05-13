@@ -53,9 +53,10 @@ METHOD_CONFIG = {
         "boxplot": {"label": "Boxplot", "var_count": "x"},
         "boxplot_by_group": {"label": "Boxplot by Group", "var_count": "grouped"},
         "scatterplot": {"label": "Scatterplot", "var_count": "xy"},
-        "barplot": {"label": "Barplot", "var_count": "y"},
+        "barplot": {"label": "barplot", "var_count": "barplot"},
         "barplot_by_group": {"label": "Barplot by Group", "var_count": "grouped"},
         "lineplot": {"label": "Lineplot", "var_count": "xy"},
+        "column_chart": {"label": "Column chart", "var_count": "column_chart"}
     },
     "preparation": {
         "subframe": {"label": "Create a subframe", "var_count": "subframe"},
@@ -102,6 +103,14 @@ class RToolGUI:
         self.display_to_name = {}
 
         self.available_datasets = get_available_datasets()
+
+        self.beside_var = tk.BooleanVar(value=False)
+        self.flip_var = tk.BooleanVar(value=False)
+        self.group_var = tk.StringVar()
+        
+        self.main_label_var = tk.StringVar()
+        self.x_label_var = tk.StringVar()
+        self.y_label_var = tk.StringVar()
 
         self.selected_dataset = tk.StringVar()
         self.mode_var = tk.StringVar(value="analysis")
@@ -737,6 +746,49 @@ class RToolGUI:
             (operator_var, value_var, result_var)
         )
     
+    def add_plot_label_fields(self):
+        ttk.Label(self.input_frame, text="Main title:").pack(anchor="w")
+        ttk.Entry(
+            self.input_frame,
+            textvariable=self.main_label_var
+        ).pack(fill="x", padx=5, pady=2)
+
+        ttk.Label(self.input_frame, text="X label:").pack(anchor="w")
+        ttk.Entry(
+            self.input_frame,
+            textvariable=self.x_label_var
+        ).pack(fill="x", padx=5, pady=2)
+
+        ttk.Label(self.input_frame, text="Y label:").pack(anchor="w")
+        ttk.Entry(
+            self.input_frame,
+            textvariable=self.y_label_var
+        ).pack(fill="x", padx=5, pady=2)
+    
+    def add_group_variable_field(self):
+        ttk.Label(self.input_frame, text="Grouping variable optional:").pack(anchor="w")
+
+        combo = ttk.Combobox(
+            self.input_frame,
+            textvariable=self.group_var,
+            values=[""] + self.variable_display,
+            state="readonly"
+        )
+        combo.pack(fill="x", padx=5, pady=2)
+    
+    def add_bar_column_options(self):
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Flip coordinates",
+            variable=self.flip_var
+        ).pack(anchor="w", padx=5, pady=2)
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Bars beside each other",
+            variable=self.beside_var
+        ).pack(anchor="w", padx=5, pady=2)
+    
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
 
@@ -789,6 +841,37 @@ class RToolGUI:
         if var_count == "var_const":
             self.add_variable_field()
             self.add_variable_field_write()
+        if var_count == "barplot":
+            self.variable_entries = []
+
+            self.flip_var.set(False)
+            self.beside_var.set(False)
+            self.main_label_var.set("")
+            self.x_label_var.set("")
+            self.y_label_var.set("")
+            self.group_var.set("")
+
+            self.add_variable_field_x()
+            self.add_group_variable_field()
+            self.add_plot_label_fields()
+            self.add_bar_column_options()
+            return
+        if var_count == "column_chart":
+            self.variable_entries = []
+
+            self.flip_var.set(False)
+            self.beside_var.set(False)
+            self.main_label_var.set("")
+            self.x_label_var.set("")
+            self.y_label_var.set("")
+            self.group_var.set("")
+
+            self.add_variable_field_x()
+            self.add_variable_field_y()
+            self.add_group_variable_field()
+            self.add_plot_label_fields()
+            self.add_bar_column_options()
+            return
         if var_count == "subframe":
             self.pivot_longer_var.set(False)
             self.remove_na_var.set(False)
@@ -873,6 +956,7 @@ class RToolGUI:
             messagebox.showerror("Error", str(e))
 
     def execute_selected_action(self):
+        print("EXECUTE CALLED")
         dataset_name = self.selected_dataset.get().strip()
         mode = self.mode_var.get()
         selected_label = self.method_combobox.get()
@@ -891,7 +975,55 @@ class RToolGUI:
             if mode == "analysis":
                 result = run_analysis(method, variables, dataset_name)
             elif mode == "plot":
-                result = run_plot(method, variables, dataset_name)
+                group_display = self.group_var.get().strip()
+                group_name = self.display_to_name.get(group_display, "")
+
+                if method == "barplot":
+                    if len(variables) < 1:
+                        messagebox.showerror(
+                            "Error",
+                            "Please select an x variable."
+                        )
+                        return
+
+                    result = run_plot(
+                        method,
+                        variables,
+                        dataset_name,
+                        flip=self.flip_var.get(),
+                        beside=self.beside_var.get(),
+                        main_lab=self.main_label_var.get().strip(),
+                        x_lab=self.x_label_var.get().strip(),
+                        y_lab=self.y_label_var.get().strip(),
+                        group_var=group_name
+                    )
+
+                elif method == "column_chart":
+                    if len(variables) < 2:
+                        messagebox.showerror(
+                            "Error",
+                            "Please select both an x and a y variable."
+                        )
+                        return
+
+                    result = run_plot(
+                        method,
+                        variables,
+                        dataset_name,
+                        flip=self.flip_var.get(),
+                        beside=self.beside_var.get(),
+                        main_lab=self.main_label_var.get().strip(),
+                        x_lab=self.x_label_var.get().strip(),
+                        y_lab=self.y_label_var.get().strip(),
+                        group_var=group_name
+                    )
+                else:
+                    result = run_plot(
+                        method,
+                        variables,
+                        dataset_name
+                    )
+
             elif mode == "preparation":
                 if method == "subframe":
                     if not self.subframe_name_var.get().strip():
@@ -1071,7 +1203,7 @@ class RToolGUI:
                         selected_function=selected_function,
                         na_rm=na_rm,
                         group_vars=group_vars
-                    )
+                    )         
 
                 if result.returncode == 0:
                     if method == "subframe":
