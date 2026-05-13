@@ -6,4 +6,6 @@ build/
 dist/
 *.spec
 *.zip
-__pycache__/
+__pycache__
+.Rhistory
+
