@@ -6,7 +6,7 @@ from pathlib import Path
 
 from version import APP_VERSION
 from update_check import is_newer_version_available
-from main import get_variable_names, run_analysis, run_plot, run_preparation
+from r_tool.commands import run_analysis, run_plot, run_preparation, get_variable_names
 from runtime_paths import BASE_DIR
 
 BASE_DIR = Path(BASE_DIR)
@@ -956,7 +956,6 @@ class RToolGUI:
             messagebox.showerror("Error", str(e))
 
     def execute_selected_action(self):
-        print("EXECUTE CALLED")
         dataset_name = self.selected_dataset.get().strip()
         mode = self.mode_var.get()
         selected_label = self.method_combobox.get()
