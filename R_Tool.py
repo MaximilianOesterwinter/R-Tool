@@ -7,6 +7,10 @@ from pathlib import Path
 from version import APP_VERSION
 from update_check import is_newer_version_available
 from r_tool.commands import run_analysis, run_plot, run_preparation, get_variable_names
+from r_tool.plot_service import (
+    create_barplot,
+    create_scatterplot,
+)
 from runtime_paths import BASE_DIR
 
 BASE_DIR = Path(BASE_DIR)
@@ -1009,6 +1013,13 @@ class RToolGUI:
                 group_name = self.display_to_name.get(group_display, "")
 
                 if method == "scatterplot":
+                    if len(variables) < 2:
+                        messagebox.showerror(
+                            "Error",
+                            "Please select x and y variables."
+                        )
+                        return
+                        
                     result = run_plot(
                         method,
                         variables,
@@ -1027,10 +1038,25 @@ class RToolGUI:
                             "Please select an x variable."
                         )
                         return
+                    
+                    var_x = variables[0]
+
+                    if self.barplot_stat_identity_var.get():
+                        if len(variables) < 2:
+                            messagebox.showerror(
+                                "Error",
+                                "Please select a y variable when stat='identity' is enabled."
+                            )
+                            return
+
+                        var_y = variables[1]
+                    
+                    else:
+                        var_y = ""
 
                     result = run_plot(
                         method,
-                        variables,
+                        [var_x, var_y],
                         dataset_name,
                         flip=self.flip_var.get(),
                         beside=self.beside_var.get(),

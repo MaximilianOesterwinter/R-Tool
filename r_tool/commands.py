@@ -106,18 +106,6 @@ def build_plot_args(
     variables: list[str],
     **kwargs: Any,
 ) -> list[str]:
-    if plot_type in {"histogram", "boxplot"}:
-        require_variables(variables, 1, plot_type)
-        return [variables[0]]
-
-    if plot_type in {
-        "boxplot_by_group",
-        "barplot_by_group",
-        "lineplot",
-    }:
-        require_variables(variables, 2, plot_type)
-        return [variables[0], variables[1]]
-    
     if plot_type == "scatterplot":
         require_variables(variables, 2, plot_type)
         return [
@@ -132,6 +120,12 @@ def build_plot_args(
 
     if plot_type == "barplot":
         require_variables(variables, 1, plot_type)
+
+        stat_identity = kwargs.get("stat_identity", False)
+        
+        if stat_identity:
+            require_variables(variables, 2, plot_type)
+        
         return [
             bool_to_r(kwargs.get("flip", False)),
             bool_to_r(kwargs.get("beside", False)),
