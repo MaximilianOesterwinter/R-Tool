@@ -23,9 +23,7 @@ COMMANDS: dict[str, dict[str, str]] = {
         "boxplot_by_group": "boxplot_by_group.R",
         "scatterplot": "scatterplot.R",
         "barplot": "barplot.R",
-        "barplot_by_group": "barplot_by_group.R",
         "lineplot": "lineplot.R",
-        "column_chart": "column_chart.R",
     },
     "preparation": {
         "factorize": "factorize.R",

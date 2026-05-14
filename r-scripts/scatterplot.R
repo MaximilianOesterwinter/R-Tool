@@ -1,8 +1,13 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 data_path <- args[1]
-var1 <- args[2]
-var2 <- args[3]
+jitter <- args[2] == "true"
+main_lab <- args[3]
+x_lab <- args[4]
+y_lab <- args[5]
+group_var <- args[6]
+var_x <- args[7]
+var_y <- args[8]
 
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
@@ -23,16 +28,51 @@ source(file.path("r-scripts", "prepare_data.R"))
 
 df <- prepare_data(data_path)
 
-plot <- ggplot(df, aes(y = .data[[var1]], x = .data[[var2]])) +
-  geom_point(size=3, col="steelblue")
+if (group_var != "") {
+  plot <- ggplot(
+    df,
+    aes(
+      x=.data[[var_x]],
+      y=.data[[var_y]],
+      color=.data[[group_var]]
+    )
+  ) +
+    labs(
+      x=x_lab,
+      y=y_lab,
+      title=main_lab,
+      color=group_var
+    )
+} else {
+  plot <- ggplot(
+    df,
+    aes(
+      x=.data[[var_x]],
+      y=.data[[var_y]], 
+    )
+  ) +
+    labs(
+      x=x_lab,
+      y=y_lab,
+      title=main_lab
+    )
+}
+
+if (jitter) {
+  plot <- plot +
+    geom_jitter()
+} else {
+  plot <- plot +
+    geom_point()
+}
 
 output_dir <- file.path(project_dir, "output")
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-plot_path <- file.path(output_dir, paste0("scatterplot_", var1, "_by_", var2, ".png"))
-report_file <- file.path(output_dir, paste0("scatterplot_", var1, "_by_", var2, ".pdf"))
+plot_path <- file.path(output_dir, paste0("scatterplot_", var_x, "_by_", var_y, ".png"))
+report_file <- file.path(output_dir, paste0("scatterplot_", var_x, "_by_", var_y, ".pdf"))
 
 ggsave(
   filename = plot_path,
@@ -47,16 +87,16 @@ rmarkdown::render(
   input = file.path(project_dir, "templates", "plot_report.Rmd"),
   output_file = report_file,
   params = list(
-    plot_title = paste("Scatterplot of", var1, "_by_", var2),
+    plot_title = paste("Scatterplot of", var_x, "_by_", var_y),
     dataset_name = dataset_name,
-    variable_x = var2,
-    variable_y = var1,
+    variable_x = var_x,
+    variable_y = var_y,
     plot_type = "Scatterplot",
     description_text = paste(
       "This scatterplot shows the variable",
-      var1,
+      var_x,
       "by",
-      var2,
+      var_y,
       "."
     ),
     plot_path = plot_path

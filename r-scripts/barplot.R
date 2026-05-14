@@ -3,11 +3,13 @@ args <- commandArgs(trailingOnly = TRUE)
 data_path <- args[1]
 flip <- args[2] == "true"
 beside <- args[3] == "true"
-main_lab <- args[4]
-x_lab <- args[5]
-y_lab <- args[6]
-group_var <- args[7]
-var_x <- args[8]
+stat_identity <- args[4] == "true"
+main_lab <- args[5]
+x_lab <- args[6]
+y_lab <- args[7]
+group_var <- args[8]
+var_x <- args[9]
+var_y <- args[10]
 
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
@@ -35,25 +37,38 @@ df <- prepare_data(data_path)
 
 position_type <- if (beside) "dodge" else "stack"
 
-if (group_var == "") {
-  plot <- ggplot(df, aes(x = .data[[var_x]])) +
-    geom_bar()
+if (stat_identity) {
+  p <- ggplot(df, aes(
+    x = .data[[var_x]],
+    y = .data[[var_y]]
+  ))
+  
+  if (group_var != "") {
+    p <- p + aes(fill = .data[[group_var]])
+  }
+  
+  p <- p + geom_col(
+    width = 0.8,
+    position = if (beside) "dodge" else "stack"
+  )
+  
 } else {
-  plot <- ggplot(df, aes(x = .data[[var_x]], fill = .data[[group_var]])) +
-    geom_bar(position = position_type)
+  p <- ggplot(df, aes(
+    x = .data[[var_x]]
+  ))
+  
+  if (group_var != "") {
+    p <- p + aes(fill = .data[[group_var]])
+  }
+  
+  p <- p + geom_bar(
+    width = 0.8,
+    position = if (beside) "dodge" else "stack"
+  )
 }
 
-plot <- plot +
-  labs(
-    title = main_lab,
-    x = x_lab,
-    y = y_lab,
-    fill = group_var
-  ) +
-  theme_minimal()
-
 if (flip) {
-  plot <- plot + coord_flip()
+  p <- p + coord_flip()
 }
 
 safe_group <- if (group_var == "") "no_group" else group_var
@@ -70,7 +85,7 @@ report_file <- file.path(
 
 ggsave(
   filename = plot_path,
-  plot = plot,
+  plot = p,
   width = 8,
   height = 5
 )

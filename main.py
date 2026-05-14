@@ -325,8 +325,13 @@ def dispatch_plot(args):
     if args.plot == "scatterplot":
         return run_plot(
             "scatterplot",
-            [args.var1, args.var2],
+            [args.var1],
             args.dataset,
+            jitter=args.jitter,
+            main_lab=args.main_lab,
+            x_lab=args.x_lab,
+            y_lab=args.y_lab,
+            group_var=args.group_var,
         )
 
     if args.plot == "barplot":
@@ -336,17 +341,11 @@ def dispatch_plot(args):
             args.dataset,
             flip=args.flip,
             beside=args.beside,
+            stat=args.stat,
             main_lab=args.main_lab,
             x_lab=args.x_lab,
             y_lab=args.y_lab,
             group_var=args.group_var,
-        )
-
-    if args.plot == "barplot_by_group":
-        return run_plot(
-            "barplot_by_group",
-            [args.var1, args.group_var],
-            args.dataset,
         )
 
     if args.plot == "lineplot":
@@ -354,19 +353,6 @@ def dispatch_plot(args):
             "lineplot",
             [args.x_var, args.y_var],
             args.dataset,
-        )
-
-    if args.plot == "column_chart":
-        return run_plot(
-            "column_chart",
-            [args.x_var, args.y_var],
-            args.dataset,
-            flip=args.flip,
-            beside=args.beside,
-            main_lab=args.main_lab,
-            x_lab=args.x_lab,
-            y_lab=args.y_lab,
-            group_var=args.group_var,
         )
 
     raise ValueError(f"Unknown plot type: {args.plot}")

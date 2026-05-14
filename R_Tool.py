@@ -49,14 +49,12 @@ METHOD_CONFIG = {
         "mann_whitney_test": {"label": "Mann-Whitney Test", "var_count": "dep_group"},
     },
     "plot": {
-        "histogram": {"label": "Histogram", "var_count": "x"},
-        "boxplot": {"label": "Boxplot", "var_count": "x"},
-        "boxplot_by_group": {"label": "Boxplot by Group", "var_count": "grouped"},
-        "scatterplot": {"label": "Scatterplot", "var_count": "xy"},
-        "barplot": {"label": "barplot", "var_count": "barplot"},
-        "barplot_by_group": {"label": "Barplot by Group", "var_count": "grouped"},
-        "lineplot": {"label": "Lineplot", "var_count": "xy"},
-        "column_chart": {"label": "Column chart", "var_count": "column_chart"}
+        "scatterplot": {"label": "Scatterplot", "var_count": "scatterplot"},
+        "barplot": {"label": "Barplot or Column chart", "var_count": "barplot"},
+        "histogram": {"label": "Histogram (WIP)", "var_count": "x"},
+        "boxplot": {"label": "Boxplot (WIP)", "var_count": "x"},
+        "boxplot_by_group": {"label": "Boxplot by Group (WIP)", "var_count": "grouped"},
+        "lineplot": {"label": "Lineplot (WIP)", "var_count": "xy"},
     },
     "preparation": {
         "subframe": {"label": "Create a subframe", "var_count": "subframe"},
@@ -92,7 +90,7 @@ def load_names(dataset_name: str):
 class RToolGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("R-Tool version 1.3.0")
+        self.root.title("R-Tool version 1.4.0")
         self.root.minsize(300, 300)
         self.root.maxsize(1280, 1080)
         self.root.geometry("900x850+50+50")
@@ -106,6 +104,8 @@ class RToolGUI:
 
         self.beside_var = tk.BooleanVar(value=False)
         self.flip_var = tk.BooleanVar(value=False)
+        self.barplot_stat_identity_var = tk.BooleanVar(value=False)
+        self.jitter_var = tk.BooleanVar(value=False)
         self.group_var = tk.StringVar()
         
         self.main_label_var = tk.StringVar()
@@ -788,6 +788,24 @@ class RToolGUI:
             text="Bars beside each other",
             variable=self.beside_var
         ).pack(anchor="w", padx=5, pady=2)
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Use stat='identity', if you set a variable on the y-axis",
+            variable=self.barplot_stat_identity_var,
+        ).pack(anchor="w", padx=5, pady=2)
+    
+    def add_scatterplot_options(self):
+        self.add_variable_field_x()
+        self.add_variable_field_y()
+        self.add_group_variable_field()
+        self.add_plot_label_fields()
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text=U"Use jitter-option",
+            variable=self.jitter_var,
+        ).pack(anchor="w", padx=5, pady=2)
     
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
@@ -841,17 +859,28 @@ class RToolGUI:
         if var_count == "var_const":
             self.add_variable_field()
             self.add_variable_field_write()
+        
+        if var_count == "scatterplot":
+            self.main_label_var.set("")
+            self.x_label_var.set("")
+            self.y_label_var.set("")
+            self.group_var.set("")
+
+            self.add_scatterplot_options()
+            return
         if var_count == "barplot":
             self.variable_entries = []
 
             self.flip_var.set(False)
             self.beside_var.set(False)
+            self.barplot_stat_identity_var.set(False)
             self.main_label_var.set("")
             self.x_label_var.set("")
             self.y_label_var.set("")
             self.group_var.set("")
 
             self.add_variable_field_x()
+            self.add_variable_field_y()
             self.add_group_variable_field()
             self.add_plot_label_fields()
             self.add_bar_column_options()
@@ -872,6 +901,8 @@ class RToolGUI:
             self.add_plot_label_fields()
             self.add_bar_column_options()
             return
+
+
         if var_count == "subframe":
             self.pivot_longer_var.set(False)
             self.remove_na_var.set(False)
@@ -977,6 +1008,18 @@ class RToolGUI:
                 group_display = self.group_var.get().strip()
                 group_name = self.display_to_name.get(group_display, "")
 
+                if method == "scatterplot":
+                    result = run_plot(
+                        method,
+                        variables,
+                        dataset_name,
+                        jitter=self.jitter_var.get(),
+                        main_lab=self.main_label_var.get().strip(),
+                        x_lab=self.x_label_var.get().strip(),
+                        y_lab=self.y_label_var.get().strip(),
+                        group_var=group_name
+                    )
+
                 if method == "barplot":
                     if len(variables) < 1:
                         messagebox.showerror(
@@ -991,36 +1034,11 @@ class RToolGUI:
                         dataset_name,
                         flip=self.flip_var.get(),
                         beside=self.beside_var.get(),
+                        stat=self.barplot_stat_identity_var.get(),
                         main_lab=self.main_label_var.get().strip(),
                         x_lab=self.x_label_var.get().strip(),
                         y_lab=self.y_label_var.get().strip(),
                         group_var=group_name
-                    )
-
-                elif method == "column_chart":
-                    if len(variables) < 2:
-                        messagebox.showerror(
-                            "Error",
-                            "Please select both an x and a y variable."
-                        )
-                        return
-
-                    result = run_plot(
-                        method,
-                        variables,
-                        dataset_name,
-                        flip=self.flip_var.get(),
-                        beside=self.beside_var.get(),
-                        main_lab=self.main_label_var.get().strip(),
-                        x_lab=self.x_label_var.get().strip(),
-                        y_lab=self.y_label_var.get().strip(),
-                        group_var=group_name
-                    )
-                else:
-                    result = run_plot(
-                        method,
-                        variables,
-                        dataset_name
                     )
 
             elif mode == "preparation":

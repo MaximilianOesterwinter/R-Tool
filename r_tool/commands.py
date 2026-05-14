@@ -112,36 +112,36 @@ def build_plot_args(
 
     if plot_type in {
         "boxplot_by_group",
-        "scatterplot",
         "barplot_by_group",
         "lineplot",
     }:
         require_variables(variables, 2, plot_type)
         return [variables[0], variables[1]]
+    
+    if plot_type == "scatterplot":
+        require_variables(variables, 2, plot_type)
+        return [
+            bool_to_r(kwargs.get("jitter", False)),
+            kwargs.get("main_lab", ""),
+            kwargs.get("x_lab", ""),
+            kwargs.get("y_lab", ""),
+            kwargs.get("group_var", ""),
+            variables[0],
+            variables[1]
+        ]
 
     if plot_type == "barplot":
         require_variables(variables, 1, plot_type)
         return [
             bool_to_r(kwargs.get("flip", False)),
             bool_to_r(kwargs.get("beside", False)),
+            bool_to_r(kwargs.get("stat", False)),
             kwargs.get("main_lab", ""),
             kwargs.get("x_lab", ""),
             kwargs.get("y_lab", ""),
             kwargs.get("group_var", ""),
             variables[0],
-        ]
-
-    if plot_type == "column_chart":
-        require_variables(variables, 2, plot_type)
-        return [
-            bool_to_r(kwargs.get("flip", False)),
-            bool_to_r(kwargs.get("beside", False)),
-            kwargs.get("main_lab", ""),
-            kwargs.get("x_lab", ""),
-            kwargs.get("y_lab", ""),
-            kwargs.get("group_var", ""),
-            variables[1],
-            variables[0],
+            variables[1] if len(variables) > 1 else ""
         ]
 
     raise ValueError(f"Unknown plot type: {plot_type}")
