@@ -135,7 +135,7 @@ def build_plot_args(
         return [
             bool_to_r(kwargs.get("flip", False)),
             bool_to_r(kwargs.get("beside", False)),
-            bool_to_r(kwargs.get("stat", False)),
+            bool_to_r(kwargs.get("stat_identity", False)),
             kwargs.get("main_lab", ""),
             kwargs.get("x_lab", ""),
             kwargs.get("y_lab", ""),

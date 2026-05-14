@@ -111,6 +111,8 @@ def build_plot_parser(subparsers) -> None:
 
     parser_bar = plot_subparsers.add_parser("barplot")
     parser_bar.add_argument("var1")
+    parser_bar.add_argument("var2", nargs="?", default="")
+    parser_bar.add_argument("--stat-identity", action="store_true")
     add_plot_label_args(parser_bar)
 
     parser_bar_group = plot_subparsers.add_parser("barplot_by_group")
@@ -120,12 +122,6 @@ def build_plot_parser(subparsers) -> None:
     parser_line = plot_subparsers.add_parser("lineplot")
     parser_line.add_argument("x_var")
     parser_line.add_argument("y_var")
-
-    parser_column = plot_subparsers.add_parser("column_chart")
-    parser_column.add_argument("x_var")
-    parser_column.add_argument("y_var")
-    add_plot_label_args(parser_column)
-
 
 def add_plot_label_args(parser) -> None:
     parser.add_argument("--flip", action="store_true")
@@ -337,7 +333,7 @@ def dispatch_plot(args):
     if args.plot == "barplot":
         return run_plot(
             "barplot",
-            [args.var1],
+            variables,
             args.dataset,
             flip=args.flip,
             beside=args.beside,
