@@ -337,7 +337,7 @@ def dispatch_plot(args):
             args.dataset,
             flip=args.flip,
             beside=args.beside,
-            stat=args.stat,
+            stat_identity=args.stat_identity,
             main_lab=args.main_lab,
             x_lab=args.x_lab,
             y_lab=args.y_lab,

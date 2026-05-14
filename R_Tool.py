@@ -1034,7 +1034,7 @@ class RToolGUI:
                         dataset_name,
                         flip=self.flip_var.get(),
                         beside=self.beside_var.get(),
-                        stat=self.barplot_stat_identity_var.get(),
+                        stat_identity=self.barplot_stat_identity_var.get(),
                         main_lab=self.main_label_var.get().strip(),
                         x_lab=self.x_label_var.get().strip(),
                         y_lab=self.y_label_var.get().strip(),

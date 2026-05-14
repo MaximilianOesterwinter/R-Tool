@@ -35,7 +35,7 @@ if (!dir.exists(output_dir)) {
 
 df <- prepare_data(data_path)
 
-position_type <- if (beside) "dodge" else "stack"
+position_type <- if (beside && group_var != "") "dodge" else "stack"
 
 if (stat_identity) {
   p <- ggplot(df, aes(
@@ -49,7 +49,7 @@ if (stat_identity) {
   
   p <- p + geom_col(
     width = 0.8,
-    position = if (beside) "dodge" else "stack"
+    position = position_type
   )
   
 } else {
@@ -63,7 +63,7 @@ if (stat_identity) {
   
   p <- p + geom_bar(
     width = 0.8,
-    position = if (beside) "dodge" else "stack"
+    position = position_type
   )
 }
 
