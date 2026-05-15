@@ -25,6 +25,7 @@ if (!requireNamespace("rmarkdown", quietly = TRUE)) {
 
 library(tidyverse)
 library(rmarkdown)
+library(scales)
 
 source(file.path(project_dir, "r-scripts", "prepare_data.R"))
 
@@ -69,6 +70,16 @@ if (stat_identity) {
 
 if (flip) {
   p <- p + coord_flip()
+}
+
+if (is.numeric(df[[var_x]])) {
+  p <- p +
+    scale_x_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
+}
+
+if (is.numeric(df[[var_y]])) {
+  p <- p +
+    scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
 }
 
 safe_group <- if (group_var == "") "no_group" else group_var

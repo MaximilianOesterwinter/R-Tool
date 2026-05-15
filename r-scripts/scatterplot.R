@@ -21,8 +21,9 @@ if (!requireNamespace("rmarkdown", quietly = TRUE)) {
   stop("Package 'rmarkdown' not installed.")
 }
 
-library(ggplot2)
+library(tidyverse)
 library(rmarkdown)
+library(scales)
 
 source(file.path("r-scripts", "prepare_data.R"))
 
@@ -64,6 +65,16 @@ if (jitter) {
 } else {
   plot <- plot +
     geom_point()
+}
+
+if (is.numeric(df[[var_x]])) {
+  plot <- plot +
+    scale_x_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
+}
+
+if (is.numeric(df[[var_y]])) {
+  plot <- plot +
+    scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
 }
 
 output_dir <- file.path(project_dir, "output")

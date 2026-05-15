@@ -142,6 +142,7 @@ Open a new R script and run the following commands (You can copy/paste them and 
 
 ```R
 install.packages("tidyverse")
+install.packages("scales")
 install.packages("rmarkdown")
 install.packages("knitr")
 install.packages("psych")

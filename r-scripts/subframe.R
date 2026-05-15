@@ -4,7 +4,9 @@ data_path <- args[1]
 subframe_name <- args[2]
 use_pivot_longer <- args[3] == "true"
 remove_na <- args[4] == "true"
-selected_vars <- args[5:length(args)]
+namesto <- args[5]
+valuesto <- args[6]
+selected_vars <- args[7:length(args)]
 
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
@@ -33,8 +35,8 @@ if (use_pivot_longer){
   df_subframe <- df_subframe %>%
     pivot_longer(
       cols = everything(),
-      names_to = "variable",
-      values_to = "value"
+      names_to = namesto,
+      values_to = valuesto
     )
 }
 

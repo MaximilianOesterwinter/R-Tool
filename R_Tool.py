@@ -7,10 +7,6 @@ from pathlib import Path
 from version import APP_VERSION
 from update_check import is_newer_version_available
 from r_tool.commands import run_analysis, run_plot, run_preparation, get_variable_names
-from r_tool.plot_service import (
-    create_barplot,
-    create_scatterplot,
-)
 from runtime_paths import BASE_DIR
 
 BASE_DIR = Path(BASE_DIR)
@@ -55,7 +51,7 @@ METHOD_CONFIG = {
     "plot": {
         "scatterplot": {"label": "Scatterplot", "var_count": "scatterplot"},
         "barplot": {"label": "Barplot or Column chart", "var_count": "barplot"},
-        "histogram": {"label": "Histogram (WIP)", "var_count": "x"},
+        "histogram": {"label": "Histogram", "var_count": "histogram"},
         "boxplot": {"label": "Boxplot (WIP)", "var_count": "x"},
         "boxplot_by_group": {"label": "Boxplot by Group (WIP)", "var_count": "grouped"},
         "lineplot": {"label": "Lineplot (WIP)", "var_count": "xy"},
@@ -124,6 +120,10 @@ class RToolGUI:
         self.factor_levels_var = tk.StringVar()
         self.factor_labels_var = tk.StringVar()
         self.rename_entries = []
+        self.binwidth_var = tk.StringVar()
+        self.relative_frequencies_var = tk.BooleanVar()
+        self.normal_distribution_var = tk.BooleanVar()
+        self.use_density_var = tk.BooleanVar()
 
         self.mutate_new_var_name = tk.StringVar()
         self.mutate_operation_var = tk.StringVar()
@@ -134,6 +134,8 @@ class RToolGUI:
         self.recode_else_var = tk.StringVar()
         self.reverse_min_var = tk.StringVar()
         self.reverse_max_var = tk.StringVar()
+        self.pivot_names_to_var = tk.StringVar()
+        self.pivot_values_to_var = tk.StringVar()
         self.mutate_operations = {
             "Arithmetic": "arithmetic",
             "Row mean": "row_mean",
@@ -437,9 +439,34 @@ class RToolGUI:
         check = ttk.Checkbutton(
             self.input_frame,
             text="Use pivot_longer()",
-            variable=self.pivot_longer_var
+            variable=self.pivot_longer_var,
+            command=self.update_pivot_fields
         )
         check.pack(anchor="w", padx=5, pady=5)
+
+        self.pivot_frame = ttk.Frame(self.input_frame)
+        self.pivot_frame.pack(fill="x", padx=5, pady=5)
+
+    def update_pivot_fields(self, event=None):
+        for widget in self.pivot_frame.winfo_children():
+            widget.destroy()
+
+        if not self.pivot_longer_var.get():
+            return
+
+        ttk.Label(self.pivot_frame, text="Names to:").pack(side="left")
+
+        ttk.Entry(
+            self.pivot_frame,
+            textvariable=self.pivot_names_to_var
+        ).pack(side="left", fill="x", expand=True, padx=5)
+
+        ttk.Label(self.pivot_frame, text="Values to:").pack(side="left")
+        
+        ttk.Entry(
+            self.pivot_frame,
+            textvariable=self.pivot_values_to_var
+        ).pack(side="left", fill="x", expand=True, padx=5)
     
     def add_remove_na_checkbox(self):
         check = ttk.Checkbutton(
@@ -811,6 +838,34 @@ class RToolGUI:
             variable=self.jitter_var,
         ).pack(anchor="w", padx=5, pady=2)
     
+    def add_histogram_options(self):
+        self.add_variable_field_x()
+        self.add_plot_label_fields()
+
+        binwidth_label = ttk.Label(self.input_frame, text="Binwidth (provide an integer or float)")
+        binwidth_label.pack(side="left", padx=2)
+
+        entry = ttk.Entry(
+            self.input_frame,
+            textvariable=self.binwidth_var,
+            width=5
+        )
+        entry.pack(fill="x", side="left", padx=2)
+
+        norm_check = ttk.Checkbutton(
+            self.input_frame,
+            text="Show normal distribution (Also use density)",
+            variable=self.normal_distribution_var
+        )
+        norm_check.pack(anchor="w", padx=5, pady=5)
+
+        density_check = ttk.Checkbutton(
+            self.input_frame,
+            text="Use density",
+            variable=self.use_density_var
+        )
+        density_check.pack(anchor="w", padx=5, pady=5)
+    
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
 
@@ -889,22 +944,9 @@ class RToolGUI:
             self.add_plot_label_fields()
             self.add_bar_column_options()
             return
-        if var_count == "column_chart":
-            self.variable_entries = []
-
-            self.flip_var.set(False)
-            self.beside_var.set(False)
-            self.main_label_var.set("")
-            self.x_label_var.set("")
-            self.y_label_var.set("")
-            self.group_var.set("")
-
-            self.add_variable_field_x()
-            self.add_variable_field_y()
-            self.add_group_variable_field()
-            self.add_plot_label_fields()
-            self.add_bar_column_options()
-            return
+        if var_count == "histogram":
+            self.binwidth_var.set("0.5")
+            self.add_histogram_options()
 
 
         if var_count == "subframe":
@@ -1012,6 +1054,19 @@ class RToolGUI:
                 group_display = self.group_var.get().strip()
                 group_name = self.display_to_name.get(group_display, "")
 
+                if method == "histogram":
+                    result = run_plot(
+                        method,
+                        variables,
+                        dataset_name,
+                        binwidth=self.binwidth_var.get().strip(),
+                        norm=self.normal_distribution_var.get(),
+                        show_density=self.use_density_var.get(),
+                        main_lab=self.main_label_var.get().strip(),
+                        x_lab=self.x_label_var.get().strip(),
+                        y_lab=self.y_label_var.get().strip(),
+                    )
+
                 if method == "scatterplot":
                     if len(variables) < 2:
                         messagebox.showerror(
@@ -1019,7 +1074,7 @@ class RToolGUI:
                             "Please select x and y variables."
                         )
                         return
-                        
+
                     result = run_plot(
                         method,
                         variables,
@@ -1081,7 +1136,9 @@ class RToolGUI:
                         dataset_name, 
                         subframe_name=self.subframe_name_var.get().strip(), 
                         pivot_longer=self.pivot_longer_var.get(),
-                        remove_na=self.remove_na_var.get()
+                        remove_na=self.remove_na_var.get(),
+                        names_to=self.pivot_names_to_var.get().strip(),
+                        values_to=self.pivot_values_to_var.get().strip()
                     )
 
                 elif method == "factorize":

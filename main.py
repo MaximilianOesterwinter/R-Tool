@@ -1,3 +1,7 @@
+"""
+Legacy CLI entry point.
+GUI users should start R_Tool.py.
+"""
 from __future__ import annotations
 
 import argparse

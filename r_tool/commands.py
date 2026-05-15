@@ -106,6 +106,18 @@ def build_plot_args(
     variables: list[str],
     **kwargs: Any,
 ) -> list[str]:
+    if plot_type == "histogram":
+        require_variables(variables, 1, plot_type)
+        return [
+            kwargs.get("binwidth", ""),
+            bool_to_r(kwargs.get("norm", "")),
+            bool_to_r(kwargs.get("show_density", "")),
+            kwargs.get("main_lab", ""),
+            kwargs.get("x_lab", ""),
+            kwargs.get("y_lab", ""),
+            variables[0]
+        ]
+
     if plot_type == "scatterplot":
         require_variables(variables, 2, plot_type)
         return [
@@ -122,7 +134,7 @@ def build_plot_args(
         require_variables(variables, 1, plot_type)
 
         stat_identity = kwargs.get("stat_identity", False)
-        
+
         if stat_identity:
             require_variables(variables, 2, plot_type)
         
@@ -158,6 +170,8 @@ def build_preparation_args(
             kwargs.get("subframe_name", ""),
             bool_to_r(kwargs.get("pivot_longer", False)),
             bool_to_r(kwargs.get("remove_na", False)),
+            kwargs.get("names_to", ""),
+            kwargs.get("values_to", ""),
             *variables,
         ]
 
