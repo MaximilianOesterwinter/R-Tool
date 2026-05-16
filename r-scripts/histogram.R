@@ -36,6 +36,12 @@ if (show_density) {
       fill = "steelblue",
       color = "white"
     )
+  description_text <- paste(
+    "This Plot shows the density of", 
+    var_x, 
+    "in the dataset."
+  )
+  
   if (norm_dist) {
     x <- df[[var_x]]
     mu <- mean(x, na.rm=TRUE)
@@ -45,6 +51,11 @@ if (show_density) {
         fun=dnorm,
         args=list(mean=mu, sd=sigma)
       )
+    description_text <- paste(
+      "This Plot shows the density of",
+      var_x,
+      "as well as its normal distribution in the dataset."
+    )
   }
 } else {
   plot <- ggplot(df, aes(x=.data[[var_x]])) +
@@ -53,6 +64,11 @@ if (show_density) {
       fill = "steelblue",
       color = "white"
     )
+  description_text <- paste(
+    "This Plot shows the distribution of",
+    var_x,
+    "in the dataset."
+  )
 }
 
 plot <- plot +
@@ -91,11 +107,7 @@ rmarkdown::render(
     variable_x = var_x,
     variable_y = "",
     plot_type = "Histogram",
-    description_text = paste(
-      "This histogram shows the distribution of the variable",
-      var_x,
-      "in the selected dataset."
-    ),
+    description_text = description_text,
     plot_path = plot_path
   ),
   envir = new.env(parent = globalenv())

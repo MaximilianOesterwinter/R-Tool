@@ -106,12 +106,32 @@ def build_plot_args(
     variables: list[str],
     **kwargs: Any,
 ) -> list[str]:
+    if plot_type == "boxplot":
+        require_variables(variables, 1, plot_type)
+        return [
+            kwargs.get("main_lab", ""),
+            kwargs.get("x_lab", ""),
+            kwargs.get("y_lab", ""),
+            bool_to_r(kwargs.get("flip", False)),
+            bool_to_r(kwargs.get("show_outliers", False)),
+            bool_to_r(kwargs.get("show_points", False)),
+            bool_to_r(kwargs.get("show_mean", False)),
+            bool_to_r(kwargs.get("show_notches", False)),
+            bool_to_r(kwargs.get("show_n", False)),
+            bool_to_r(kwargs.get("color_by_group", False)),
+            bool_to_r(kwargs.get("sort_groups", False)),
+            kwargs.get("group_var", ""),
+            kwargs.get("facet_var", ""),
+            kwargs.get("weight_var", ""),
+            variables[0]
+        ]
+
     if plot_type == "histogram":
         require_variables(variables, 1, plot_type)
         return [
             kwargs.get("binwidth", ""),
-            bool_to_r(kwargs.get("norm", "")),
-            bool_to_r(kwargs.get("show_density", "")),
+            bool_to_r(kwargs.get("norm", False)),
+            bool_to_r(kwargs.get("show_density", False)),
             kwargs.get("main_lab", ""),
             kwargs.get("x_lab", ""),
             kwargs.get("y_lab", ""),

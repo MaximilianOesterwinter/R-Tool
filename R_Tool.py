@@ -52,8 +52,7 @@ METHOD_CONFIG = {
         "scatterplot": {"label": "Scatterplot", "var_count": "scatterplot"},
         "barplot": {"label": "Barplot or Column chart", "var_count": "barplot"},
         "histogram": {"label": "Histogram", "var_count": "histogram"},
-        "boxplot": {"label": "Boxplot (WIP)", "var_count": "x"},
-        "boxplot_by_group": {"label": "Boxplot by Group (WIP)", "var_count": "grouped"},
+        "boxplot": {"label": "Boxplot", "var_count": "boxplot"},
         "lineplot": {"label": "Lineplot (WIP)", "var_count": "xy"},
     },
     "preparation": {
@@ -120,10 +119,20 @@ class RToolGUI:
         self.factor_levels_var = tk.StringVar()
         self.factor_labels_var = tk.StringVar()
         self.rename_entries = []
+
         self.binwidth_var = tk.StringVar()
-        self.relative_frequencies_var = tk.BooleanVar()
-        self.normal_distribution_var = tk.BooleanVar()
-        self.use_density_var = tk.BooleanVar()
+        self.relative_frequencies_var = tk.BooleanVar(value=False)
+        self.normal_distribution_var = tk.BooleanVar(value=False)
+        self.use_density_var = tk.BooleanVar(value=False)
+        self.show_outliers_var = tk.BooleanVar(value=False)
+        self.show_points_var = tk.BooleanVar(value=False)
+        self.show_mean_var = tk.BooleanVar(value=False)
+        self.show_notches_var = tk.BooleanVar(value=False)
+        self.show_n_var = tk.BooleanVar(value=False)
+        self.color_by_group_var = tk.BooleanVar(value=False)
+        self.sort_groups_var = tk.BooleanVar(value=False)
+        self.facet_var = tk.StringVar()
+        self.weight_var = tk.StringVar()
 
         self.mutate_new_var_name = tk.StringVar()
         self.mutate_operation_var = tk.StringVar()
@@ -807,6 +816,76 @@ class RToolGUI:
         )
         combo.pack(fill="x", padx=5, pady=2)
     
+    def add_boxplot_options(self):
+        self.add_variable_field_y()
+        self.add_group_variable_field()
+        
+        ttk.Label(self.input_frame, text="Facet variable optional:").pack(anchor="w")
+        ttk.Combobox(
+            self.input_frame,
+            textvariable=self.facet_var,
+            values= [""] + self.variable_display,
+            state="readonly"
+        ).pack(fill="x", padx=5, pady=2)
+
+        ttk.Label(self.input_frame, text="Weight variable optional:").pack(anchor="w")
+        ttk.Combobox(
+            self.input_frame,
+            textvariable=self.weight_var,
+            values= [""] + self.variable_display,
+            state="readonly"
+        ).pack(fill="x", padx=5, pady=2)
+
+        self.add_plot_label_fields()
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Flip coordinates",
+            variable=self.flip_var
+        ).pack(anchor="w", padx=5, pady=2)
+        
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Show outliers",
+            variable=self.show_outliers_var
+        ).pack(anchor="w", padx=5, pady=2)
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Show points",
+            variable=self.show_points_var
+        ).pack(anchor="w", padx=5, pady=2)
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Show mean",
+            variable=self.show_mean_var
+        ).pack(anchor="w", padx=5, pady=2)
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Show notches",
+            variable=self.show_notches_var
+        ).pack(anchor="w", padx=5, pady=2)
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Show n",
+            variable=self.show_n_var
+        ).pack(anchor="w", padx=5, pady=2)
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Color by group (needs grouping variable)",
+            variable=self.color_by_group_var
+        ).pack(anchor="w", padx=5, pady=2)
+
+        ttk.Checkbutton(
+            self.input_frame,
+            text="Sort groups (needs grouping variable)",
+            variable=self.sort_groups_var
+        ).pack(anchor="w", padx=5, pady=2)
+    
     def add_bar_column_options(self):
         ttk.Checkbutton(
             self.input_frame,
@@ -919,7 +998,22 @@ class RToolGUI:
             self.add_variable_field()
             self.add_variable_field_write()
         
+        if var_count == "boxplot":
+            self.variable_entries = []
+
+            self.main_label_var.set("")
+            self.x_label_var.set("")
+            self.y_label_var.set("")
+            self.group_var.set("")
+            self.facet_var.set("")
+            self.weight_var.set("")
+
+            self.add_boxplot_options()
+            return
+
         if var_count == "scatterplot":
+            self.variable_entries = []
+
             self.main_label_var.set("")
             self.x_label_var.set("")
             self.y_label_var.set("")
@@ -945,11 +1039,15 @@ class RToolGUI:
             self.add_bar_column_options()
             return
         if var_count == "histogram":
+            self.variable_entries = []
+
             self.binwidth_var.set("0.5")
             self.add_histogram_options()
 
 
         if var_count == "subframe":
+            self.variable_entries = []
+
             self.pivot_longer_var.set(False)
             self.remove_na_var.set(False)
             self.subframe_name_var.set("")
@@ -961,12 +1059,16 @@ class RToolGUI:
             self.add_remove_na_checkbox()
             return
         if var_count == "factorize":
+            self.variable_entries = []
+
             self.factor_levels_var.set("")
             self.factor_labels_var.set("")
 
             self.add_factorize_fields()
             return
         if var_count == "rename":
+            self.variable_entries = []
+
             self.add_rename_fields()
             return
         if var_count == "mutate":
@@ -982,6 +1084,8 @@ class RToolGUI:
             self.add_mutation_fields()
             return
         if var_count == "summary":
+            self.variable_entries = []
+
             self.add_summary_fields()
             return
 
@@ -1053,6 +1157,39 @@ class RToolGUI:
             elif mode == "plot":
                 group_display = self.group_var.get().strip()
                 group_name = self.display_to_name.get(group_display, "")
+                facet_display = self.facet_var.get().strip()
+                facet_name = self.display_to_name.get(facet_display, "")
+                weight_display = self.weight_var.get().strip()
+                weight_name = self.display_to_name.get(weight_display, "")
+
+                if method == "boxplot":
+                    if self.color_by_group_var.get() or self.sort_groups_var.get():
+                        if group_name == "":
+                            messagebox.showerror(
+                                "Error",
+                                "Please select a grouping variable when 'Color by group` or 'Sort groups' is selected."
+                            )
+                            return
+
+                    result = run_plot(
+                        method,
+                        variables,
+                        dataset_name,
+                        flip=self.flip_var.get(),
+                        show_outliers=self.show_outliers_var.get(),
+                        show_points=self.show_points_var.get(),
+                        show_mean=self.show_mean_var.get(),
+                        show_notches=self.show_notches_var.get(),
+                        show_n=self.show_n_var.get(),
+                        color_by_group=self.color_by_group_var.get(),
+                        sort_groups=self.sort_groups_var.get(),
+                        main_lab=self.main_label_var.get().strip(),
+                        x_lab=self.x_label_var.get().strip(),
+                        y_lab=self.y_label_var.get().strip(),
+                        group_var=group_name,
+                        facet_var=facet_name,
+                        weight_var=weight_name
+                    )
 
                 if method == "histogram":
                     result = run_plot(
