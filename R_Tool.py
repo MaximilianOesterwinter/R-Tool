@@ -53,7 +53,6 @@ METHOD_CONFIG = {
         "barplot": {"label": "Barplot or Column chart", "var_count": "barplot"},
         "histogram": {"label": "Histogram", "var_count": "histogram"},
         "boxplot": {"label": "Boxplot", "var_count": "boxplot"},
-        "lineplot": {"label": "Lineplot (WIP)", "var_count": "xy"},
     },
     "preparation": {
         "subframe": {"label": "Create a subframe", "var_count": "subframe"},
@@ -418,24 +417,6 @@ class RToolGUI:
 
         if self.variable_display:
             combo.set("Select variable or enter constant")
-        else:
-            combo.set("No variables available")
-
-        self.variable_entries.append(combo)
-    
-    def add_variable_field_summary(self):
-        label = tk.Label(self.input_frame, text="Summary variable")
-        label.pack(anchor="w")
-
-        combo = ttk.Combobox(
-            self.input_frame,
-            values=self.variable_display,
-            state="readonly"
-        )
-        combo.pack(fill="x", padx=5, pady=2)
-
-        if self.variable_display:
-            combo.set("Select variable")
         else:
             combo.set("No variables available")
 
