@@ -231,19 +231,19 @@ def build_preparation_args(
     if preparation == "summarise":
         require_variables(variables, 1, preparation)
 
-        group_vars = kwargs.get("group_vars", [])
+        group_var = kwargs.get("group_var", [])
 
-        if isinstance(group_vars, list):
-            group_vars = ",".join(group_vars)
+        if isinstance(group_var, list):
+            group_var = ",".join(group_var)
 
-        if group_vars is None:
-            group_vars = ""
+        if group_var is None:
+            group_var = ""
 
         return [
             kwargs.get("output_name", ""),
             kwargs.get("selected_function", ""),
             bool_to_r(kwargs.get("na_rm", False)),
-            group_vars,
+            group_var,
             *variables,
         ]
 

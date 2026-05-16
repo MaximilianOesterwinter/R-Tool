@@ -95,6 +95,9 @@ class RToolGUI:
         self.root.geometry("900x850+50+50")
 
         self.variable_entries = []
+        self.group_var = []
+        self.facet_var = []
+        self.weight_var = []
         self.variable_names = {}
         self.variable_display = []
         self.display_to_name = {}
@@ -105,7 +108,6 @@ class RToolGUI:
         self.flip_var = tk.BooleanVar(value=False)
         self.barplot_stat_identity_var = tk.BooleanVar(value=False)
         self.jitter_var = tk.BooleanVar(value=False)
-        self.group_var = tk.StringVar()
         
         self.main_label_var = tk.StringVar()
         self.x_label_var = tk.StringVar()
@@ -131,8 +133,6 @@ class RToolGUI:
         self.show_n_var = tk.BooleanVar(value=False)
         self.color_by_group_var = tk.BooleanVar(value=False)
         self.sort_groups_var = tk.BooleanVar(value=False)
-        self.facet_var = tk.StringVar()
-        self.weight_var = tk.StringVar()
 
         self.mutate_new_var_name = tk.StringVar()
         self.mutate_operation_var = tk.StringVar()
@@ -281,18 +281,26 @@ class RToolGUI:
             widget.destroy()
         self.variable_entries = []
 
-    def add_variable_field(self, parent=None):
+    def add_variable_field(
+        self, 
+        parent=None, 
+        label=None,
+        variable=None
+        ):
         if parent is None:
             parent = self.input_frame
+        if variable is None:
+            variable = self.variable_entries
+        if label is None:
+            label = f"Variable {len(variable)+1}"
         
         frame = ttk.Frame(parent)
         frame.pack(fill="x", padx=5, pady=5)
 
-        label = ttk.Label(
+        ttk.Label(
             frame, 
-            text=f"Variable {len(self.variable_entries) + 1}"
-        )
-        label.pack(anchor="w")
+            text=label
+        ).pack(anchor="w")
 
         combo = ttk.Combobox(
             frame,
@@ -306,7 +314,7 @@ class RToolGUI:
         else:
             combo.set("No variables available")
 
-        self.variable_entries.append(combo)
+        variable.append(combo)
     
     def add_variable_field_x(self):
         label = tk.Label(self.input_frame, text="Variable x-axis")
@@ -433,14 +441,23 @@ class RToolGUI:
 
         self.variable_entries.append(combo)
 
-    def add_additional_variable_button(self, parent=None):
+    def add_additional_variable_button(
+        self, 
+        parent=None,
+        label=None,
+        variable=None
+        ):
         if parent is None:
             parent = self.input_frame
 
         button = tk.Button(
             parent,
             text="Additional variables",
-            command=self.add_variable_field
+            command=lambda: self.add_variable_field(
+                parent=parent,
+                label=label,
+                variable=variable
+            )
         )
         button.pack(pady=5)
     
@@ -500,7 +517,6 @@ class RToolGUI:
     
     def add_factorize_fields(self):
         self.add_variable_field()
-        self.add_additional_variable_button()
 
         levels_label = tk.Label(
             self.input_frame,
@@ -595,19 +611,29 @@ class RToolGUI:
 
         self.summary_target_entries_start = len(self.variable_entries)
 
-        self.add_variable_field_summary()
+        self.add_variable_field(
+            parent=None,
+            label="Summary variable",
+            variable=None
+        )
         
         add_target_button = ttk.Button(
             self.input_frame,
             text="Add another summary variable",
-            command=self.add_variable_field_summary
+            command=lambda: self.add_variable_field(
+                parent=None,
+                label="Summary variable",
+                variable=None
+            )
         )
         add_target_button.pack(anchor="w", padx=5, pady=5)
 
-        ttk.Label(self.input_frame, text="Grouping variable optional").pack(anchor="w", padx=5)
-
         self.summary_group_entry_index = len(self.variable_entries)
-        self.add_variable_field_grouping()
+        self.add_variable_field(
+            parent=None,
+            label="Grouping variable optional",
+            variable=self.group_var
+        )
     
     def add_mutation_fields(self):
         frame = ttk.Frame(self.input_frame)
@@ -656,7 +682,11 @@ class RToolGUI:
         operation = self.mutate_operations.get(operation_label)
 
         if operation == "arithmetic":
-            self.add_variable_field(parent=self.mutation_dynamic_frame)
+            self.add_variable_field(
+                parent=self.mutation_dynamic_frame,
+                label=None,
+                variable=None
+                )
 
             operator_label = ttk.Label(self.mutation_dynamic_frame, text="Operator:")
             operator_label.pack(anchor="w", padx=5)
@@ -669,14 +699,28 @@ class RToolGUI:
             )
             operator_combo.pack(fill="x")
 
-            self.add_variable_field(parent=self.mutation_dynamic_frame)
+            self.add_variable_field(
+                parent=self.mutation_dynamic_frame,
+                label=None,
+                variable=None
+                )
 
         elif operation in ["row_mean", "row_sum"]:
-            self.add_variable_field(parent=self.mutation_dynamic_frame)
-            self.add_variable_field(parent=self.mutation_dynamic_frame)
+            self.add_variable_field(
+                parent=self.mutation_dynamic_frame,
+                label=None,
+                variable=None
+                )
+            self.add_variable_field(
+                parent=self.mutation_dynamic_frame,
+                label=None,
+                variable=None
+                )
 
             self.add_additional_variable_button(
-                parent=self.mutation_dynamic_frame
+                parent=self.mutation_dynamic_frame,
+                label=None,
+                variable=None
             )   
 
             check = ttk.Checkbutton(
@@ -687,10 +731,18 @@ class RToolGUI:
             check.pack(anchor="w", padx=5, pady=5)
         
         elif operation in ["log", "z_standardize"]:
-            self.add_variable_field(parent=self.mutation_dynamic_frame)
+            self.add_variable_field(
+                parent=self.mutation_dynamic_frame,
+                label=None,
+                variable=None
+                )
         
         elif operation == "reverse_scale":
-            self.add_variable_field(parent=self.mutation_dynamic_frame)
+            self.add_variable_field(
+                parent=self.mutation_dynamic_frame,
+                label=None,
+                variable=None
+                )
 
             min_label = ttk.Label(
                 self.mutation_dynamic_frame,
@@ -717,7 +769,11 @@ class RToolGUI:
             max_entry.pack(fill="x", padx=5, pady=2)
         
         elif operation == "recode":
-            self.add_variable_field(parent=self.mutation_dynamic_frame)
+            self.add_variable_field(
+                parent=self.mutation_dynamic_frame,
+                label=None,
+                variable=None
+                )
 
             self.recode_entries = []
 
@@ -805,36 +861,29 @@ class RToolGUI:
             textvariable=self.y_label_var
         ).pack(fill="x", padx=5, pady=2)
     
-    def add_group_variable_field(self):
-        ttk.Label(self.input_frame, text="Grouping variable optional:").pack(anchor="w")
-
-        combo = ttk.Combobox(
-            self.input_frame,
-            textvariable=self.group_var,
-            values=[""] + self.variable_display,
-            state="readonly"
-        )
-        combo.pack(fill="x", padx=5, pady=2)
-    
     def add_boxplot_options(self):
-        self.add_variable_field_y()
-        self.add_group_variable_field()
-        
-        ttk.Label(self.input_frame, text="Facet variable optional:").pack(anchor="w")
-        ttk.Combobox(
-            self.input_frame,
-            textvariable=self.facet_var,
-            values= [""] + self.variable_display,
-            state="readonly"
-        ).pack(fill="x", padx=5, pady=2)
+        self.add_variable_field(
+            parent=None,
+            label="Variable y-axis:",
+            variable=None
+        )
+        self.add_variable_field(
+            parent=None,
+            label="Grouping variable optional:",
+            variable=self.group_var
+        )
 
-        ttk.Label(self.input_frame, text="Weight variable optional:").pack(anchor="w")
-        ttk.Combobox(
-            self.input_frame,
-            textvariable=self.weight_var,
-            values= [""] + self.variable_display,
-            state="readonly"
-        ).pack(fill="x", padx=5, pady=2)
+        self.add_variable_field(
+            parent=None,
+            label="Facet variable optional:",
+            variable=self.facet_var
+        )
+        
+        self.add_variable_field(
+            parent=None,
+            label="Weight variable optional:",
+            variable=self.weight_var
+        )
 
         self.add_plot_label_fields()
 
@@ -887,6 +936,26 @@ class RToolGUI:
         ).pack(anchor="w", padx=5, pady=2)
     
     def add_bar_column_options(self):
+        self.add_variable_field(
+            parent=None,
+            label="Variable x-axis:",
+            variable=None
+        )
+        
+        self.add_variable_field(
+            parent=None,
+            label="Variable y-axis:",
+            variable=None
+        )
+
+        self.add_variable_field(
+            parent=None,
+            label="Grouping variable:",
+            variable=self.group_var
+        )
+
+        self.add_plot_label_fields()
+        
         ttk.Checkbutton(
             self.input_frame,
             text="Flip coordinates",
@@ -906,9 +975,24 @@ class RToolGUI:
         ).pack(anchor="w", padx=5, pady=2)
     
     def add_scatterplot_options(self):
-        self.add_variable_field_x()
-        self.add_variable_field_y()
-        self.add_group_variable_field()
+        self.add_variable_field(
+            parent=None,
+            label="Variable x-axis:",
+            variable=None
+        )
+
+        self.add_variable_field(
+            parent=None,
+            label="Variable y-axis:",
+            variable=None
+        )
+
+        self.add_variable_field(
+            parent=None,
+            label="Grouping variable:",
+            variable=self.group_var
+        )
+
         self.add_plot_label_fields()
 
         ttk.Checkbutton(
@@ -918,7 +1002,12 @@ class RToolGUI:
         ).pack(anchor="w", padx=5, pady=2)
     
     def add_histogram_options(self):
-        self.add_variable_field_x()
+        self.add_variable_field(
+            parent=None,
+            label="Variable x-axis:",
+            variable=None
+        )
+
         self.add_plot_label_fields()
 
         binwidth_label = ttk.Label(self.input_frame, text="Binwidth (provide an integer or float)")
@@ -1000,29 +1089,30 @@ class RToolGUI:
         
         if var_count == "boxplot":
             self.variable_entries = []
+            self.group_var = []
+            self.facet_var = []
+            self.weight_var = []
 
             self.main_label_var.set("")
             self.x_label_var.set("")
             self.y_label_var.set("")
-            self.group_var.set("")
-            self.facet_var.set("")
-            self.weight_var.set("")
 
             self.add_boxplot_options()
             return
 
         if var_count == "scatterplot":
             self.variable_entries = []
+            self.group_var = []
 
             self.main_label_var.set("")
             self.x_label_var.set("")
             self.y_label_var.set("")
-            self.group_var.set("")
 
             self.add_scatterplot_options()
             return
         if var_count == "barplot":
             self.variable_entries = []
+            self.group_var = []
 
             self.flip_var.set(False)
             self.beside_var.set(False)
@@ -1030,12 +1120,7 @@ class RToolGUI:
             self.main_label_var.set("")
             self.x_label_var.set("")
             self.y_label_var.set("")
-            self.group_var.set("")
 
-            self.add_variable_field_x()
-            self.add_variable_field_y()
-            self.add_group_variable_field()
-            self.add_plot_label_fields()
             self.add_bar_column_options()
             return
         if var_count == "histogram":
@@ -1091,6 +1176,9 @@ class RToolGUI:
 
     def collect_selected_variables(self):
         variables = []
+        group_var = []
+        facet_var = []
+        weight_var = []
 
         for entry in self.variable_entries:
             value = entry.get().strip()
@@ -1106,8 +1194,53 @@ class RToolGUI:
                 variables.append(self.display_to_name[value])
             else:
                 variables.append(value)
+        
+        for entry in self.group_var:
+            value = entry.get().strip()
 
-        return variables
+            if not value or value in (
+                "Select variable",
+                "No variables available",
+                "Select variable or enter constant"
+            ):
+                continue
+
+            if value in self.display_to_name:
+                group_var.append(self.display_to_name[value])
+            else:
+                group_var.append(value)
+        
+        for entry in self.facet_var:
+            value = entry.get().strip()
+
+            if not value or value in (
+                "Select variable",
+                "No variables available",
+                "Select variable or enter constant"
+            ):
+                continue
+
+            if value in self.display_to_name:
+                facet_var.append(self.display_to_name[value])
+            else:
+                facet_var.append(value)
+        
+        for entry in self.weight_var:
+            value = entry.get().strip()
+
+            if not value or value in (
+                "Select variable",
+                "No variables available",
+                "Select variable or enter constant"
+            ):
+                continue
+
+            if value in self.display_to_name:
+                weight_var.append(self.display_to_name[value])
+            else:
+                weight_var.append(value)
+
+        return variables, group_var, facet_var, weight_var
 
     def validate_variable_count(self, mode, method, variables):
         config = METHOD_CONFIG[mode][method]
@@ -1141,7 +1274,8 @@ class RToolGUI:
         mode = self.mode_var.get()
         selected_label = self.method_combobox.get()
         method = self.label_to_method.get(selected_label)
-        variables = self.collect_selected_variables()
+        variables, group_var, facet_var, weight_var = self.collect_selected_variables()
+
 
         try:
             if not dataset_name:
@@ -1155,13 +1289,7 @@ class RToolGUI:
             if mode == "analysis":
                 result = run_analysis(method, variables, dataset_name)
             elif mode == "plot":
-                group_display = self.group_var.get().strip()
-                group_name = self.display_to_name.get(group_display, "")
-                facet_display = self.facet_var.get().strip()
-                facet_name = self.display_to_name.get(facet_display, "")
-                weight_display = self.weight_var.get().strip()
-                weight_name = self.display_to_name.get(weight_display, "")
-
+                
                 if method == "boxplot":
                     if self.color_by_group_var.get() or self.sort_groups_var.get():
                         if group_name == "":
@@ -1186,9 +1314,9 @@ class RToolGUI:
                         main_lab=self.main_label_var.get().strip(),
                         x_lab=self.x_label_var.get().strip(),
                         y_lab=self.y_label_var.get().strip(),
-                        group_var=group_name,
-                        facet_var=facet_name,
-                        weight_var=weight_name
+                        group_var=group_var,
+                        facet_var=facet_var,
+                        weight_var=weight_var
                     )
 
                 if method == "histogram":
@@ -1220,7 +1348,7 @@ class RToolGUI:
                         main_lab=self.main_label_var.get().strip(),
                         x_lab=self.x_label_var.get().strip(),
                         y_lab=self.y_label_var.get().strip(),
-                        group_var=group_name
+                        group_var=group_var
                     )
 
                 if method == "barplot":
@@ -1256,7 +1384,7 @@ class RToolGUI:
                         main_lab=self.main_label_var.get().strip(),
                         x_lab=self.x_label_var.get().strip(),
                         y_lab=self.y_label_var.get().strip(),
-                        group_var=group_name
+                        group_var=group_var
                     )
 
             elif mode == "preparation":
@@ -1408,25 +1536,7 @@ class RToolGUI:
                     selected_function = self.summary_functions[self.summary_function_var.get()]
                     na_rm = str(self.summary_na_rm_var.get()).lower()
 
-                    target_vars = variables[
-                        self.summary_target_entries_start:self.summary_group_entry_index
-                    ]
-
-                    group_vars = variables[
-                        self.summary_group_entry_index:
-                    ]
-
-                    target_vars = [
-                        var for var in target_vars
-                        if var not in ("Select variable", "No variables available")
-                    ]
-
-                    group_vars = [
-                        var for var in group_vars
-                        if var not in ("Select variable", "No variables available")
-                    ]
-
-                    if selected_function != "n" and not target_vars:
+                    if selected_function != "n" and len(variables) < 1:
                         raise ValueError(
                             "Error"
                             "Please select at least one variable to summarise."
@@ -1434,12 +1544,12 @@ class RToolGUI:
 
                     result = run_preparation(
                         method,
-                        target_vars,
+                        variables,
                         dataset_name,
                         output_name=output_name,
                         selected_function=selected_function,
                         na_rm=na_rm,
-                        group_vars=group_vars
+                        group_var=group_var
                     )         
 
                 if result.returncode == 0:
