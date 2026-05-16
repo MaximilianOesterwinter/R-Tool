@@ -249,9 +249,8 @@ Performs the non-parametric Mann-Whitney-U-Test.
 
 - Scatterplot
 - Barplot or Column chart
-- Histogram (WIP)
-- Boxplot (WIP)
-- Boxplot by Group (WIP)
+- Histogram
+- Boxplot
 - Lineplot (WIP)
 
 ## ⚠️ Notes

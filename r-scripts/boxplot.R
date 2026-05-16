@@ -23,11 +23,14 @@ script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
 script_dir <- dirname(normalizePath(script_file))
 project_dir <- dirname(script_dir)
 
-if (!requireNamespace("ggplot2", quietly = TRUE)) {
-  stop("Package 'ggplot2' not installed.")
+if (!requireNamespace("tidyverse", quietly = TRUE)) {
+  stop("Package 'tidyverse' not installed.")
 }
 if (!requireNamespace("rmarkdown", quietly = TRUE)) {
   stop("Package 'rmarkdown' not installed.")
+}
+if (!requireNamespace("scales", quietly = TRUE)) {
+  stop("Package 'scales' not installed.")
 }
 
 library(tidyverse)
