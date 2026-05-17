@@ -61,15 +61,15 @@ METHOD_CONFIG = {
         "dataframe": {"label": "Overview over the dataframe", "code": "dataframe"},
         "describe": {"label": "Describe a variable", "code": "describe"},
         "anova": {"label": "ANOVA", "code": "anova"},
-        "chi_square": {"label": "Chi Square", "code": 2},
-        "logit": {"label": "Logit Model", "code": "multiple"},
-        "lin_reg": {"label": "Linear Regression", "code": "multiple"},
-        "paired_ttest": {"label": "Paired t-test", "code": 2},
-        "unpaired_ttest": {"label": "Unpaired t-test", "code": "var_const"},
-        "norm_test": {"label": "Normality Test", "code": "dep_group"},
-        "welch_test": {"label": "Welch Test", "code": "dep_group"},
-        "correlation": {"label": "Correlation", "code": 2},
-        "mann_whitney_test": {"label": "Mann-Whitney Test", "code": "dep_group"},
+        "chi_square": {"label": "Chi Square", "code": "chi_square"},
+        "logit": {"label": "Logit Model (WIP)", "code": "multiple"},
+        "lin_reg": {"label": "Linear Regression (WIP)", "code": "multiple"},
+        "paired_ttest": {"label": "Paired t-test (WIP)", "code": 2},
+        "unpaired_ttest": {"label": "Unpaired t-test (WIP)", "code": "var_const"},
+        "norm_test": {"label": "Normality Test (WIP)", "code": "dep_group"},
+        "welch_test": {"label": "Welch Test (WIP)", "code": "dep_group"},
+        "correlation": {"label": "Correlation (WIP)", "code": 2},
+        "mann_whitney_test": {"label": "Mann-Whitney Test (WIP)", "code": "dep_group"},
     },
     "plot": {
         "scatterplot": {"label": "Scatterplot", "code": "scatterplot"},
@@ -170,6 +170,9 @@ class RToolGUI:
         self.show_n_var = tk.BooleanVar(value=False)
         self.color_by_group_var = tk.BooleanVar(value=False)
         self.sort_groups_var = tk.BooleanVar(value=False)
+        self.anova_post_hoc_var = tk.BooleanVar(value=False)
+        self.anova_effect_size_var = tk.BooleanVar(value=False)
+        self.anova_levene_test_var = tk.BooleanVar(value=False)
 
         self.mutate_new_var_name = tk.StringVar()
         self.mutate_operation_var = tk.StringVar()
@@ -1246,6 +1249,35 @@ class RToolGUI:
             label="Independent variable"
         )
 
+        self.input_field(
+            field_type="checkbox",
+            label="Perform post-hoc test (only for one-way ANOVA)",
+            tk_variable=self.anova_post_hoc_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Calculate effect size (Cohen's f)(only for one-way ANOVA)",
+            tk_variable=self.anova_effect_size_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Perform levene test (only for two-way ANOVA)",
+            tk_variable=self.anova_levene_test_var
+        )
+    
+    def add_chi_square_options(self):
+        self.input_field(
+            field_type="combobox",
+            label="Variable 1:"
+        )
+
+        self.input_field(
+            field_type="combobox",
+            label="Variable 2:"
+        )
+
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
 
@@ -1282,6 +1314,11 @@ class RToolGUI:
             self.variable_entries = []
 
             self.add_anova_options()
+            return
+        if code == "chi_square":
+            self.variable_entries = []
+
+            self.add_chi_square_options()
             return
         if code == 1:
             self.add_variable_field()
@@ -1510,6 +1547,16 @@ class RToolGUI:
                     )
                 
                 if method == "anova":
+                    result = run_analysis(
+                        method,
+                        variables,
+                        dataset_name,
+                        post_hoc=self.anova_post_hoc_var.get(),
+                        effect_size=self.anova_effect_size_var.get(),
+                        levene_test=self.anova_levene_test_var.get()
+                    )
+                
+                if method == "chi_square":
                     result = run_analysis(
                         method,
                         variables,

@@ -97,8 +97,18 @@ def build_analysis_args(
     if analysis == "anova":
         require_variables(variables, 2, analysis)
         return [
+            bool_to_r(kwargs.get("post_hoc", False)),
+            bool_to_r(kwargs.get("effect_size", False)),
+            bool_to_r(kwargs.get("levene_test", False)),
             variables[0],
             *variables[1:]
+        ]
+    
+    if analysis == "chi_square":
+        require_variables(variables, 2, analysis)
+        return [
+            variables[0],
+            variables[1]
         ]
 
     raise ValueError(f"Unknown analysis: {analysis}")

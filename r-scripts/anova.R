@@ -5,8 +5,11 @@ library(DescTools)
 args <- commandArgs(trailingOnly = TRUE)
 
 data_path <- args[1]
-dependent_var <- args[2]
-independent_vars <- args[3:length(args)]
+post_hoc <- args[2] == "true"
+effect_size <- args[3] == "true"
+levene_test <- args[4] == "true"
+dependent_var <- args[5]
+independent_vars <- args[6:length(args)]
 
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
@@ -44,75 +47,98 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
+formula_text <- ""
+result_text <- ""
+
 if (length(independent_vars) == 1) {
   group_var <- independent_vars[1]
-  
-  description <- psych::describeBy(analysis_data[[dependent_var]], analysis_data[[group_var]])
-  
+
   model_formula <- as.formula(paste(dependent_var, "~", group_var))
   anova_test <- aov(model_formula, data = analysis_data)
-  eta <- EtaSq(anova_test)
-  eta_sq <- eta[1, "eta.sq"]
-  f <- sqrt(eta_sq / (1 - eta_sq))
   
-  t_test <- pairwise.t.test(
-    x = analysis_data[[dependent_var]],
-    g = analysis_data[[group_var]],
-    p.adjust.method = "bonferroni"
-  )
-
-  formula_text <- paste(
-    "describeBy(", dependent_var, ", ", group_var, ")\n",
-    "anova_test <- aov(", dependent_var, " ~ ", group_var, ")\n",
-    "pairwise.t.test(", dependent_var, ", ", group_var, ", p.adjust.method='bonferroni')\n",
-    "sqrt(EtaSq(anova_test)[1, 'eta.sq'] / (1 - EtaSq(anova_test)[1, 'eta.sq']))",
-    sep = ""
+  formula_text <- paste0(
+    "df <- readRDS('", data_path, "')\n",
+    "\nanova_test <- aov(", deparse(model_formula), ", data = df)\n"
   )
   
-  result_text <- paste(
-    "Descriptive statistics:\n",
-    paste(capture.output(print(description)), collapse = "\n"),
+  result_text <- paste0(
     "\n\nANOVA:\n",
-    paste(capture.output(print(summary(anova_test))), collapse = "\n"),
-    "\n\nPost-hoc tests:\n",
-    paste(capture.output(print(t_test)), collapse = "\n"),
-    "\n\nEffect size Cohen's f:\n",
-    paste(capture.output(print(f)), collapse = "\n"),
-    sep = ""
+    paste(capture.output(print(summary(anova_test))), collapse = "\n")
   )
-}
-
-if (length(independent_vars) == 2) {
+  
+  if (effect_size) {
+    eta <- EtaSq(anova_test)
+    eta_sq <- eta[1, "eta.sq"]
+    f <- sqrt(eta_sq / (1 - eta_sq))
+    
+    formula_text <- paste0(
+      formula_text,
+      "\neta <- EtaSq(anova_test)\n",
+      "\neta_sq <- eta[1, 'eta.sq']\n",
+      "\nsqrt(eta_sq / (1 - eta_sq))\n"
+    )
+    
+    result_text <- paste(
+      result_text,
+      "\n\nEffect size Cohen's f:\n",
+      paste(capture.output(print(f)), collapse = "\n")
+    )
+  }
+  
+  if (post_hoc) {
+    t_test <- pairwise.t.test(
+      x = analysis_data[[dependent_var]],
+      g = analysis_data[[group_var]],
+      p.adjust.method = "bonferroni"
+    )
+    
+    t_output <- capture.output(print(t_test))
+    t_output <- t_output[!grepl("^data:", trimws(t_output))]
+    
+    formula_text <- paste0(
+      formula_text,
+      "\npairwise.t.test(x=df$", dependent_var, ", g=df$", group_var, ", p.adjust.method='bonferroni')\n"
+    )
+    
+    result_text <- paste(
+      result_text,
+      "\n\nPost-hoc tests:\n",
+      paste(t_output, collapse = "\n")
+    )
+  }
+} else if (length(independent_vars) == 2) {
   rhs_main <- paste(independent_vars, collapse = " + ")
   rhs_interaction <- paste(independent_vars, collapse = " * ")
-  
-  description <- psych::describeBy(
-    analysis_data[[dependent_var]],
-    interaction(analysis_data[[independent_vars[1]]], analysis_data[[independent_vars[2]]])
-  )
-  
-  levene_formula <- as.formula(paste(dependent_var, "~", rhs_interaction))
-  levene <- car::leveneTest(levene_formula, data = analysis_data)
-  
+
   model_formula <- as.formula(paste(dependent_var, "~", rhs_interaction))
   anova_test <- aov(model_formula, data = analysis_data)
   
-  formula_text <- paste(
-    "describeBy(", dependent_var, ", interaction(", paste(independent_vars, collapse = ", "), "))\n",
-    "leveneTest(", dependent_var, " ~ ", rhs_interaction, ")\n",
-    "aov(", dependent_var, " ~ ", rhs_interaction, ")\n",
-    sep = ""
+  formula_text <- paste0(
+    "df <- readRDS('", data_path, "')\n",
+    "\naov(", deparse(model_formula), ", data = df)\n"
+  )
+  result_text <- paste(
+    "Results:\n",
+    "\n\nANOVA:\n",
+    paste(capture.output(print(summary(anova_test))), collapse = "\n")
   )
   
-  result_text <- paste(
-    "Descriptive statistics:\n",
-    paste(capture.output(print(description)), collapse = "\n"),
-    "\n\nLevene test:\n",
-    paste(capture.output(print(levene)), collapse = "\n"),
-    "\n\nANOVA:\n",
-    paste(capture.output(print(summary(anova_test))), collapse = "\n"),
-    sep = ""
-  )
+  if (levene_test) {
+    levene_formula <- as.formula(paste(dependent_var, "~", rhs_interaction))
+    levene <- car::leveneTest(levene_formula, data = analysis_data)
+    
+    formula_text <- paste0(
+      formula_text,
+      "\nleveneTest(", deparse(levene_formula), ", data = df)\n"
+    )
+    result_text <- paste(
+      result_text,
+      "\n\nLevene test:\n",
+      paste(capture.output(print(levene)), collapse = "\n")
+    )
+  }
+
+
 }
 
 report_file <- file.path(output_dir, paste0("anova_", dependent_var, ".pdf"))
