@@ -58,32 +58,31 @@ def check_for_updates():
 
 METHOD_CONFIG = {
     "analysis": {
-        "df": {"label": "Dataframe", "var_count": 0},
-        "describe": {"label": "Describe", "var_count": 1},
-        "describeBy": {"label": "Describe By", "var_count": "dep_group"},
-        "anova": {"label": "ANOVA", "var_count": "multiple"},
-        "chi_square": {"label": "Chi Square", "var_count": 2},
-        "logit": {"label": "Logit Model", "var_count": "multiple"},
-        "lin_reg": {"label": "Linear Regression", "var_count": "multiple"},
-        "paired_ttest": {"label": "Paired t-test", "var_count": 2},
-        "unpaired_ttest": {"label": "Unpaired t-test", "var_count": "var_const"},
-        "norm_test": {"label": "Normality Test", "var_count": "dep_group"},
-        "welch_test": {"label": "Welch Test", "var_count": "dep_group"},
-        "correlation": {"label": "Correlation", "var_count": 2},
-        "mann_whitney_test": {"label": "Mann-Whitney Test", "var_count": "dep_group"},
+        "dataframe": {"label": "Overview over the dataframe", "code": "dataframe"},
+        "describe": {"label": "Describe a variable", "code": "describe"},
+        "anova": {"label": "ANOVA", "code": "anova"},
+        "chi_square": {"label": "Chi Square", "code": 2},
+        "logit": {"label": "Logit Model", "code": "multiple"},
+        "lin_reg": {"label": "Linear Regression", "code": "multiple"},
+        "paired_ttest": {"label": "Paired t-test", "code": 2},
+        "unpaired_ttest": {"label": "Unpaired t-test", "code": "var_const"},
+        "norm_test": {"label": "Normality Test", "code": "dep_group"},
+        "welch_test": {"label": "Welch Test", "code": "dep_group"},
+        "correlation": {"label": "Correlation", "code": 2},
+        "mann_whitney_test": {"label": "Mann-Whitney Test", "code": "dep_group"},
     },
     "plot": {
-        "scatterplot": {"label": "Scatterplot", "var_count": "scatterplot"},
-        "barplot": {"label": "Barplot or Column chart", "var_count": "barplot"},
-        "histogram": {"label": "Histogram", "var_count": "histogram"},
-        "boxplot": {"label": "Boxplot", "var_count": "boxplot"},
+        "scatterplot": {"label": "Scatterplot", "code": "scatterplot"},
+        "barplot": {"label": "Barplot or Column chart", "code": "barplot"},
+        "histogram": {"label": "Histogram", "code": "histogram"},
+        "boxplot": {"label": "Boxplot", "code": "boxplot"},
     },
     "preparation": {
-        "subframe": {"label": "Create a subframe", "var_count": "subframe"},
-        "factorize": {"label": "Factorize variable", "var_count": "factorize"},
-        "rename": {"label": "Rename variables", "var_count": "rename"},
-        "mutate": {"label": "Mutate variables", "var_count": "mutate"},
-        "summarise": {"label": "Create summary dataset", "var_count": "summary"}
+        "subframe": {"label": "Create a subframe", "code": "subframe"},
+        "factorize": {"label": "Factorize variable", "code": "factorize"},
+        "rename": {"label": "Rename variables", "code": "rename"},
+        "mutate": {"label": "Mutate variables", "code": "mutate"},
+        "summarise": {"label": "Create summary dataset", "code": "summary"}
     }
 }
 
@@ -112,7 +111,7 @@ def load_names(dataset_name: str):
 class RToolGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("R-Tool version 1.4.0")
+        self.root.title("R-Tool version 2.0.0")
         self.root.minsize(300, 300)
         self.root.maxsize(1280, 1080)
         self.root.geometry("900x850+50+50")
@@ -206,6 +205,13 @@ class RToolGUI:
             "Observations": "n",
             "Distinct observations": "n_distinct"
         }
+
+        self.describe_summary_var = tk.BooleanVar(value=False)
+        self.describe_sd_var = tk.BooleanVar(value=False)
+        self.describe_variance_var = tk.BooleanVar(value=False)
+        self.describe_skew_var = tk.BooleanVar(value=False)
+        self.describe_kurtosis_var = tk.BooleanVar(value=False)
+        self.describe_normality_var = tk.BooleanVar(value=False)
 
         if self.available_datasets:
             self.selected_dataset.set(self.available_datasets[0])
@@ -350,8 +356,6 @@ class RToolGUI:
             side = "left"
         if label is None:
             label = "test"
-        if storage is None:
-            storage = self.variable_entries
         if tk_variable is None:
             tk_variable = self.na_rm_var
         if width is None:
@@ -375,7 +379,16 @@ class RToolGUI:
             else:
                 combo.set("No variables available")
             
-            storage.append(combo)
+            if storage is None:
+                self.variable_entries.append(combo)
+            elif storage == "group":
+                self.group_var_widget = combo
+            elif storage == "facet":
+                self.facet_var_widget = combo
+            elif storage == "weight":
+                self.weight_var_widget = combo
+            elif storage == "summary":
+                self.summary_function_var.append(combo)
         
         elif field_type == "checkbox":
             check = ttk.Checkbutton(
@@ -397,6 +410,68 @@ class RToolGUI:
                 width=width
             )
             entry.pack(side=side, fill=fill, expand=True, padx=padx, pady=pady)
+    
+    def add_additional_variable_button(
+        self, 
+        field_type="combobox", 
+        frame=None,
+        frame_button=None,
+        label=None,
+        text=None,
+        storage=None, 
+        tk_variable=None, 
+        textvariable=None,
+        values=None, 
+        state=None,
+        side=None,
+        width=None,
+        padx=None, 
+        pady=None,
+        fill="x"
+        ):
+        if frame_button is None:
+            frame_button = self.button_frame
+        if frame is None:
+            frame = self.input_frame
+        if values is None:
+            values = self.variable_display
+        if state is None:
+            state = "readonly"
+        if padx is None:
+            padx = 5
+        if pady is None:
+            pady = 5
+        if side is None:
+            side = "left"
+        if label is None:
+            label = "test"
+        if tk_variable is None:
+            tk_variable = self.na_rm_var
+        if width is None:
+            width = 35
+        if text is None:
+            text = "Additional variables"
+
+        button = tk.Button(
+            frame_button,
+            text=text,
+            command=lambda: self.input_field(
+                field_type, 
+                frame, 
+                label,
+                storage, 
+                tk_variable, 
+                textvariable,
+                values, 
+                state,
+                side,
+                width,
+                padx, 
+                pady,
+                fill
+            )
+        )
+        button.pack(pady=5)
 
     def add_variable_field(
         self, 
@@ -539,26 +614,6 @@ class RToolGUI:
             combo.set("No variables available")
 
         self.variable_entries.append(combo)
-
-    def add_additional_variable_button(
-        self, 
-        parent=None,
-        label=None,
-        variable=None
-        ):
-        if parent is None:
-            parent = self.input_frame
-
-        button = tk.Button(
-            parent,
-            text="Additional variables",
-            command=lambda: self.add_variable_field(
-                parent=parent,
-                label=label,
-                variable=variable
-            )
-        )
-        button.pack(pady=5)
     
     def add_pivot_longer_checkbox(self):
         check = ttk.Checkbutton(
@@ -684,7 +739,7 @@ class RToolGUI:
             field_type="combobox",
             label="Summary function:",
             values=list(self.summary_functions.keys()),
-            storage=self.summary_function_var
+            storage="summary"
         )
 
         self.input_field(
@@ -705,7 +760,6 @@ class RToolGUI:
             command=lambda: self.input_field(
                 field_type="combobox",
                 label="Variable to summarise:",
-                storage=self.variable_entries
             )
         )
         add_target_button.pack(anchor="w", padx=5, pady=5)
@@ -713,7 +767,7 @@ class RToolGUI:
         self.input_field(
             field_type="combobox",
             label="Grouping variable optional:",
-            storage=self.group_var_widget
+            storage="group"
         )
 
     def add_mutation_fields(self):
@@ -961,21 +1015,21 @@ class RToolGUI:
         self.input_field(
             field_type="combobox",
             label="Grouping variable optional:",
-            storage=self.group_var_widget,
+            storage="group",
             side="top"
         )
 
         self.input_field(
             field_type="combobox",
             label="Facet variable optional:",
-            storage=self.facet_var_widget,
+            storage="facet",
             side="top"
         )
         
         self.input_field(
             field_type="combobox",
             label="Weight variable optional:",
-            storage=self.weight_var_widget,
+            storage="weight",
             side="top"
         )
 
@@ -1080,7 +1134,7 @@ class RToolGUI:
         self.input_field(
             field_type="combobox",
             label="Grouping variable optional:",
-            storage=self.group_var_widget
+            storage="group"
         )
 
         self.add_plot_label_fields()
@@ -1120,7 +1174,78 @@ class RToolGUI:
             label="Use density",
             tk_variable=self.use_density_var
         )
+
+    def add_describe_options(self):
+        self.input_field(
+            field_type="combobox",
+            label="Variable to describe:"
+        )
+
+        self.input_field(
+            field_type="combobox",
+            label="Grouping variable optional:",
+            storage="group"
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Show summary",
+            tk_variable=self.describe_summary_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Show standard deviation",
+            tk_variable=self.describe_sd_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Show variance",
+            tk_variable=self.describe_variance_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Show skew",
+            tk_variable=self.describe_skew_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Show kurtosis",
+            tk_variable=self.describe_kurtosis_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Show normality distribution (Shapiro-Wilk test)",
+            tk_variable=self.describe_normality_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Remove NAs (recommended)",
+            tk_variable=self.na_rm_var
+        )
     
+    def add_anova_options(self):
+        self.input_field(
+            field_type="combobox",
+            label="Dependent variable:",
+        )
+
+        self.input_field(
+            field_type="combobox",
+            label="Independent variable:"
+        )
+
+        self.add_additional_variable_button(
+            frame_button=self.button_frame,
+            text="Add additional independent variable",
+            label="Independent variable"
+        )
+
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
 
@@ -1129,6 +1254,7 @@ class RToolGUI:
         
         self.refresh_variable_mappings()
         self.update_input_fields()
+
 
     def update_input_fields(self, event=None):
         self.clear_input_fields()
@@ -1142,43 +1268,54 @@ class RToolGUI:
 
         config = METHOD_CONFIG[mode].get(method)
 
-        var_count = config["var_count"]
+        code = config["code"]
 
-        if var_count == 0:
+        if code == "dataframe":
             return
-        if var_count == 1:
+        if code == "describe":
+            self.variable_entries = []
+            self.group_var_widget = None
+
+            self.add_describe_options()
+            return
+        if code == "anova":
+            self.variable_entries = []
+
+            self.add_anova_options()
+            return
+        if code == 1:
             self.add_variable_field()
             return
-        if var_count == 2:
+        if code == 2:
             self.add_variable_field()
             self.add_variable_field()
             return
-        if var_count == "multiple":
+        if code == "multiple":
             self.add_variable_field()
             self.add_variable_field()
             self.add_additional_variable_button()
-        if var_count == "x":
+        if code == "x":
             self.add_variable_field_x()
-        if var_count == "y":
+        if code == "y":
             self.add_variable_field_y()
-        if var_count == "xy":
+        if code == "xy":
             self.add_variable_field_y()
             self.add_variable_field_x()
-        if var_count == "grouped":
+        if code == "grouped":
             self.add_variable_field()
             self.add_variable_field_grouping()
-        if var_count == "dep_group":
+        if code == "dep_group":
             self.add_variable_field_dependent()
             self.add_variable_field_grouping()
-        if var_count == "var_const":
+        if code == "var_const":
             self.add_variable_field()
             self.add_variable_field_write()
         
-        if var_count == "boxplot":
+        if code == "boxplot":
             self.variable_entries = []
-            self.group_var = []
-            self.facet_var = []
-            self.weight_var = []
+            self.group_var_widget = None
+            self.facet_var_widget = None
+            self.weight_var_widget = None
 
             self.main_label_var.set("")
             self.x_label_var.set("")
@@ -1187,9 +1324,9 @@ class RToolGUI:
             self.add_boxplot_options()
             return
 
-        if var_count == "scatterplot":
+        if code == "scatterplot":
             self.variable_entries = []
-            self.group_var = []
+            self.group_var_widget = None
 
             self.main_label_var.set("")
             self.x_label_var.set("")
@@ -1197,9 +1334,9 @@ class RToolGUI:
 
             self.add_scatterplot_options()
             return
-        if var_count == "barplot":
+        if code == "barplot":
             self.variable_entries = []
-            self.group_var = []
+            self.group_var_widget = None
 
             self.flip_var.set(False)
             self.beside_var.set(False)
@@ -1210,14 +1347,14 @@ class RToolGUI:
 
             self.add_bar_column_options()
             return
-        if var_count == "histogram":
+        if code == "histogram":
             self.variable_entries = []
 
             self.binwidth_var.set("0.5")
             self.add_histogram_options()
 
 
-        if var_count == "subframe":
+        if code == "subframe":
             self.variable_entries = []
 
             self.pivot_longer_var.set(False)
@@ -1230,7 +1367,7 @@ class RToolGUI:
             self.add_pivot_longer_checkbox()
             self.add_remove_na_checkbox()
             return
-        if var_count == "factorize":
+        if code == "factorize":
             self.variable_entries = []
 
             self.factor_levels_var.set("")
@@ -1238,12 +1375,12 @@ class RToolGUI:
 
             self.add_factorize_fields()
             return
-        if var_count == "rename":
+        if code == "rename":
             self.variable_entries = []
 
             self.add_rename_fields()
             return
-        if var_count == "mutate":
+        if code == "mutate":
             self.variable_entries = []
 
             self.mutate_new_var_name.set("")
@@ -1255,7 +1392,7 @@ class RToolGUI:
 
             self.add_mutation_fields()
             return
-        if var_count == "summary":
+        if code == "summary":
             self.variable_entries = []
 
             self.add_summary_fields()
@@ -1317,22 +1454,6 @@ class RToolGUI:
 
         return variables, group_var, facet_var, weight_var
 
-    def validate_variable_count(self, mode, method, variables):
-        config = METHOD_CONFIG[mode][method]
-        var_count = config["var_count"]
-
-        if var_count == 0:
-            return
-
-        if var_count == 1 and len(variables) < 1:
-            raise ValueError("Please select 1 variable.")
-
-        if var_count == 2 and len(variables) < 2:
-            raise ValueError("Please select 2 variables.")
-
-        if var_count == "multiple" and len(variables) < 2:
-            raise ValueError("Please select at least 2 variables.")
-
     def on_mode_change(self):
         self.refresh_method_dropdown()
         self.update_input_fields()
@@ -1359,10 +1480,42 @@ class RToolGUI:
             if not method:
                 raise ValueError("Please select a method.")
 
-            self.validate_variable_count(mode, method, variables)
-
             if mode == "analysis":
-                result = run_analysis(method, variables, dataset_name)
+                if method == "dataframe":
+                    result = run_analysis(
+                        method, 
+                        variables, 
+                        dataset_name
+                    )
+                
+                if method == "describe":
+                    if len(variables) < 1:
+                        messagebox.showerror(
+                            "Error",
+                            "Please select a variable to describe."
+                        )
+                        return
+                    result = run_analysis(
+                        method,
+                        variables,
+                        dataset_name,
+                        summary=self.describe_summary_var.get(),
+                        sd=self.describe_sd_var.get(),
+                        variance=self.describe_variance_var.get(),
+                        skew=self.describe_skew_var.get(),
+                        kurtosis=self.describe_kurtosis_var.get(),
+                        normality=self.describe_normality_var.get(),
+                        na_rm=self.na_rm_var.get(),
+                        group_var=group_var
+                    )
+                
+                if method == "anova":
+                    result = run_analysis(
+                        method,
+                        variables,
+                        dataset_name
+                    )
+
             elif mode == "plot":
                 
                 if method == "boxplot":

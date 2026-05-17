@@ -13,8 +13,9 @@ def run_analysis(
     analysis: str,
     variables: list[str],
     dataset_name: str | None = None,
+    **kwargs: Any,
 ) -> subprocess.CompletedProcess[str]:
-    args = build_analysis_args(analysis, variables)
+    args = build_analysis_args(analysis, variables, **kwargs)
 
     return runner.run_command(
         "analysis",
@@ -74,29 +75,31 @@ def get_variable_names(
 def build_analysis_args(
     analysis: str,
     variables: list[str],
+    **kwargs: Any,
 ) -> list[str]:
-    if analysis == "df":
+    if analysis == "dataframe":
         return []
 
-    expected_lengths = {
-        "chi_square": 2,
-        "describe": 1,
-        "describeBy": 2,
-        "unpaired_ttest": 2,
-        "paired_ttest": 2,
-        "norm_test": 2,
-        "welch_test": 2,
-        "correlation": 2,
-        "mann_whitney_test": 2,
-    }
-
-    if analysis in expected_lengths:
-        require_variables(variables, expected_lengths[analysis], analysis)
-        return variables
-
-    if analysis in {"logit", "lin_reg", "anova"}:
+    if analysis == "describe":
+        require_variables(variables, 1, analysis)
+        return [
+            bool_to_r(kwargs.get("summary", False)),
+            bool_to_r(kwargs.get("sd", False)),
+            bool_to_r(kwargs.get("variance", False)),
+            bool_to_r(kwargs.get("skew", False)),
+            bool_to_r(kwargs.get("kurtosis", False)),
+            bool_to_r(kwargs.get("normality", False)),
+            bool_to_r(kwargs.get("na_rm", False)),
+            kwargs.get("group_var", ""),
+            variables[0]
+        ]
+    
+    if analysis == "anova":
         require_variables(variables, 2, analysis)
-        return variables
+        return [
+            variables[0],
+            *variables[1:]
+        ]
 
     raise ValueError(f"Unknown analysis: {analysis}")
 

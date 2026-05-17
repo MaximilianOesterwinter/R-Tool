@@ -44,8 +44,6 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-plot_path <- ""
-
 if (length(independent_vars) == 1) {
   group_var <- independent_vars[1]
   
@@ -62,14 +60,7 @@ if (length(independent_vars) == 1) {
     g = analysis_data[[group_var]],
     p.adjust.method = "bonferroni"
   )
-  
-  plot_path <- file.path(output_dir, paste0("boxplot_", dependent_var, "_by_", group_var, ".png"))
-  png(plot_path, width = 1000, height = 700)
-  boxplot(model_formula, data = analysis_data,
-          main = paste("Boxplot of", dependent_var, "to", group_var),
-          xlab = group_var, ylab = dependent_var)
-  dev.off()
-  
+
   formula_text <- paste(
     "describeBy(", dependent_var, ", ", group_var, ")\n",
     "anova_test <- aov(", dependent_var, " ~ ", group_var, ")\n",
@@ -106,16 +97,10 @@ if (length(independent_vars) == 2) {
   model_formula <- as.formula(paste(dependent_var, "~", rhs_interaction))
   anova_test <- aov(model_formula, data = analysis_data)
   
-  plot_path <- file.path(output_dir, paste0("qqplot_", dependent_var, ".png"))
-  png(plot_path, width = 1000, height = 700)
-  plot(anova_test, which = 2)
-  dev.off()
-  
   formula_text <- paste(
     "describeBy(", dependent_var, ", interaction(", paste(independent_vars, collapse = ", "), "))\n",
     "leveneTest(", dependent_var, " ~ ", rhs_interaction, ")\n",
     "aov(", dependent_var, " ~ ", rhs_interaction, ")\n",
-    "plot(anova_test, which = 2)",
     sep = ""
   )
   
@@ -139,7 +124,7 @@ render_report(
   formula_text = formula_text,
   sample_size = as.character(nrow(analysis_data)),
   result_text = result_text,
-  plot_path = plot_path
+  plot_path = ""
 )
 
 cat("PDF saved in:\n")
