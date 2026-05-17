@@ -117,13 +117,28 @@ class RToolGUI:
         self.root.maxsize(1280, 1080)
         self.root.geometry("900x850+50+50")
 
+        self.main_frame = ttk.Frame(self.root)
+        self.main_frame.pack(fill="both", expand=True)
+
+        self.method_combobox = ttk.Combobox(self.main_frame, state="readonly")
+        self.method_combobox.pack(fill="x", padx=8, pady=8)
+        self.method_combobox.bind("<<ComboboxSelected>>", self.update_input_fields)
+
+        self.input_frame = ttk.Frame(self.main_frame)
+        self.input_frame.pack(fill="x")
+
+        self.button_frame = ttk.Frame(self.main_frame)
+        self.button_frame.pack(fill="x", pady=10)
+
         self.variable_entries = []
-        self.group_var = []
-        self.facet_var = []
-        self.weight_var = []
+        self.group_var_widget = None
+        self.facet_var_widget = None
+        self.weight_var_widget = None
         self.variable_names = {}
         self.variable_display = []
         self.display_to_name = {}
+
+        self.na_rm_var = tk.BooleanVar(value=False)
 
         self.available_datasets = get_available_datasets()
 
@@ -180,7 +195,7 @@ class RToolGUI:
 
         self.summary_name_var = tk.StringVar()
         self.summary_na_rm_var = tk.BooleanVar(value=False)
-        self.summary_function_var = tk.StringVar(value="Mean")
+        self.summary_function_var = []
         self.summary_functions = {
             "Mean": "mean",
             "Median": "median",
@@ -203,22 +218,16 @@ class RToolGUI:
         self.update_input_fields()
 
     def build_ui(self):
-        self.method_combobox = ttk.Combobox(self.root, state="readonly")
-        self.method_combobox.pack(fill="x", padx=8, pady=8)
-        self.method_combobox.bind("<<ComboboxSelected>>", self.update_input_fields)
 
-        self.input_frame = tk.Frame(self.root)
-        self.input_frame.pack(fill="x", padx=8, pady=8)
+        self.bottom_frame = tk.Frame(self.root)
+        self.bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
 
         self.execute_button = tk.Button(
-            self.root,
+            self.bottom_frame,
             text="Execute",
             command=self.execute_selected_action
         )
         self.execute_button.pack(pady=10)
-
-        self.bottom_frame = tk.Frame(self.root)
-        self.bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
 
         self.mode_frame = tk.Frame(self.bottom_frame)
         self.mode_frame.pack(side="left")
@@ -248,7 +257,7 @@ class RToolGUI:
         ).pack(side="left", padx=5)
 
         self.dataset_label = tk.Label(self.bottom_frame, text="Prepared dataset:")
-        self.dataset_label.pack(side="right", padx=(5, 0))
+        self.dataset_label.pack(side="left", padx=(150, 0))
 
         self.dataset_combobox = ttk.Combobox(
             self.bottom_frame,
@@ -302,7 +311,92 @@ class RToolGUI:
     def clear_input_fields(self):
         for widget in self.input_frame.winfo_children():
             widget.destroy()
-        self.variable_entries = []
+
+        self.variable_entries.clear()
+        self.group_var_widget = None
+        self.facet_var_widget = None
+        self.weight_var_widget = None
+
+        for widget in self.button_frame.winfo_children():
+            widget.destroy()
+    
+    def input_field(
+        self, 
+        field_type, 
+        frame=None, 
+        label=None,
+        storage=None, 
+        tk_variable=None, 
+        textvariable=None,
+        values=None, 
+        state=None,
+        side=None,
+        width=None,
+        padx=None, 
+        pady=None,
+        fill="x"
+        ):
+        if frame is None:
+            frame = self.input_frame
+        if values is None:
+            values = self.variable_display
+        if state is None:
+            state = "readonly"
+        if padx is None:
+            padx = 5
+        if pady is None:
+            pady = 5
+        if side is None:
+            side = "left"
+        if label is None:
+            label = "test"
+        if storage is None:
+            storage = self.variable_entries
+        if tk_variable is None:
+            tk_variable = self.na_rm_var
+        if width is None:
+            width = 35
+
+        if field_type == "combobox":
+            ttk.Label(
+            frame,
+            text=label
+            ).pack(anchor="w")
+
+            combo = ttk.Combobox(
+                frame,
+                values=values,
+                state=state
+            )
+            combo.pack(fill=fill, padx=padx, pady=pady)
+
+            if values:
+                combo.set("Select variable")
+            else:
+                combo.set("No variables available")
+            
+            storage.append(combo)
+        
+        elif field_type == "checkbox":
+            check = ttk.Checkbutton(
+                frame,
+                text=label,
+                variable=tk_variable
+            )
+            check.pack(anchor="w", padx=padx, pady=pady)
+        
+        elif field_type == "entry":
+            ttk.Label(
+                frame,
+                text=label
+            ).pack(side=side)
+
+            entry = ttk.Entry(
+                frame,
+                textvariable=textvariable,
+                width=width
+            )
+            entry.pack(side=side, fill=fill, expand=True, padx=padx, pady=pady)
 
     def add_variable_field(
         self, 
@@ -521,52 +615,45 @@ class RToolGUI:
         entry.pack(side="left", fill="x", expand=True, padx=5)
     
     def add_factorize_fields(self):
-        self.add_variable_field()
-
-        levels_label = tk.Label(
-            self.input_frame,
-            text="Levels, separated by comma, e.g. 1,2,3"
+        self.input_field(
+            field_type="combobox",
+            label="Variable to factorize:"
         )
-        levels_label.pack(anchor="w")
 
-        levels_entry = ttk.Entry(
-            self.input_frame,
-            textvariable=self.factor_levels_var
+        self.input_field(
+            field_type="entry",
+            label="Levels, separated by comma, e.g. 1,2,3",
+            textvariable=self.factor_levels_var,
+            side="top"
         )
-        levels_entry.pack(fill="x", padx=5, pady=2)
 
-        labels_label = tk.Label(
-            self.input_frame,
-            text="Labels, separated by comma, e.g. low,medium,high"
+        self.input_field(
+            field_type="entry",
+            label="Labels, separated by comma, e.g. low,medium,high",
+            textvariable=self.factor_labels_var,
+            side="top"
         )
-        labels_label.pack(anchor="w")
-
-        labels_entry = ttk.Entry(
-            self.input_frame,
-            textvariable=self.factor_labels_var
-        )
-        labels_entry.pack(fill="x", padx=5, pady=2)
     
     def add_rename_pair_field(self):
-        frame = ttk.Frame(self.input_frame)
-        frame.pack(fill="x", padx=5, pady=5)
-
         old_var = tk.StringVar()
         new_var = tk.StringVar()
 
         old_menu = ttk.Combobox(
-            frame,
+            self.input_frame,
             textvariable=old_var,
             values=self.variable_display,
             state="readonly"
         )
-        old_menu.pack(side="left", fill="x", expand=True, padx=2)
+        old_menu.pack(side="top", fill="x", expand=True, padx=2, pady=(10, 5))
 
-        new_entry = ttk.Entry(
-            frame,
-            textvariable=new_var
+        self.input_field(
+            field_type="entry",
+            textvariable=new_var,
+            padx=2,
+            pady=(10, 5),
+            label="Choose variable and rename below",
+            side="top"
         )
-        new_entry.pack(side="left", fill="x", expand=True, padx=2)
 
         self.rename_entries.append((old_var, new_var))
     
@@ -576,7 +663,7 @@ class RToolGUI:
         self.add_rename_pair_field()
 
         add_button = ttk.Button(
-            self.input_frame,
+            self.button_frame,
             text="Add variable to rename",
             command=self.add_rename_pair_field
         )
@@ -586,73 +673,56 @@ class RToolGUI:
         frame = ttk.Frame(self.input_frame)
         frame.pack(fill="x", padx=5, pady=5)
 
-        label = ttk.Label(frame, text="Name for the new dataframe:")
-        label.pack(side="left")
+        self.input_field(
+            field_type="entry",
+            label="Name for the new dataframe:",
+            textvariable=self.summary_name_var,
+            side="top"
+        )
 
-        entry = ttk.Entry(frame, textvariable=self.summary_name_var)
-        entry.pack(side="left", fill="x", expand=True, padx=5)
-
-        function_frame = ttk.Frame(self.input_frame)
-        function_frame.pack(fill="x", padx=5, pady=5)
-
-        ttk.Label(function_frame, text="Summary function:").pack(side="left")
-
-        function_box = ttk.Combobox(
-            function_frame,
-            textvariable=self.summary_function_var,
+        self.input_field(
+            field_type="combobox",
+            label="Summary function:",
             values=list(self.summary_functions.keys()),
-            state="readonly"
+            storage=self.summary_function_var
         )
-        function_box.pack(side="left", fill="x", expand=True, padx=5)
 
-        na_checkbox = ttk.Checkbutton(
-            self.input_frame,
-            text="Remove missing values",
-            variable=self.summary_na_rm_var
+        self.input_field(
+            field_type="checkbox",
+            label="Remove NAs",
+            tk_variable=self.na_rm_var
         )
-        na_checkbox.pack(anchor="w", padx=5, pady=5)
 
-        ttk.Label(self.input_frame, text="Variable to summarise").pack(anchor="w", padx=5)
-
-        self.summary_target_entries_start = len(self.variable_entries)
-
-        self.add_variable_field(
-            parent=None,
-            label="Summary variable",
-            variable=None
+        self.input_field(
+            field_type="combobox",
+            label="Variable to summarise:",
+            storage=self.variable_entries
         )
         
         add_target_button = ttk.Button(
             self.input_frame,
-            text="Add another summary variable",
-            command=lambda: self.add_variable_field(
-                parent=None,
-                label="Summary variable",
-                variable=None
+            text="Add another variable to summarise",
+            command=lambda: self.input_field(
+                field_type="combobox",
+                label="Variable to summarise:",
+                storage=self.variable_entries
             )
         )
         add_target_button.pack(anchor="w", padx=5, pady=5)
 
-        self.summary_group_entry_index = len(self.variable_entries)
-        self.add_variable_field(
-            parent=None,
-            label="Grouping variable optional",
-            variable=self.group_var
+        self.input_field(
+            field_type="combobox",
+            label="Grouping variable optional:",
+            storage=self.group_var_widget
         )
-    
+
     def add_mutation_fields(self):
-        frame = ttk.Frame(self.input_frame)
-        frame.pack(fill="x", padx=5, pady=5)
-
-        label = ttk.Label(frame, text="Name for the new variable:")
-        label.pack(side="left")
-
-        entry = ttk.Entry(
-            frame,
-            textvariable=self.mutate_new_var_name
+        self.input_field(
+            field_type="entry",
+            label="Name for the new variable:",
+            textvariable=self.mutate_new_var_name,
+            side="top"
         )
-        entry.pack(side="left", fill="x", expand=True, padx=5)
-
 
         label = tk.Label(self.input_frame, text="Operation:")
         label.pack(anchor="w", padx=5, pady=(10, 0))
@@ -663,7 +733,7 @@ class RToolGUI:
             values=list(self.mutate_operations.keys()),
             state="readonly"
         )
-        combo.pack(fill="x", padx=5, pady=2)
+        combo.pack(side="top", fill="x", padx=5, pady=2)
 
         combo.bind(
             "<<ComboboxSelected>>",
@@ -687,12 +757,13 @@ class RToolGUI:
         operation = self.mutate_operations.get(operation_label)
 
         if operation == "arithmetic":
-            self.add_variable_field(
-                parent=self.mutation_dynamic_frame,
-                label=None,
-                variable=None
-                )
-
+            self.input_field(
+                field_type="combobox",
+                frame=self.mutation_dynamic_frame,
+                label="Variable 1:",
+                side="top"
+            )
+            
             operator_label = ttk.Label(self.mutation_dynamic_frame, text="Operator:")
             operator_label.pack(anchor="w", padx=5)
 
@@ -703,77 +774,85 @@ class RToolGUI:
                 state="readonly"
             )
             operator_combo.pack(fill="x")
-
-            self.add_variable_field(
-                parent=self.mutation_dynamic_frame,
-                label=None,
-                variable=None
-                )
+            
+            self.input_field(
+                field_type="combobox",
+                frame=self.mutation_dynamic_frame,
+                label="Variable 2:",
+                side="top"
+            )
 
         elif operation in ["row_mean", "row_sum"]:
-            self.add_variable_field(
-                parent=self.mutation_dynamic_frame,
-                label=None,
-                variable=None
-                )
-            self.add_variable_field(
-                parent=self.mutation_dynamic_frame,
-                label=None,
-                variable=None
-                )
+            self.input_field(
+                field_type="combobox",
+                frame=self.mutation_dynamic_frame,
+                label="Variable for operation:",
+                side="top"
+            )
+            
+            self.input_field(
+                field_type="combobox",
+                frame=self.mutation_dynamic_frame,
+                label="Variable for operation:",
+                side="top"
+            )
 
             self.add_additional_variable_button(
                 parent=self.mutation_dynamic_frame,
-                label=None,
+                label="Variable for operation:",
                 variable=None
-            )   
+            ) 
 
-            check = ttk.Checkbutton(
-                self.mutation_dynamic_frame,
-                text="Remove NAs",
-                variable=self.mutate_na_rm_var
-            )
-            check.pack(anchor="w", padx=5, pady=5)
+            self.input_field(
+                field_type="checkbox",
+                frame=self.mutation_dynamic_frame,
+                label="Remove NAs",
+                tk_variable=self.na_rm_var,
+                side="top"
+            )  
         
         elif operation in ["log", "z_standardize"]:
-            self.add_variable_field(
-                parent=self.mutation_dynamic_frame,
-                label=None,
-                variable=None
-                )
+            self.input_field(
+                field_type="combobox",
+                frame=self.mutation_dynamic_frame,
+                label="Variable for operation:",
+                side="top"
+            )
         
         elif operation == "reverse_scale":
-            self.add_variable_field(
-                parent=self.mutation_dynamic_frame,
-                label=None,
-                variable=None
-                )
-
-            min_label = ttk.Label(
-                self.mutation_dynamic_frame,
-                text="Minimum scale value:"
+            self.input_field(
+                field_type="combobox",
+                frame=self.mutation_dynamic_frame,
+                label="Variable for operation:",
+                side="top"
             )
-            min_label.pack(anchor="w", padx=5)
 
-            min_entry = ttk.Entry(
-                self.mutation_dynamic_frame,
-                textvariable=self.reverse_min_var
+            self.input_field(
+                field_type="entry",
+                frame=self.mutation_dynamic_frame,
+                label="Minimum scale value:",
+                textvariable=self.reverse_min_var,
+                side="top",
+                pady=2
             )
-            min_entry.pack(fill="x", padx=5, pady=2)
 
-            max_label = ttk.Label(
-                self.mutation_dynamic_frame,
-                text="Maximum scale value:"
+            self.input_field(
+                field_type="entry",
+                frame=self.mutation_dynamic_frame,
+                label="Maximum scale value:",
+                textvariable=self.reverse_max_var,
+                side="top",
+                pady=2
             )
-            max_label.pack(anchor="w", padx=5)
-
-            max_entry = ttk.Entry(
-                self.mutation_dynamic_frame,
-                textvariable=self.reverse_max_var
-            )
-            max_entry.pack(fill="x", padx=5, pady=2)
         
         elif operation == "recode":
+
+            self.input_field(
+                field_type="combobox",
+                frame=self.mutation_dynamic_frame,
+                label="Variable to recode:",
+                side="top"
+            )
             self.add_variable_field(
                 parent=self.mutation_dynamic_frame,
                 label=None,
@@ -848,196 +927,199 @@ class RToolGUI:
         )
     
     def add_plot_label_fields(self):
-        ttk.Label(self.input_frame, text="Main title:").pack(anchor="w")
-        ttk.Entry(
-            self.input_frame,
-            textvariable=self.main_label_var
-        ).pack(fill="x", padx=5, pady=2)
+        self.input_field(
+            field_type="entry",
+            label="Main title:",
+            textvariable=self.main_label_var,
+            pady=2,
+            side="top"
+        )
 
-        ttk.Label(self.input_frame, text="X label:").pack(anchor="w")
-        ttk.Entry(
-            self.input_frame,
-            textvariable=self.x_label_var
-        ).pack(fill="x", padx=5, pady=2)
+        self.input_field(
+            field_type="entry",
+            label="X label:",
+            textvariable=self.x_label_var,
+            pady=2,
+            side="top"
+        )
 
-        ttk.Label(self.input_frame, text="Y label:").pack(anchor="w")
-        ttk.Entry(
-            self.input_frame,
-            textvariable=self.y_label_var
-        ).pack(fill="x", padx=5, pady=2)
+        self.input_field(
+            field_type="entry",
+            label="Y label:",
+            textvariable=self.y_label_var,
+            pady=2,
+            side="top"
+        )
     
     def add_boxplot_options(self):
-        self.add_variable_field(
-            parent=None,
+        self.input_field(
+            field_type="combobox",
             label="Variable y-axis:",
-            variable=None
-        )
-        self.add_variable_field(
-            parent=None,
-            label="Grouping variable optional:",
-            variable=self.group_var
-        )
-
-        self.add_variable_field(
-            parent=None,
-            label="Facet variable optional:",
-            variable=self.facet_var
+            side="top"
         )
         
-        self.add_variable_field(
-            parent=None,
+        self.input_field(
+            field_type="combobox",
+            label="Grouping variable optional:",
+            storage=self.group_var_widget,
+            side="top"
+        )
+
+        self.input_field(
+            field_type="combobox",
+            label="Facet variable optional:",
+            storage=self.facet_var_widget,
+            side="top"
+        )
+        
+        self.input_field(
+            field_type="combobox",
             label="Weight variable optional:",
-            variable=self.weight_var
+            storage=self.weight_var_widget,
+            side="top"
         )
 
         self.add_plot_label_fields()
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Flip coordinates",
-            variable=self.flip_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Flip coordinates",
+            tk_variable=self.flip_var
+        )
         
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Show outliers",
-            variable=self.show_outliers_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Show outliers",
+            tk_variable=self.show_outliers_var
+        )
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Show points",
-            variable=self.show_points_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Show points",
+            tk_variable=self.show_points_var
+        )
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Show mean",
-            variable=self.show_mean_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Show mean",
+            tk_variable=self.show_mean_var
+        )
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Show notches",
-            variable=self.show_notches_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Show notches",
+            tk_variable=self.show_notches_var
+        )
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Show n",
-            variable=self.show_n_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Show n",
+            tk_variable=self.show_n_var
+        )
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Color by group (needs grouping variable)",
-            variable=self.color_by_group_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Color by group (needs grouping variable)",
+            tk_variable=self.color_by_group_var
+        )
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Sort groups (needs grouping variable)",
-            variable=self.sort_groups_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Sort groups (needs grouping variable)",
+            tk_variable=self.sort_groups_var
+        )
     
     def add_bar_column_options(self):
-        self.add_variable_field(
-            parent=None,
-            label="Variable x-axis:",
-            variable=None
+        self.input_field(
+            field_type="combobox",
+            label="Variable x-axis:"
         )
         
-        self.add_variable_field(
-            parent=None,
-            label="Variable y-axis:",
-            variable=None
+        self.input_field(
+            field_type="combobox",
+            label="Variable y-axis optional:"
         )
 
-        self.add_variable_field(
-            parent=None,
-            label="Grouping variable:",
-            variable=self.group_var
+        self.input_field(
+            field_type="combobox",
+            label="Grouping variable optional:",
+            storage=self.group_var_widget
         )
 
         self.add_plot_label_fields()
-        
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Flip coordinates",
-            variable=self.flip_var
-        ).pack(anchor="w", padx=5, pady=2)
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Bars beside each other",
-            variable=self.beside_var
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Flip coordinates",
+            tk_variable=self.flip_var
+        )
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text="Use stat='identity', if you set a variable on the y-axis",
-            variable=self.barplot_stat_identity_var,
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Bars beside each other (needs grouping variable)",
+            tk_variable=self.beside_var
+        )
+
+        self.input_field(
+            field_type="checkbox",
+            label="Stat='identity' (Use, if you set a variable on the y-axis)",
+            tk_variable=self.barplot_stat_identity_var
+        )
     
     def add_scatterplot_options(self):
-        self.add_variable_field(
-            parent=None,
-            label="Variable x-axis:",
-            variable=None
+        self.input_field(
+            field_type="combobox",
+            label="Variable x-axis:"
         )
 
-        self.add_variable_field(
-            parent=None,
-            label="Variable y-axis:",
-            variable=None
+        self.input_field(
+            field_type="combobox",
+            label="Variable y-axis:"
         )
 
-        self.add_variable_field(
-            parent=None,
-            label="Grouping variable:",
-            variable=self.group_var
+        self.input_field(
+            field_type="combobox",
+            label="Grouping variable optional:",
+            storage=self.group_var_widget
         )
 
         self.add_plot_label_fields()
 
-        ttk.Checkbutton(
-            self.input_frame,
-            text=U"Use jitter-option",
-            variable=self.jitter_var,
-        ).pack(anchor="w", padx=5, pady=2)
+        self.input_field(
+            field_type="checkbox",
+            label="Use jitter-option",
+            tk_variable=self.jitter_var
+        )
     
     def add_histogram_options(self):
-        self.add_variable_field(
-            parent=None,
-            label="Variable x-axis:",
-            variable=None
+        self.input_field(
+            field_type="combobox",
+            label="Variable x-axis:"
         )
 
         self.add_plot_label_fields()
 
-        binwidth_label = ttk.Label(self.input_frame, text="Binwidth (provide an integer or float)")
-        binwidth_label.pack(side="left", padx=2)
-
-        entry = ttk.Entry(
-            self.input_frame,
+        self.input_field(
+            field_type="entry",
+            label="Binwidth (provide an integer or float)",
             textvariable=self.binwidth_var,
-            width=5
+            width=10,
+            padx=(2, 200),
+            fill=None,
+            side="left"
         )
-        entry.pack(fill="x", side="left", padx=2)
 
-        norm_check = ttk.Checkbutton(
-            self.input_frame,
-            text="Show normal distribution (Also use density)",
-            variable=self.normal_distribution_var
+        self.input_field(
+            field_type="checkbox",
+            label="Show normal distribution (Also use density)",
+            tk_variable=self.normal_distribution_var
         )
-        norm_check.pack(anchor="w", padx=5, pady=5)
 
-        density_check = ttk.Checkbutton(
-            self.input_frame,
-            text="Use density",
-            variable=self.use_density_var
+        self.input_field(
+            field_type="checkbox",
+            label="Use density",
+            tk_variable=self.use_density_var
         )
-        density_check.pack(anchor="w", padx=5, pady=5)
     
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
@@ -1181,9 +1263,9 @@ class RToolGUI:
 
     def collect_selected_variables(self):
         variables = []
-        group_var = []
-        facet_var = []
-        weight_var = []
+        group_var = ""
+        facet_var = ""
+        weight_var = ""
 
         for entry in self.variable_entries:
             value = entry.get().strip()
@@ -1200,50 +1282,38 @@ class RToolGUI:
             else:
                 variables.append(value)
         
-        for entry in self.group_var:
-            value = entry.get().strip()
-
-            if not value or value in (
-                "Select variable",
-                "No variables available",
-                "Select variable or enter constant"
-            ):
-                continue
+        if (
+            self.group_var_widget is not None 
+            and self.group_var_widget.winfo_exists()
+        ):
+            value = self.group_var_widget.get().strip()
 
             if value in self.display_to_name:
-                group_var.append(self.display_to_name[value])
+                group_var = self.display_to_name[value]
             else:
-                group_var.append(value)
+                group_var = value
+
+        if (
+            self.facet_var_widget is not None
+            and self.facet_var_widget.winfo_exists()
+        ):
+            value = self.facet_var_widget.get().strip()
+
+            if value in self.display_to_name:
+                facet_var = self.display_to_name[value]
+            else:
+                facet_var = value
         
-        for entry in self.facet_var:
-            value = entry.get().strip()
-
-            if not value or value in (
-                "Select variable",
-                "No variables available",
-                "Select variable or enter constant"
-            ):
-                continue
+        if (
+            self.weight_var_widget is not None
+            and self.weight_var_widget.winfo_exists()
+        ):
+            value = self.weight_var_widget.get().strip()
 
             if value in self.display_to_name:
-                facet_var.append(self.display_to_name[value])
+                weight_var = self.display_to_name[value]
             else:
-                facet_var.append(value)
-        
-        for entry in self.weight_var:
-            value = entry.get().strip()
-
-            if not value or value in (
-                "Select variable",
-                "No variables available",
-                "Select variable or enter constant"
-            ):
-                continue
-
-            if value in self.display_to_name:
-                weight_var.append(self.display_to_name[value])
-            else:
-                weight_var.append(value)
+                weight_var = value
 
         return variables, group_var, facet_var, weight_var
 
@@ -1537,9 +1607,10 @@ class RToolGUI:
                             "Error"
                             "Please enter a name for the new dataframe."
                         )
+                    for entry in self.summary_function_var:
+                        selected_function = self.summary_functions[entry.get().strip()]
                     
-                    selected_function = self.summary_functions[self.summary_function_var.get()]
-                    na_rm = str(self.summary_na_rm_var.get()).lower()
+                    na_rm = str(self.na_rm_var.get()).lower()
 
                     if selected_function != "n" and len(variables) < 1:
                         raise ValueError(
