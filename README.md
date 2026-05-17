@@ -107,16 +107,6 @@ This function reduces the number of variables in the new subframe by summarising
 - Observations
 - Distinct observations
 
----
-
-Examples of possible workflows include:
-
-- Creating additive democracy indices
-- Reverse coding survey items
-- Building age categories
-- Creating dummy variables
-- Renaming variables before analysis
-- Constructing smaller analysis-ready datasets
 
 ## Limits
 
@@ -183,21 +173,20 @@ The tool is now ready to use 🎉
 
 ### 🔍 Overview
 
-| Analysis | Description | Required Variables |
-|---------|--------------|---------------------|
-| `Dataframe` | Overview of the dataframe | none |
-| `Describe` | Descriptive statistics | 1 variable |
-| `Describe By` | Grouped descriptive statistics | 1 DV, 1 binary grouping variable |
-| `Chi Square` | Chi-square test | 2 variables |
-| `Logit Model` | Logistic regression | 1 IV, >= 1 DV |
-| `Linear Regression` | Linear regression | 1 IV, >= 1 DV |
-| `ANOVA` | ANOVA (one- or two-factor) | 1 DV, 1-2 IVs |
-| `Unpaired t-test` | One-sample or unpaired two-sample t-test | 1 Variable and 1 Constant or 2 Variables |
-| `Paired t-test` | Paired two-sample t-test | 2 Variables |
-| `Normality Test` | Normality assumption for the independent-samples t-test | 1 DV, 1 binary grouping variable |
-| `Welch Test` | Welch test for two unpaired samples with unequal variances | 1 DV, 1 binary grouping variable |
-| `Correlation` | Pearson's r, Kendall's tau, Spearman's rho | 2 numerical variables |
-| `Mann-Whitney Test` | non-parametric Mann-Whitney-U-Test | 1 DV, 1 binary grouping variable |
+| Analysis | Description |
+|---------|--------------|
+| `Dataframe` | Overview of the dataframe |
+| `Describe` | Descriptive statistics |
+| `Chi Square` | Chi-square test |
+| `Logit Model` | Logistic regression |
+| `Linear Regression` | Linear regression |
+| `ANOVA` | ANOVA (one- or two-factor) |
+| `Unpaired t-test` | One-sample or unpaired two-sample t-test |
+| `Paired t-test` | Paired two-sample t-test |
+| `Normality Test` | Normality assumption for the independent-samples t-test |
+| `Welch Test` | Welch test for two unpaired samples with unequal variances |
+| `Correlation` | Pearson's r, Kendall's tau, Spearman's rho |
+| `Mann-Whitney Test` | non-parametric Mann-Whitney-U-Test |
 
 ### 📊 Details
 
@@ -206,10 +195,6 @@ Displays an overview of the entire dataframe.
 
 `Describe`
 Calculates basic descriptive statistics.
-
-`Describe By`
-Calculates grouped descriptive statistics. Mainly to check for equal variances.
-If variances are about equal, perform `unpaired_ttest`, else perform `welch_test`.
 
 `Chi Square`
 Performs a chi-square test between two variables.
