@@ -1,8 +1,9 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 data_path <- args[1]
-var1 <- args[2]
-var2 <- args[3]
+selected_method <- args[2]
+var1 <- args[3]
+var2 <- args[4]
 
 script_args <- commandArgs(trailingOnly = FALSE)
 script_file <- sub("^--file=", "", script_args[grep("^--file=", script_args)])
@@ -17,36 +18,51 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-plot_path <- ""
-
 df <- prepare_data(data_path)
 
 analysis_data <- df[, c(var1, var2)]
 analysis_data <- na.omit(analysis_data)
 
-result_pearson <- cor.test(analysis_data[[var1]], analysis_data[[var2]], method = "pearson")
-result_kendall <- cor.test(analysis_data[[var1]], analysis_data[[var2]], method = "kendall")
-result_spearman <- cor.test(analysis_data[[var1]], analysis_data[[var2]], method = "spearman")
-
-plot_path <- file.path(output_dir, paste0("plot_", var1, "_by_", var2, ".png"))
-png(plot_path, width = 1000, height = 700)
-plot(analysis_data[[var1]], analysis_data[[var2]])
-dev.off()
-
-formula_text <- paste(
-  "cor.test(", var1, ", ", var2,", method = 'pearson')\n",
-  "cor.test(", var1,", ", var2,", method = 'kendall')\n",
-  "cor.test(", var1,", ", var2,", method = 'spearman')"
+formula_text <- paste0(
+  "df <- readRDS('", data_path, "')\n"
 )
-
-result_text <- paste(
-  "Pearson Test:\n",
-  paste(capture.output(print(result_pearson)), collapse = "\n"),
-  "\n\nKendall Test:\n",
-  paste(capture.output(print(result_kendall)), collapse = "\n"),
-  "\n\nSpearman Test:\n",
-  paste(capture.output(print(result_spearman)), collapse = "\n")
-)
+if (selected_method == "pearson") {
+  result <- cor.test(analysis_data[[var1]], analysis_data[[var2]], method = "pearson")
+  
+  formula_text <- paste0(
+    formula_text,
+    "cor.test(df$", var1, ", df$", var2,", method = 'pearson')"
+  )
+  
+  result_text <- paste0(
+    "Pearson test:\n",
+    paste(capture.output(print(result)), collapse = "\n")
+  )
+  
+} else if (selected_method == "kendall") {
+  result <- cor.test(analysis_data[[var1]], analysis_data[[var2]], method = "kendall")
+  
+  formula_text <- paste0(
+    formula_text,
+    "cor.test(df$", var1,", df$", var2,", method = 'kendall')"
+  )
+  result_text <- paste0(
+    "Kendall test:\n",
+    paste(capture.output(print(result)), collapse = "\n")
+  )
+  
+} else if (selected_method == "spearman") {
+  result <- cor.test(analysis_data[[var1]], analysis_data[[var2]], method = "spearman")
+  
+  formula_text <- paste0(
+    formula_text,
+    "cor.test(df$", var1,", df$", var2,", method = 'spearman')"
+  )
+  result_text <- paste0(
+    "Spearman test:\n",
+    paste(capture.output(print(result)), collapse = "\n")
+  )
+}
 
 report_file <- file.path(output_dir, paste0("correlation_", var1, "_by_", var2, ".pdf"))
 
@@ -57,7 +73,7 @@ render_report(
   formula_text = formula_text,
   sample_size = as.character(nrow(analysis_data)),
   result_text = result_text,
-  plot_path = plot_path
+  plot_path = ""
 )
 
 cat("PDF saved in:\n")

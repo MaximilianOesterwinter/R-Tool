@@ -62,13 +62,13 @@ METHOD_CONFIG = {
         "describe": {"label": "Describe a variable", "code": "describe"},
         "anova": {"label": "ANOVA", "code": "anova"},
         "chi_square": {"label": "Chi Square", "code": "chi_square"},
+        "correlation": {"label": "Correlation", "code": "correlation"},
         "logit": {"label": "Logit Model (WIP)", "code": "multiple"},
         "lin_reg": {"label": "Linear Regression (WIP)", "code": "multiple"},
         "paired_ttest": {"label": "Paired t-test (WIP)", "code": 2},
         "unpaired_ttest": {"label": "Unpaired t-test (WIP)", "code": "var_const"},
         "norm_test": {"label": "Normality Test (WIP)", "code": "dep_group"},
         "welch_test": {"label": "Welch Test (WIP)", "code": "dep_group"},
-        "correlation": {"label": "Correlation (WIP)", "code": 2},
         "mann_whitney_test": {"label": "Mann-Whitney Test (WIP)", "code": "dep_group"},
     },
     "plot": {
@@ -208,6 +208,12 @@ class RToolGUI:
             "Observations": "n",
             "Distinct observations": "n_distinct"
         }
+        self.correlation_methods = {
+            "Person's r": "pearson",
+            "Kendall's tau": "kendall",
+            "Spearman's rho": "spearman"
+        }
+        self.correlation_method_var = []
 
         self.describe_summary_var = tk.BooleanVar(value=False)
         self.describe_sd_var = tk.BooleanVar(value=False)
@@ -392,6 +398,8 @@ class RToolGUI:
                 self.weight_var_widget = combo
             elif storage == "summary":
                 self.summary_function_var.append(combo)
+            elif storage == "correlation":
+                self.correlation_method_var.append(combo)
         
         elif field_type == "checkbox":
             check = ttk.Checkbutton(
@@ -1278,6 +1286,24 @@ class RToolGUI:
             label="Variable 2:"
         )
 
+    def add_correlation_options(self):
+        self.input_field(
+            field_type="combobox",
+            label="Variable 1:"
+        )
+
+        self.input_field(
+            field_type="combobox",
+            label="Variable 2:"
+        )
+
+        self.input_field(
+            field_type="combobox",
+            label="Correlation koefficient:",
+            values=list(self.correlation_methods.keys()),
+            storage="correlation"
+        )
+
     def refresh_after_preparation(self, selected_dataset: str | None = None):
         self.refresh_dataset_list()
 
@@ -1319,6 +1345,12 @@ class RToolGUI:
             self.variable_entries = []
 
             self.add_chi_square_options()
+            return
+        if code == "correlation":
+            self.variable_entries = []
+            self.correlation_method_var = []
+
+            self.add_correlation_options()
             return
         if code == 1:
             self.add_variable_field()
@@ -1561,6 +1593,22 @@ class RToolGUI:
                         method,
                         variables,
                         dataset_name
+                    )
+                
+                if method == "correlation":
+                    if len(self.correlation_method_var) < 1:
+                        messagebox.showerror(
+                            "Error",
+                            "Please select one correlation koefficient."
+                        )
+                    for entry in self.correlation_method_var:
+                        selected_method = self.correlation_methods[entry.get().strip()]
+
+                    result = run_analysis(
+                        method,
+                        variables,
+                        dataset_name,
+                        selected_method=selected_method
                     )
 
             elif mode == "plot":

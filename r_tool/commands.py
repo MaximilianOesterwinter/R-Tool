@@ -110,6 +110,14 @@ def build_analysis_args(
             variables[0],
             variables[1]
         ]
+    
+    if analysis == "correlation":
+        require_variables(variables, 2, analysis)
+        return [
+            kwargs.get("selected_method", ""),
+            variables[0],
+            variables[1]
+        ]
 
     raise ValueError(f"Unknown analysis: {analysis}")
 
